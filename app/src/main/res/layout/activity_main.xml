@@ -136,6 +136,7 @@
 
         <ImageView
             android:id="@+id/ib_url"
+            style="@style/UrlButton.size"
             android:layout_width="@dimen/url_btn_width"
             android:layout_height="@dimen/url_btn_height"
             android:layout_marginBottom="@dimen/btn_url_margin_bottom"
@@ -143,7 +144,6 @@
             android:elevation="0dp"
             android:src="@drawable/img_url"
             app:layout_anchor="@id/bottom_nav"
-            style="@style/UrlButton.size"
             app:layout_constraintBottom_toBottomOf="@+id/bottom_nav"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

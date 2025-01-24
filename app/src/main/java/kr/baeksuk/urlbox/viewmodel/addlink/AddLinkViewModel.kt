@@ -13,11 +13,11 @@ class AddLinkViewModel(application: Application) : AndroidViewModel(application)
     val btnAddState = _btnAddState
 
 
-    fun btnClose(){
+    fun btnClose() {
         _btnCloseState.value = true
     }
 
-    fun btnAdd(){
+    fun btnAdd() {
         _btnAddState.value = true
     }
 

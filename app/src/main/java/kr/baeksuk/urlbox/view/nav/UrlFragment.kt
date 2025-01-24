@@ -14,8 +14,8 @@ import org.koin.android.ext.android.inject
 
 class UrlFragment : Fragment() {
 
-    private lateinit var uBinding : FragmentUrlBinding
-    private val uViewModel : UrlViewModel by inject()
+    private lateinit var uBinding: FragmentUrlBinding
+    private val uViewModel: UrlViewModel by inject()
     private val startActivityAnimation = StartActivityAnimation()
 
     override fun onCreateView(
@@ -35,8 +35,8 @@ class UrlFragment : Fragment() {
 
     private fun observe() = uViewModel.let { vm ->
 
-        vm.btnAddState.observe(viewLifecycleOwner){
-            if (it){
+        vm.btnAddState.observe(viewLifecycleOwner) {
+            if (it) {
                 val intent = Intent(requireContext(), AddLinkActivity::class.java)
                 startActivityAnimation.startActivityAnimation(intent, requireContext())
                 requireActivity().finish()

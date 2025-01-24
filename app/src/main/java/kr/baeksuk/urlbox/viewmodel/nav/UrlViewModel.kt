@@ -9,7 +9,7 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
     private val _btnAddState = MutableLiveData<Boolean>()
     val btnAddState = _btnAddState
 
-    fun btnAdd(){
+    fun btnAdd() {
         _btnAddState.value = true
     }
 

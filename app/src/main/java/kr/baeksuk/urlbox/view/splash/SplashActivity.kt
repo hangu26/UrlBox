@@ -22,7 +22,7 @@ class SplashActivity : AppCompatActivity() {
 
         Handler(Looper.getMainLooper()).postDelayed({
 
-            if(isTutorialClear == 0){
+            if (isTutorialClear == 0) {
 //                intent.putExtra("isClearIntent", 0)
 //                val intent = Intent(this@SplashActivity, TutorialActivity::class.java)
 //                val options = ActivityOptions.makeCustomAnimation(
@@ -36,7 +36,7 @@ class SplashActivity : AppCompatActivity() {
 //
 //                finish()
 
-            }else{
+            } else {
 
                 val intent = Intent(this@SplashActivity, MainActivity::class.java)
 
@@ -53,10 +53,8 @@ class SplashActivity : AppCompatActivity() {
             }
 
 
-
         }, 2000)
     }
-
 
 
 }

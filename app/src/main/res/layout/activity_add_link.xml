@@ -2,17 +2,17 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
-    
+
     <data>
-        
+
         <variable
             name="activity"
             type="kr.baeksuk.urlbox.view.addlink.AddLinkActivity" />
-        
+
         <variable
             name="viewmodel"
             type="kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel" />
-        
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -91,14 +91,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/tx_save_url_margin_start"
                 android:layout_marginEnd="@dimen/tx_save_url_margin_start"
+                android:background="@null"
                 android:fontFamily="@font/pretendard_light"
                 android:hint="@string/tx_paste_url"
-                android:background="@null"
                 android:textColorHint="@color/appBar_title_02"
                 android:textSize="@dimen/tx_save_url_size"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
