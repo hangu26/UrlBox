@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="fragment"
+            type="kr.baeksuk.urlbox.view.nav.UrlFragment" />
+
+        <variable
+            name="viewModel"
+            type="kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_save_url"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_save_url_height"
+            android:layout_marginStart="@dimen/margin_side_in_url_page"
+            android:layout_marginTop="@dimen/btn_save_url_margin_top"
+            android:layout_marginEnd="@dimen/margin_side_in_url_page"
+            android:background="@drawable/border_btn_url"
+            android:onClick="@{() -> viewModel.btnAdd()}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/tx_save_url_margin_start"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="@string/tx_save_url"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/tx_save_url_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tx_saved_url_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_in_url_page"
+            android:layout_marginTop="@dimen/margin_top_in_url_page"
+            android:fontFamily="@font/pretendard_semibold"
+            android:text="@string/tx_saved_url_list"
+            android:textSize="@dimen/tx_saved_url_list"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btn_save_url" />
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_in_url_page"
+            android:layout_marginTop="@dimen/margin_side_in_url_page"
+            android:layout_marginEnd="@dimen/margin_side_in_url_page"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tx_saved_url_list">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_words"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@layout/item_url_list" />
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">LinkBox</string>
+    <string name="tx_splash_title_01">UrlBox</string>
+    <string name="tx_splash_tx_02">링크를 저장하세요</string>
+    <string name="tx_appbar_title">UrlBox</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tx_save_url">링크 추가 및 저장</string>
+    <string name="tx_saved_url_list">저장된 링크</string>
+    <string name="tx_add_link">링크 추가</string>
+    <string name="tx_paste_url">복사한 URL 붙여넣기</string>
+
+
+</resources>

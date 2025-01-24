@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="appBar_title_01">#F5F0E5</color>
+    <color name="appBar_title_02">#A1824A</color>
+    <color name="bottom_border">#E8E8E8</color>
+    <color name="main_color">#A1824A</color>
+
+</resources>

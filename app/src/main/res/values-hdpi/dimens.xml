@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="splash_app_name_size">51sp</dimen>
+    <dimen name="splash_app_name_margin_bottom">60dp</dimen>
+    <dimen name="splash_app_detail_size">37sp</dimen>
+    <dimen name="appbar_tx_title_chat">22sp</dimen>
+    <dimen name="img_setting_width">22dp</dimen>
+    <dimen name="img_setting_height">22dp</dimen>
+    <dimen name="img_setting_margin_end">22dp</dimen>
+    <dimen name="icon_tutorial_margin_end">10dp</dimen>
+    <dimen name="appbar_margin_constraint_height">6dp</dimen>
+    <dimen name="bottom_navigation_height">84dp</dimen>
+    <dimen name="img_btn_width">75dp</dimen>
+    <dimen name="img_btn_height">70dp</dimen>
+    <dimen name="constraint_hand_bottom">12dp</dimen>
+    <dimen name="url_btn_width">63dp</dimen>
+    <dimen name="url_btn_height">76dp</dimen>
+    <dimen name="btn_url_margin_bottom">22dp</dimen>
+    <dimen name="btn_save_url_height">62dp</dimen>
+    <dimen name="margin_side_in_url_page">34dp</dimen>
+    <dimen name="btn_save_url_margin_top">34dp</dimen>
+    <dimen name="margin_top_in_url_page">34dp</dimen>
+    <dimen name="border_url_radius">14dp</dimen>
+    <dimen name="tx_save_url_margin_start">20dp</dimen>
+    <dimen name="tx_save_url_size">18sp</dimen>
+    <dimen name="tx_saved_url_list">18sp</dimen>
+    <dimen name="constraint_item_url_height">86dp</dimen>
+    <dimen name="item_url_padding_side">15dp</dimen>
+    <dimen name="constraint_url_margin_bottom">21dp</dimen>
+    <dimen name="border_url_stroke">1dp</dimen>
+    <dimen name="edt_url_margin_top">13dp</dimen>
+
+
+</resources>
