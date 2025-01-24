@@ -14,7 +14,7 @@ import org.koin.android.ext.android.inject
 class AddLinkActivity : BaseActivity() {
 
     private lateinit var aBinding: ActivityAddLinkBinding
-    private val aViewModel : AddLinkViewModel by inject()
+    private val aViewModel: AddLinkViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,8 +30,8 @@ class AddLinkActivity : BaseActivity() {
 
     }
 
-    private fun observe() = aViewModel.let {vm ->
-        vm.btnCloseState.observe(this@AddLinkActivity){
+    private fun observe() = aViewModel.let { vm ->
+        vm.btnCloseState.observe(this@AddLinkActivity) {
             if (it) {
                 val intent = Intent(this@AddLinkActivity, MainActivity::class.java)
                 startActivityAnimation(intent, this@AddLinkActivity)
