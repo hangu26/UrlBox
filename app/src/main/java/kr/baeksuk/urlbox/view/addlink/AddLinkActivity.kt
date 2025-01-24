@@ -13,6 +13,7 @@ import org.koin.android.ext.android.inject
 
 class AddLinkActivity : BaseActivity() {
 
+    //노트북 작동 확인 커밋
     private lateinit var aBinding: ActivityAddLinkBinding
     private val aViewModel: AddLinkViewModel by inject()
 
