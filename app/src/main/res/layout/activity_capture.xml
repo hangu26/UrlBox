@@ -16,6 +16,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint_match"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white">
@@ -72,15 +73,122 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <WebView
-            android:id="@+id/web_view"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/web_view_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+
+            <!-- WebView -->
+            <WebView
+                android:id="@+id/web_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_web_view" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.canhub.cropper.CropImageView
+            android:id="@+id/cropImageView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:cropAspectRatioX="1"
+            app:cropAspectRatioY="1"
+            app:cropFixAspectRatio="true"
+            app:cropGuidelines="onTouch"
+            app:cropScaleType="centerCrop"
+            app:cropShape="rectangle"
+            app:layout_constraintBottom_toBottomOf="@+id/web_view_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/web_view_container" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_save_url"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_save_url_height"
+            android:layout_marginStart="@dimen/margin_side_in_url_page"
+            android:layout_marginTop="@dimen/margin_side_in_capture_page"
+            android:layout_marginEnd="@dimen/margin_side_in_url_page"
+            android:background="@drawable/border_constraint_url"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/web_view_container">
+
+            <TextView
+                android:id="@+id/tx_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/tx_save_url_margin_start"
+                android:layout_marginEnd="@dimen/tx_save_url_margin_start"
+                android:background="@null"
+                android:fontFamily="@font/pretendard_light"
+                android:textColorHint="@color/appBar_title_02"
+                android:textSize="@dimen/tx_save_url_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_capture"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_capture_height"
+            android:layout_marginStart="@dimen/margin_side_in_capture_page"
+            android:layout_marginEnd="@dimen/margin_side_in_capture_page"
+            android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
+            android:background="@drawable/border_btn_capture"
+            android:onClick="@{() -> viewmodel.btnCapture()}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="@string/tx_btn_capture"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_btn_capture"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_capture_height"
+            android:layout_marginStart="@dimen/margin_side_in_capture_page"
+            android:layout_marginEnd="@dimen/margin_side_in_capture_page"
+            android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
+            android:background="@drawable/border_btn_capture"
+            android:onClick="@{() -> viewmodel.btnSave()}"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="@string/tx_save"
+                android:textColor="@color/white"
+                android:textSize="@dimen/text_btn_capture"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

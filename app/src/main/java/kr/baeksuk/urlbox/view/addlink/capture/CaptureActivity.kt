@@ -2,20 +2,38 @@ package kr.baeksuk.urlbox.view.addlink.capture
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
+import android.view.MotionEvent
+import android.view.View
 import android.webkit.WebViewClient
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
+import com.canhub.cropper.CropImageView
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityCaptureBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
+import org.koin.android.BuildConfig
 import org.koin.android.ext.android.inject
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.net.URI
 
 class CaptureActivity : BaseActivity() {
-    private lateinit var cBinding : ActivityCaptureBinding
-    private val cViewModel : CaptureViewModel by inject()
+    private lateinit var cBinding: ActivityCaptureBinding
+    private val cViewModel: CaptureViewModel by inject()
+    private var startY: Float = 0f
+    private var startHeight: Int = 0
+
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cBinding = DataBindingUtil.setContentView(this@CaptureActivity, R.layout.activity_capture)
@@ -32,7 +50,7 @@ class CaptureActivity : BaseActivity() {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun initWebView(){
+    private fun initWebView() {
         val url = intent.getStringExtra("url")
         if (url != null) {
             cBinding.webView.loadUrl(url)
@@ -46,6 +64,8 @@ class CaptureActivity : BaseActivity() {
             }
         }
 
+        cBinding.txUrl.text = url.toString()
+
     }
 
     private fun observe() = cViewModel.let { vm ->
@@ -56,6 +76,80 @@ class CaptureActivity : BaseActivity() {
                 finish()
             }
         }
+
+        vm.btnCaptureState.observe(this) {
+            if (it) {
+
+                cBinding.btnCapture.visibility = View.GONE
+                cBinding.btnSave.visibility = View.VISIBLE
+
+                val uri = captureWebView()
+                if (uri != null) {
+                    // CropImageView에 캡처한 이미지 설정
+                    cBinding.cropImageView.setImageUriAsync(uri)
+
+                } else {
+                    Toast.makeText(this, "캡처 실패", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        vm.btnSaveState.observe(this@CaptureActivity) {
+            if (it) {
+                // 크롭된 이미지를 동기적으로 가져오기
+                val croppedBitmap = cBinding.cropImageView.getCroppedImage()
+                if (croppedBitmap != null) {
+                    // 크롭된 이미지를 저장
+                    val file = File(cacheDir, "cropped_thumbnail.png")
+                    try {
+                        val outputStream = FileOutputStream(file)
+                        croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+
+                        val croppedUri =
+                            FileProvider.getUriForFile(this, "$packageName.provider", file)
+                        Toast.makeText(this, "크롭된 이미지 저장 완료: $croppedUri", Toast.LENGTH_SHORT)
+                            .show()
+
+                        // 저장 완료 후 UI 초기화
+                        cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
+                        cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "크롭된 이미지를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
     }
+
+    private fun captureWebView(): Uri? {
+        // 웹뷰를 캡처하기 위해 Bitmap 생성
+        val webView = cBinding.webView
+        val bitmap = Bitmap.createBitmap(webView.width, webView.height, Bitmap.Config.ARGB_8888)
+
+        // 캔버스에 현재 스크롤 위치 반영
+        val canvas = Canvas(bitmap)
+        canvas.translate(-webView.scrollX.toFloat(), -webView.scrollY.toFloat())
+        webView.draw(canvas)
+
+        // Bitmap을 파일로 저장
+        val file = File(cacheDir, "captured_image.png")
+        return try {
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+            FileProvider.getUriForFile(this, "$packageName.provider", file)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
 }

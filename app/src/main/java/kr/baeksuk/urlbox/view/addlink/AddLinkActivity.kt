@@ -10,6 +10,7 @@ import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
+import org.koin.android.BuildConfig
 import org.koin.android.ext.android.inject
 
 
@@ -28,7 +29,6 @@ class AddLinkActivity : BaseActivity() {
             viewmodel = aViewModel
             activity = this@AddLinkActivity
         }
-
         observe()
 
     }

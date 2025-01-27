@@ -70,12 +70,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tx_saved_url_list">
 
+            <ImageView
+                android:id="@+id/img_thumbnail"
+                android:layout_width="86dp"
+                android:layout_height="86dp"
+                />
+
+            <!--
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_words"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/item_url_list" />
+                -->
+
 
         </FrameLayout>
 
