@@ -9,6 +9,7 @@
     <string name="tx_saved_url_list">저장된 링크</string>
     <string name="tx_add_link">링크 추가</string>
     <string name="tx_paste_url">복사한 URL 붙여넣기</string>
+    <string name="tx_capture">캡쳐 화면</string>
 
 
 </resources>

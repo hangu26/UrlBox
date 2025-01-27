@@ -7,11 +7,11 @@
 
         <variable
             name="activity"
-            type="kr.baeksuk.urlbox.view.addlink.AddLinkActivity" />
+            type="kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity" />
 
         <variable
             name="viewmodel"
-            type="kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel" />
+            type="kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel" />
 
     </data>
 
@@ -48,7 +48,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:fontFamily="@font/pretendard_medium"
-                        android:text="@string/tx_add_link"
+                        android:text="@string/tx_capture"
                         android:textColor="@color/black"
                         android:textSize="@dimen/tx_save_url_size"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -72,39 +72,15 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_save_url"
+        <WebView
+            android:id="@+id/web_view"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_save_url_height"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginTop="@dimen/edt_url_margin_top"
-            android:layout_marginEnd="@dimen/margin_side_in_url_page"
-            android:background="@drawable/border_edt_url"
-            android:onClick="@{() -> viewmodel.btnAdd()}"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="0dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
-
-            <EditText
-                android:id="@+id/edt_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/tx_save_url_margin_start"
-                android:layout_marginEnd="@dimen/tx_save_url_margin_start"
-                android:background="@null"
-                android:imeOptions="actionDone"
-                android:inputType="textUri"
-                android:fontFamily="@font/pretendard_light"
-                android:hint="@string/tx_paste_url"
-                android:textColorHint="@color/appBar_title_02"
-                android:textSize="@dimen/tx_save_url_size"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:onEditorAction="@{(v, actionId, event) -> viewmodel.onUrlInputDone(actionId)}"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
