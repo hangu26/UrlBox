@@ -26,6 +26,28 @@ class UrlRepository(application: Application) : ViewModel(){
         }
     }
 
+    fun update(urlEntity: UrlEntity){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                urlDao.update(urlEntity.urlLink, urlEntity.imageKey)
+            }catch (e: java.lang.Exception){
+
+            }
+        }
+    }
+
+    fun deleteGuestData(url : String){
+
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                urlDao.deleteKeyword(url)
+            }catch (e: java.lang.Exception){
+
+            }
+        }
+
+    }
+
     fun getGuestUrl() : LiveData<List<UrlEntity>>{
         return url
     }

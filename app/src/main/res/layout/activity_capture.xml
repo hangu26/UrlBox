@@ -138,60 +138,127 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 -->
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_capture"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_capture_height"
+            android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_side_in_capture_page"
             android:layout_marginEnd="@dimen/margin_side_in_capture_page"
             android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
-            android:background="@drawable/border_btn_capture"
-            android:onClick="@{() -> viewmodel.btnCapture()}"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendard_medium"
-                android:text="@string/tx_btn_capture"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_btn_capture"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_skip"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_capture_height"
+                android:layout_weight="1"
+                android:background="@drawable/border_skip"
+                android:onClick="@{() -> viewmodel.btnSkip()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:gravity="center"
+                    android:text="@string/tx_skip"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_btn_capture"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_save"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_capture_height"
-            android:layout_marginStart="@dimen/margin_side_in_capture_page"
-            android:layout_marginEnd="@dimen/margin_side_in_capture_page"
-            android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
-            android:background="@drawable/border_btn_capture"
-            android:onClick="@{() -> viewmodel.btnSave()}"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendard_medium"
-                android:text="@string/tx_save"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_btn_capture"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_capture_height"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:background="@drawable/border_skip"
+                android:onClick="@{() -> viewmodel.btnCancel()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:gravity="center"
+                    android:text="@string/tx_cancel"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_btn_capture"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Space
+                android:layout_width="@dimen/space_margin_between_constraint"
+                android:layout_height="match_parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_capture"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_capture_height"
+                android:layout_weight="2"
+                android:background="@drawable/border_btn_capture"
+                android:onClick="@{() -> viewmodel.btnCapture()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_btn_capture"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_btn_capture"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_save"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_capture_height"
+                android:layout_weight="2"
+                android:background="@drawable/border_btn_capture"
+                android:onClick="@{() -> viewmodel.btnSave()}"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_save"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/text_btn_capture"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

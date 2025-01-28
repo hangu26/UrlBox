@@ -12,6 +12,7 @@ import androidx.databinding.DataBindingUtil
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import org.koin.android.ext.android.inject
@@ -21,6 +22,7 @@ class UrlDetailActivity : BaseActivity() {
 
     private lateinit var uBinding: ActivityUrlDetailBinding
     private val uViewModel: UrlDetailViewModel by inject()
+    private val autoLogin = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         uBinding =
@@ -65,24 +67,44 @@ class UrlDetailActivity : BaseActivity() {
             }
         }
 
-        vm.btnCaptureState.observe(this@UrlDetailActivity){
-            if (it){
+        vm.btnEditState.observe(this@UrlDetailActivity) {
+            if (it) {
+                val url = intent.extras?.getString("title")
 
+                if (autoLogin) {
 
+                } else {
+
+                    val intent = Intent(this@UrlDetailActivity, CaptureActivity::class.java)
+                    intent.putExtra("url", url)
+                    intent.putExtra("edit", true)
+                    startActivityAnimation(intent, this)
+                    finish()
+
+                }
 
             }
         }
 
-        vm.btnCancel.observe(this@UrlDetailActivity){
-            if (it){
+        vm.btnDelete.observe(this@UrlDetailActivity) {
+            if (it) {
 
+                val url = intent.extras?.getString("title", "")
 
+                if (autoLogin) {
+
+                } else {
+                    vm.deleteGuestData(url!!)
+                    val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
+                    startActivityAnimation(intent, this)
+                    finish()
+                }
 
             }
         }
 
-        vm.btnLoadUrl.observe(this@UrlDetailActivity){
-            if (it){
+        vm.btnLoadUrl.observe(this@UrlDetailActivity) {
+            if (it) {
 
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uBinding.txUrl.text.toString()))
                 startActivity(intent)

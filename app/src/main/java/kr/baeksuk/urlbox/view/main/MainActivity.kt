@@ -1,6 +1,8 @@
 package kr.baeksuk.urlbox.view.main
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -9,6 +11,7 @@ import kr.baeksuk.urlBox.databinding.ActivityMainBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.base.NavigationMenu
 import kr.baeksuk.urlbox.util.util.AppEvent
+import kr.baeksuk.urlbox.util.util.MakeVibrator
 import kr.baeksuk.urlbox.view.nav.MyPageFragment
 import kr.baeksuk.urlbox.view.nav.ThumbnailFragment
 import kr.baeksuk.urlbox.view.nav.UrlFragment
@@ -19,6 +22,7 @@ class MainActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityMainBinding
     private val mViewModel: MainViewModel by inject()
+    private var backPressedTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +43,7 @@ class MainActivity : BaseActivity() {
 
         observeViewModel()
         configureBottomNavigation()
-
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
     }
 
@@ -63,14 +67,26 @@ class MainActivity : BaseActivity() {
 
         mBinding.ibThumbnail.setOnClickListener {
             mViewModel.changeMenu(NavigationMenu.THUMBNAIL)
+            MakeVibrator().run {
+                init(this@MainActivity)
+                make(100)
+            }
         } // 단어장 버튼 클릭 시, menu 값 NavigationMenu.WORDS로 변경
 
         mBinding.ibUrl.setOnClickListener {
             mViewModel.changeMenu(NavigationMenu.URL)
+            MakeVibrator().run {
+                init(this@MainActivity)
+                make(100)
+            }
         }
 
         mBinding.ibMy.setOnClickListener {
             mViewModel.changeMenu(NavigationMenu.MYPAGE)
+            MakeVibrator().run {
+                init(this@MainActivity)
+                make(150)
+            }
         }
 
     }
@@ -92,6 +108,17 @@ class MainActivity : BaseActivity() {
     fun changeFragment(fragment: Fragment, bundle: Bundle? = null) {
         bundle?.let { b -> fragment.apply { arguments = b } }
         supportFragmentManager.beginTransaction().replace(R.id.fl_main, fragment).commit()
+    }
+
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (System.currentTimeMillis() - backPressedTime <= 2000) {
+                finish()
+            } else {
+                backPressedTime = System.currentTimeMillis()
+                Toast.makeText(this@MainActivity, "한 번 더 누르면 종료합니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
 }

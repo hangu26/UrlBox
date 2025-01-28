@@ -73,8 +73,6 @@ class CaptureActivity : BaseActivity() {
             }
         }
 
-//        cBinding.txUrl.text = url.toString()
-
     }
 
     private fun observe() = cViewModel.let { vm ->
@@ -91,6 +89,9 @@ class CaptureActivity : BaseActivity() {
 
                 cBinding.btnCapture.visibility = View.GONE
                 cBinding.btnSave.visibility = View.VISIBLE
+
+                cBinding.btnSkip.visibility = View.GONE
+                cBinding.btnCancel.visibility = View.VISIBLE
 
                 val uri = captureWebView()
                 if (uri != null) {
@@ -109,7 +110,6 @@ class CaptureActivity : BaseActivity() {
                 val croppedBitmap = cBinding.cropImageView.getCroppedImage()
                 if (croppedBitmap != null) {
                     // 크롭된 이미지를 저장
-//                    val file = File(cacheDir, "cropped_thumbnail.png")
                     val url = intent.getStringExtra("url")
                     val directory = this.filesDir
                     val imageKey = UUID.randomUUID().toString()
@@ -123,35 +123,87 @@ class CaptureActivity : BaseActivity() {
                             imageKey = imageKey
                         )
 
-                        vm.insertUrl(urlEntity, url.toString(), this)
+                        val isEditUrl = intent.extras?.getBoolean("edit")
+
+                        if(isEditUrl == true){
+                            vm. updateUrl(urlEntity, url.toString(), this)
+                        }else{
+                            vm.insertUrl(urlEntity, url.toString(), this)
+                        }
+
+
+                        try {
+                            val outputStream = FileOutputStream(file)
+                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                            outputStream.flush()
+                            outputStream.close()
+
+                            /**
+                            val croppedUri =
+                            FileProvider.getUriForFile(this, "$packageName.provider", filePath)
+                            Toast.makeText(this, "크롭된 이미지 저장 완료: $croppedUri", Toast.LENGTH_SHORT)
+                            .show()
+                             **/
+
+                            // 저장 완료 후 UI 초기화
+                            cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
+                            cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
+
+                            cBinding.btnSkip.visibility = View.VISIBLE
+                            cBinding.btnCancel.visibility = View.GONE
+
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
+                        }
+
+                        val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+                        startActivityAnimation(intent, this)
+                        finish()
 
                     }
 
-                    try {
-                        val outputStream = FileOutputStream(file)
-                        croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                        outputStream.flush()
-                        outputStream.close()
-
-                        /**
-                        val croppedUri =
-                        FileProvider.getUriForFile(this, "$packageName.provider", filePath)
-                        Toast.makeText(this, "크롭된 이미지 저장 완료: $croppedUri", Toast.LENGTH_SHORT)
-                        .show()
-                         **/
-
-                        // 저장 완료 후 UI 초기화
-                        cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
-                        cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
-
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
-                    }
                 } else {
                     Toast.makeText(this, "크롭된 이미지를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
 
+            }
+        }
+
+        vm.btnSkipState.observe(this@CaptureActivity){
+            if (it){
+                val url = intent.getStringExtra("url")
+
+                if (autoLogin) {
+
+
+
+                } else {
+                    val urlEntity = UrlEntity(
+                        urlLink = url.toString(),
+                        imageKey = "skip"
+                    )
+
+                    vm.insertUrl(urlEntity, url.toString(), this)
+
+                    val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+                    startActivityAnimation(intent, this)
+                    finish()
+
+                }
+
+            }
+        }
+
+        vm.btnCancelState.observe(this@CaptureActivity){
+            if (it){
+
+                cBinding.cropImageView.clearImage()
+                cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
+                cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
+
+                cBinding.btnSkip.visibility = View.VISIBLE
+                cBinding.btnCancel.visibility = View.GONE
             }
         }
 

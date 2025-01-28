@@ -18,7 +18,7 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     private val urlDatabase = UrlDatabase.getInstance(application)
 
-    private val urlDao : UrlDao = urlDatabase.urlDao()
+    private val urlDao: UrlDao = urlDatabase.urlDao()
 
     private val repo = UrlRepository(application)
 
@@ -30,6 +30,16 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     private val _btnSaveState = MutableLiveData<Boolean>()
     val btnSaveState = _btnSaveState
+
+    private val _btnSkipState = MutableLiveData<Boolean>()
+    val btnSkipState = _btnSkipState
+
+    private val _btnCancelState = MutableLiveData<Boolean>()
+    val btnCancelState = _btnCancelState
+
+    fun btnSkip() {
+        _btnSkipState.value = true
+    }
 
     fun btnClose() {
         _btnCloseState.value = true
@@ -43,16 +53,32 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         _btnSaveState.value = true
     }
 
+    fun btnCancel(){
+        _btnCancelState.value = true
+    }
+
     fun insertUrl(urlEntity: UrlEntity, url: String, context: Context) {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getUrlIsExist(url)
-            withContext(Dispatchers.Main){
-                if(existingUrl == null){
+            withContext(Dispatchers.Main) {
+                if (existingUrl == null) {
                     repo.insert(urlEntity)
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-                }else{
+                } else {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
                 }
+            }
+
+        }
+    }
+
+    fun updateUrl(urlEntity: UrlEntity, url: String, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                repo.update(urlEntity)
+                Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+
             }
 
         }

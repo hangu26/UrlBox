@@ -7,10 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 
-class UrlViewModel(application: Application) : AndroidViewModel(application) {
+class ThumbnailViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _repo = UrlRepository(application)
-    private val url = _repo.getGuestUrl()
+    private val repo = UrlRepository(application)
+    private val url = repo.getGuestUrl()
 
     private val _btnAddState = MutableLiveData<Boolean>()
     val btnAddState = _btnAddState
@@ -19,7 +19,7 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
         _btnAddState.value = true
     }
 
-    fun getGuestUrl() : LiveData<List<UrlEntity>>{
+    fun getGuestThumbnail() : LiveData<List<UrlEntity>>{
         return this.url
     }
 

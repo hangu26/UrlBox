@@ -15,6 +15,9 @@
     <string name="tx_url_detail">상세정보</string>
     <string name="tx_delete">삭제하기</string>
     <string name="tx_change_img">사진변경</string>
+    <string name="tx_skip">스킵</string>
+    <string name="tx_thumbnail_list">썸네일 모음</string>
+    <string name="tx_cancel">취소</string>
 
 
 </resources>
