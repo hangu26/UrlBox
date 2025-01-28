@@ -1,4 +1,6 @@
 package kr.baeksuk.urlbox.model
 
-class Url {
-}
+data class Url(
+    val url: String = "",
+    val imageKey: String = ""
+)

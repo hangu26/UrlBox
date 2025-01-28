@@ -61,29 +61,29 @@
         <FrameLayout
             android:id="@+id/frameLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginTop="@dimen/margin_side_in_url_page"
-            android:layout_marginEnd="@dimen/margin_side_in_url_page"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/margin_side_frame_layout"
+            android:layout_marginEnd="@dimen/margin_side_frame_layout"
+            android:paddingBottom="@dimen/frame_recyclerview_padding_bottom"
             android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tx_saved_url_list">
-
+            <!--
             <ImageView
                 android:id="@+id/img_thumbnail"
                 android:layout_width="86dp"
                 android:layout_height="86dp"
                 />
+                -->
 
-            <!--
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_words"
+                android:id="@+id/rv_url"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/item_url_list" />
-                -->
 
 
         </FrameLayout>

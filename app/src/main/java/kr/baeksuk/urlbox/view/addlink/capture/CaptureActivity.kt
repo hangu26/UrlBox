@@ -8,6 +8,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebViewClient
@@ -17,7 +18,10 @@ import androidx.databinding.DataBindingUtil
 import com.canhub.cropper.CropImageView
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityCaptureBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.BackPressedCallback
+import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
 import org.koin.android.BuildConfig
@@ -26,12 +30,15 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.net.URI
+import java.util.UUID
 
 class CaptureActivity : BaseActivity() {
     private lateinit var cBinding: ActivityCaptureBinding
     private val cViewModel: CaptureViewModel by inject()
     private var startY: Float = 0f
     private var startHeight: Int = 0
+    private var autoLogin = false
+    private val backPressedCallback = BackPressedCallback(this)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +50,8 @@ class CaptureActivity : BaseActivity() {
             viewmodel = cViewModel
             webView.webViewClient = WebViewClient()
         }
+
+        backPressedCallback.addCallbackActivity(this, AddLinkActivity::class.java)
 
         initWebView()
         observe()
@@ -100,17 +109,36 @@ class CaptureActivity : BaseActivity() {
                 val croppedBitmap = cBinding.cropImageView.getCroppedImage()
                 if (croppedBitmap != null) {
                     // 크롭된 이미지를 저장
-                    val file = File(cacheDir, "cropped_thumbnail.png")
+//                    val file = File(cacheDir, "cropped_thumbnail.png")
+                    val url = intent.getStringExtra("url")
+                    val directory = this.filesDir
+                    val imageKey = UUID.randomUUID().toString()
+                    val file = File(directory, "$imageKey.png")
+
+                    if (autoLogin) {
+
+                    } else {
+                        val urlEntity = UrlEntity(
+                            urlLink = url.toString(),
+                            imageKey = imageKey
+                        )
+
+                        vm.insertUrl(urlEntity, url.toString(), this)
+
+                    }
+
                     try {
                         val outputStream = FileOutputStream(file)
                         croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                         outputStream.flush()
                         outputStream.close()
 
+                        /**
                         val croppedUri =
-                            FileProvider.getUriForFile(this, "$packageName.provider", file)
+                        FileProvider.getUriForFile(this, "$packageName.provider", filePath)
                         Toast.makeText(this, "크롭된 이미지 저장 완료: $croppedUri", Toast.LENGTH_SHORT)
-                            .show()
+                        .show()
+                         **/
 
                         // 저장 완료 후 UI 초기화
                         cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
@@ -122,6 +150,7 @@ class CaptureActivity : BaseActivity() {
                 } else {
                     Toast.makeText(this, "크롭된 이미지를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
                 }
+
             }
         }
 

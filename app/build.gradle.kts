@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id ("kotlin-kapt")
+
 }
 
 android {
@@ -8,7 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "kr.baeksuk.linkbox"
+        applicationId = "kr.baeksuk.urlBox"
         minSdk = 30
         targetSdk = 35
         versionCode = 1
@@ -29,6 +31,7 @@ android {
 
     buildFeatures{
         dataBinding = true
+        viewBinding = true
     }
 
     compileOptions {
@@ -42,6 +45,12 @@ android {
 
 dependencies {
 
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    implementation("com.vanniktech:android-image-cropper:4.6.0")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 

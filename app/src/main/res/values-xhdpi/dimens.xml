@@ -14,8 +14,32 @@
     <dimen name="img_btn_height">70dp</dimen>
     <dimen name="constraint_hand_bottom">12dp</dimen>
     <dimen name="url_btn_width">63dp</dimen>
-    <dimen name="btn_url_margin_bottom">22dp</dimen>
     <dimen name="url_btn_height">76dp</dimen>
+    <dimen name="btn_url_margin_bottom">22dp</dimen>
+    <dimen name="btn_save_url_height">62dp</dimen>
+    <dimen name="margin_side_in_url_page">34dp</dimen>
+    <dimen name="margin_top_frame_layout">9dp</dimen>
+    <dimen name="margin_side_frame_layout">8dp</dimen>
+    <dimen name="btn_save_url_margin_top">34dp</dimen>
+    <dimen name="margin_top_in_url_page">34dp</dimen>
+    <dimen name="border_url_radius">14dp</dimen>
+    <dimen name="tx_save_url_margin_start">20dp</dimen>
+    <dimen name="tx_save_url_size">18sp</dimen>
+    <dimen name="tx_confirm_url_size">12sp</dimen>
+    <dimen name="tx_saved_url_list">18sp</dimen>
+    <dimen name="constraint_item_url_height">221dp</dimen>
+    <dimen name="constraint_item_url_width">171dp</dimen>
+    <dimen name="constraint_item_url_margin_end">29dp</dimen>
+    <dimen name="item_url_padding_side">15dp</dimen>
+    <dimen name="constraint_url_margin_bottom">21dp</dimen>
+    <dimen name="frame_recyclerview_padding_bottom">21dp</dimen>
+    <dimen name="border_url_stroke">1dp</dimen>
+    <dimen name="edt_url_margin_top">13dp</dimen>
+    <dimen name="margin_side_in_capture_page">34dp</dimen>
+    <dimen name="btn_capture_margin_bottom">57dp</dimen>
+    <dimen name="btn_capture_height">58dp</dimen>
+    <dimen name="btn_capture_corner">28dp</dimen>
+    <dimen name="text_btn_capture">18sp</dimen>
 
 
 </resources>

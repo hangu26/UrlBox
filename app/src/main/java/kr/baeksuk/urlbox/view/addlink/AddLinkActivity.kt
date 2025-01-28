@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityAddLinkBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.BackPressedCallback
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
@@ -19,6 +20,7 @@ class AddLinkActivity : BaseActivity() {
     //노트북 작동 확인 커밋
     private lateinit var aBinding: ActivityAddLinkBinding
     private val aViewModel: AddLinkViewModel by inject()
+    private val backPressedCallback = BackPressedCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +31,8 @@ class AddLinkActivity : BaseActivity() {
             viewmodel = aViewModel
             activity = this@AddLinkActivity
         }
+
+        backPressedCallback.addCallbackActivity(this, MainActivity::class.java)
         observe()
 
     }
