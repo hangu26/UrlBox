@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingTop="@dimen/constraint_url_margin_bottom"
-    >
+    android:paddingTop="@dimen/constraint_url_margin_bottom">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/btn_url"
@@ -12,32 +11,34 @@
         android:layout_height="@dimen/constraint_item_url_height"
         android:layout_marginStart="@dimen/constraint_hand_bottom"
         android:layout_marginEnd="@dimen/constraint_hand_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/img_thumbnail"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1"
             android:src="@drawable/img_ex_url"
-            app:layout_constraintTop_toTopOf="parent"
+            android:transitionName="imageTran"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tx_url"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_gravity="center"
-            android:gravity="center"
-            android:paddingTop="5dp"
             android:fontFamily="@font/pretendard_semibold"
+            android:gravity="center"
             android:paddingStart="@dimen/item_url_padding_side"
             android:paddingEnd="@dimen/item_url_padding_side"
+            android:paddingTop="5dp"
             android:text="https://www.youtube.com/wersadfasdgwear"
             android:textSize="@dimen/tx_confirm_url_size"
+            android:transitionName="titleTran"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

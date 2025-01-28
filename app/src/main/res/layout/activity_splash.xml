@@ -9,16 +9,14 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/appBar_title_03">
+        android:background="@color/main_color">
 
-        <TextView
+        <ImageView
             android:id="@+id/tx_splash_app_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="192dp"
+            android:layout_height="153dp"
             android:fontFamily="@font/pretendard_black"
-            android:text="@string/tx_splash_title_01"
-            android:textColor="@color/white"
-            android:textSize="@dimen/splash_app_name_size"
+            android:src="@drawable/img_splash_logo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

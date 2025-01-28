@@ -98,6 +98,7 @@
                 android:hint="@string/tx_paste_url"
                 android:textColorHint="@color/appBar_title_02"
                 android:textSize="@dimen/tx_save_url_size"
+                android:textColor="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

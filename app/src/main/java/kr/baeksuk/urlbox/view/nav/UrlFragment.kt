@@ -33,7 +33,7 @@ class UrlFragment : Fragment() {
     ): View? {
 
         uBinding = FragmentUrlBinding.inflate(inflater, container, false)
-        adapter = RvUrlAdapter(requireContext()) // adapter 초기화
+        adapter = RvUrlAdapter(requireContext(), requireActivity()) // adapter 초기화
 
         uBinding.apply {
             viewModel = uViewModel

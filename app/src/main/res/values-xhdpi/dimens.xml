@@ -16,7 +16,7 @@
     <dimen name="url_btn_width">63dp</dimen>
     <dimen name="url_btn_height">76dp</dimen>
     <dimen name="btn_url_margin_bottom">22dp</dimen>
-    <dimen name="btn_save_url_height">62dp</dimen>
+    <dimen name="btn_save_url_height">55dp</dimen>
     <dimen name="margin_side_in_url_page">34dp</dimen>
     <dimen name="margin_top_frame_layout">9dp</dimen>
     <dimen name="margin_side_frame_layout">8dp</dimen>
@@ -40,6 +40,12 @@
     <dimen name="btn_capture_height">58dp</dimen>
     <dimen name="btn_capture_corner">28dp</dimen>
     <dimen name="text_btn_capture">18sp</dimen>
+    <dimen name="url_detail_image_margin_top">33dp</dimen>
+    <dimen name="url_detail_text_size">18sp</dimen>
+    <dimen name="url_detail_text_margin_side">27dp</dimen>
+    <dimen name="url_detail_text_margin_top">25dp</dimen>
+    <dimen name="url_detail_img_margin">11dp</dimen>
+    <dimen name="space_margin_between_constraint">17dp</dimen>
 
 
 </resources>

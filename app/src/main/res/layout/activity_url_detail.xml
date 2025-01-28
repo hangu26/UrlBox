@@ -7,16 +7,15 @@
 
         <variable
             name="activity"
-            type="kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity" />
+            type="kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity" />
 
         <variable
             name="viewmodel"
-            type="kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel" />
+            type="kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel" />
 
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraint_match"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/white">
@@ -48,10 +47,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:fontFamily="@font/pretendard_medium"
-                        android:text="@string/tx_capture"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/tx_save_url_size"
+                        android:fontFamily="@font/pretendard_bold"
+                        android:text="@string/tx_url_detail"
+                        android:textColor="@color/appBar_title_02"
+                        android:textSize="@dimen/appbar_tx_title_chat"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -74,88 +73,82 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/web_view_container"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:layout_constraintDimensionRatio="1:1.5"
+            android:id="@+id/appBar_margin"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/appbar_margin_constraint_height"
+            android:background="@color/appBar_title_01"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
-            <!-- WebView -->
-            <WebView
-                android:id="@+id/web_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/border_web_view" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.canhub.cropper.CropImageView
-            android:id="@+id/cropImageView"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            app:cropAspectRatioX="1"
-            app:cropAspectRatioY="1"
-            app:cropFixAspectRatio="true"
-            app:cropGuidelines="onTouch"
-            app:cropScaleType="centerCrop"
-            app:cropShape="rectangle"
-            app:layout_constraintBottom_toBottomOf="@+id/web_view_container"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/web_view_container" />
-
-        <!--
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_save_url"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_save_url_height"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginBottom="@dimen/margin_side_in_capture_page"
-            android:layout_marginEnd="@dimen/margin_side_in_url_page"
-            android:background="@drawable/border_constraint_url"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/url_detail_image_margin_top"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/btn_capture">
+            app:layout_constraintTop_toBottomOf="@+id/appBar_margin">
+
+            <ImageView
+                android:id="@+id/img_url"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_margin="@dimen/url_detail_img_margin"
+                android:transitionName="imageTran"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tx_url"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/tx_save_url_margin_start"
-                android:layout_marginEnd="@dimen/tx_save_url_margin_start"
-                android:background="@null"
-                android:fontFamily="@font/pretendard_light"
-                android:textColorHint="@color/appBar_title_02"
-                android:textSize="@dimen/tx_save_url_size"
-                android:textColor="@color/black"
+                android:layout_width="0dp"
+                android:layout_height="45dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/url_detail_text_margin_top"
+                android:fontFamily="@font/pretendard_semibold"
+                android:gravity="center"
+                android:paddingStart="@dimen/url_detail_text_margin_side"
+                android:paddingEnd="@dimen/url_detail_text_margin_side"
+                android:text="https://www.youtube.com/wersadfasdgwear"
+                android:textSize="@dimen/url_detail_text_size"
+                android:transitionName="titleTran"
+                android:onClick="@{() -> viewmodel.btnLoadUrl()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/img_url" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
--->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_capture_height"
+            android:layout_marginStart="@dimen/margin_side_in_capture_page"
+            android:layout_marginEnd="@dimen/margin_side_in_capture_page"
+            android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
+            android:orientation="horizontal"
+            android:gravity="fill_horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/btn_capture"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="@dimen/btn_capture_height"
-            android:layout_marginStart="@dimen/margin_side_in_capture_page"
-            android:layout_marginEnd="@dimen/margin_side_in_capture_page"
             android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
+            android:layout_gravity="start"
             android:background="@drawable/border_btn_capture"
-            android:onClick="@{() -> viewmodel.btnCapture()}"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            android:onClick="@{() -> viewmodel.btnCapture()}">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/pretendard_medium"
-                android:text="@string/tx_btn_capture"
+                android:text="@string/tx_change_img"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_btn_capture"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -165,33 +158,36 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_save"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_capture_height"
-            android:layout_marginStart="@dimen/margin_side_in_capture_page"
-            android:layout_marginEnd="@dimen/margin_side_in_capture_page"
-            android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
-            android:background="@drawable/border_btn_capture"
-            android:onClick="@{() -> viewmodel.btnSave()}"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            <Space
+                android:layout_width="@dimen/space_margin_between_constraint"
+                android:layout_height="match_parent" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendard_medium"
-                android:text="@string/tx_save"
-                android:textColor="@color/white"
-                android:textSize="@dimen/text_btn_capture"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_cancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="@dimen/btn_capture_height"
+                android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
+                android:layout_gravity="end"
+                android:background="@drawable/border_btn_delete"
+                android:onClick="@{() -> viewmodel.btnCancel()}">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_delete"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/text_btn_capture"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

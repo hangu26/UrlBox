@@ -73,7 +73,7 @@ class CaptureActivity : BaseActivity() {
             }
         }
 
-        cBinding.txUrl.text = url.toString()
+//        cBinding.txUrl.text = url.toString()
 
     }
 
@@ -143,6 +143,7 @@ class CaptureActivity : BaseActivity() {
                         // 저장 완료 후 UI 초기화
                         cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
                         cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
+
                     } catch (e: Exception) {
                         e.printStackTrace()
                         Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
@@ -179,6 +180,5 @@ class CaptureActivity : BaseActivity() {
             null
         }
     }
-
 
 }

@@ -12,6 +12,9 @@
     <string name="tx_capture">캡쳐 화면</string>
     <string name="tx_btn_capture">캡쳐하기</string>
     <string name="tx_save">저장하기</string>
+    <string name="tx_url_detail">상세정보</string>
+    <string name="tx_delete">삭제하기</string>
+    <string name="tx_change_img">사진변경</string>
 
 
 </resources>
