@@ -25,7 +25,7 @@ class MakeVibrator {
         vib.vibrate(
             VibrationEffect.createOneShot(
                 time,
-                50,
+                25,
             )
         )
     }

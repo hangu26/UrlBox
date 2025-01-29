@@ -10,5 +10,6 @@
     <color name="tx_user_email_color">#A1824A</color>
     <color name="app_green">#009963</color>
     <color name="blur">#DC000000</color>
+    <color name="tx_black">#1C170D</color>
 
 </resources>

@@ -5,7 +5,9 @@ import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
+import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
+import kr.baeksuk.urlbox.viewmodel.savedlink.SavedLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -20,5 +22,7 @@ val module = module {
     viewModel { UrlDetailViewModel(androidApplication()) }
     viewModel { ThumbnailViewModel(androidApplication()) }
     viewModel { MyPageViewModel(androidApplication()) }
+    viewModel { UrlDataViewModel() }
+    viewModel { SavedLinkViewModel(androidApplication()) }
 
 }

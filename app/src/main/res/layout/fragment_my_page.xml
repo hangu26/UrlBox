@@ -22,17 +22,17 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="34dp"
+            android:layout_marginStart="@dimen/my_page_constraint_margin_size"
             android:layout_marginTop="@dimen/my_page_constraint_margin_top"
-            android:layout_marginEnd="34dp"
+            android:layout_marginEnd="@dimen/my_page_constraint_margin_size"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/img_profile"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="@dimen/img_profile"
+                android:layout_height="@dimen/img_profile"
                 android:src="@drawable/account_circle_24px"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/pretendard_bold"
                 android:text="@string/tx_profile_guest"
-                android:textSize="23sp"
+                android:textSize="@dimen/tx_profile_name"
+                android:textColor="@color/tx_black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/img_profile" />
@@ -62,10 +63,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/tx_guest" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/btn_edit_profile"
+                android:id="@+id/btn_login"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/btn_save_url_height"
+                android:layout_marginStart="@dimen/margin_side_edit_profile"
                 android:layout_marginTop="@dimen/my_page_constraint_margin_top"
+                android:layout_marginEnd="@dimen/margin_side_edit_profile"
                 android:background="@drawable/border_btn_url"
                 android:onClick="@{() -> viewmodel.btnEdit()}"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -75,9 +78,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/pretendard_bold"
-                    android:text="@string/tx_edit_profile"
-                    android:textColor="@color/black"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_login"
+                    android:textColor="@color/appBar_title_02"
                     android:textSize="@dimen/tx_save_url_size"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -85,6 +88,7 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
 
             <LinearLayout
                 android:id="@+id/linear_box"
@@ -94,7 +98,7 @@
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btn_edit_profile">
+                app:layout_constraintTop_toBottomOf="@+id/btn_login">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -121,7 +125,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_bold"
+                        android:fontFamily="@font/pretendard_regular"
                         android:text="@string/tx_link"
                         android:textColor="@color/appBar_title_02"
                         android:textSize="@dimen/my_page_tx_link_size" />
@@ -157,7 +161,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_bold"
+                        android:fontFamily="@font/pretendard_regular"
                         android:text="@string/tx_folder"
                         android:textColor="@color/appBar_title_02"
                         android:textSize="@dimen/my_page_tx_link_size" />
@@ -193,7 +197,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_bold"
+                        android:fontFamily="@font/pretendard_regular"
                         android:text="@string/tx_favorites"
                         android:textColor="@color/appBar_title_02"
                         android:textSize="@dimen/my_page_tx_link_size" />
@@ -212,9 +216,11 @@
                 app:layout_constraintTop_toBottomOf="@+id/linear_box">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/btn_saved_link"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_weight="1"
+                    android:onClick="@{() -> viewmodel.btnSavedLink()}">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/constraint_img_link"
@@ -240,11 +246,11 @@
                         android:id="@+id/btn_go_saved"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
+                        android:layout_marginStart="@dimen/margin_tx_saved_start"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/constraint_img_link"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start">
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
                             android:id="@+id/tx_saved_link"
@@ -253,6 +259,7 @@
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_saved_link"
                             android:textSize="@dimen/tx_saved_link_size"
+                            android:textColor="@color/tx_black"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -261,29 +268,30 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_show_all_link"
-                            android:textSize="@dimen/tx_show_all_link"
                             android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/tx_show_all_link"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/tx_saved_link" />
-                        
+
                         <ImageView
                             android:layout_width="@dimen/img_arrow_size"
                             android:layout_height="@dimen/img_arrow_size"
                             android:src="@drawable/img_arrow_right"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent"/>
+                            app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/btn_my_folder"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top">
+                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
+                    android:layout_weight="1">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/constraint_folder"
@@ -309,11 +317,11 @@
                         android:id="@+id/btn_go_folder"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
+                        android:layout_marginStart="@dimen/margin_tx_saved_start"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/constraint_folder"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start">
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
                             android:id="@+id/tx_my_folder"
@@ -322,6 +330,7 @@
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_my_folder"
                             android:textSize="@dimen/tx_saved_link_size"
+                            android:textColor="@color/tx_black"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -330,8 +339,8 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_folder_detail"
-                            android:textSize="@dimen/tx_show_all_link"
                             android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/tx_show_all_link"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/tx_my_folder" />
@@ -340,19 +349,20 @@
                             android:layout_width="@dimen/img_arrow_size"
                             android:layout_height="@dimen/img_arrow_size"
                             android:src="@drawable/img_arrow_right"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent"/>
+                            app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/btn_my_favorite"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top">
+                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
+                    android:layout_weight="1">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/constraint_favorite"
@@ -378,11 +388,11 @@
                         android:id="@+id/btn_go_favorite"
                         android:layout_width="0dp"
                         android:layout_height="0dp"
+                        android:layout_marginStart="@dimen/margin_tx_saved_start"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/constraint_favorite"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start">
+                        app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
                             android:id="@+id/tx_favorite"
@@ -391,6 +401,7 @@
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_favorite"
                             android:textSize="@dimen/tx_saved_link_size"
+                            android:textColor="@color/tx_black"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
@@ -399,8 +410,8 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_show_favorite"
-                            android:textSize="@dimen/tx_show_all_link"
                             android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/tx_show_all_link"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toBottomOf="@+id/tx_favorite" />
@@ -409,9 +420,79 @@
                             android:layout_width="@dimen/img_arrow_size"
                             android:layout_height="@dimen/img_arrow_size"
                             android:src="@drawable/img_arrow_right"
+                            app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            app:layout_constraintBottom_toBottomOf="parent"/>
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
+                    android:layout_weight="1"
+                    android:visibility="gone">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/constraint_logout"
+                        android:layout_width="@dimen/my_page_constraint_background"
+                        android:layout_height="@dimen/my_page_constraint_background"
+                        android:background="@drawable/border_link_box"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:layout_width="@dimen/img_my_page_constraint_icon"
+                            android:layout_height="@dimen/img_my_page_constraint_icon"
+                            android:src="@drawable/img_logout"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_logout"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_marginStart="@dimen/margin_tx_saved_start"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/constraint_logout"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <TextView
+                            android:id="@+id/tx_logout"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_medium"
+                            android:text="@string/tx_logout"
+                            android:textSize="@dimen/tx_saved_link_size"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_medium"
+                            android:text="@string/tx_use_guest_mode"
+                            android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/tx_show_all_link"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/tx_logout" />
+
+                        <ImageView
+                            android:layout_width="@dimen/img_arrow_size"
+                            android:layout_height="@dimen/img_arrow_size"
+                            android:src="@drawable/img_arrow_right"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 

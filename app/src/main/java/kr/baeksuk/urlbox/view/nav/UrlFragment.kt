@@ -9,12 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
+import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
 import java.io.File
@@ -48,12 +50,15 @@ class UrlFragment : Fragment() {
             // ImageView에 설정
         }
 
+        initView()
         observe()
         return uBinding.root
 
     }
 
     private fun initView() {
+
+
 
         if (autoLogin) {
 
@@ -72,6 +77,10 @@ class UrlFragment : Fragment() {
         } else {
 
             vm.getGuestUrl().observe(viewLifecycleOwner, Observer<List<UrlEntity>> { url ->
+
+                val urlDataViewModel = ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
+                urlDataViewModel.sendUrlCount(url)
+
                 adapter.setGuestData(url)
                 adapter.notifyDataSetChanged()
             })

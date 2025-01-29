@@ -1,19 +1,28 @@
 package kr.baeksuk.urlbox.view.nav
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentMyPageBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.util.util.StartActivityAnimation
+import kr.baeksuk.urlbox.view.savedlink.SavedLinkActivity
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
+import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import org.koin.android.ext.android.inject
 
 class MyPageFragment : Fragment() {
-    private lateinit var mBinding : FragmentMyPageBinding
-    private val mViewModel : MyPageViewModel by inject()
+    private lateinit var mBinding: FragmentMyPageBinding
+    private val mViewModel: MyPageViewModel by inject()
+    private var urlList = listOf<UrlEntity>()
+    private val startActivityAnimation = StartActivityAnimation()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,15 +34,38 @@ class MyPageFragment : Fragment() {
             viewmodel = mViewModel
         }
 
+        initView()
         observe()
         return mBinding.root
     }
 
-    private fun observe() = mViewModel.let{ vm ->
+    private fun initView() {
+        val urlDataViewModel = ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
 
-        vm.btnEditState.observe(viewLifecycleOwner){
+        urlDataViewModel.urlData.observe(viewLifecycleOwner, Observer{
+            urlList = it
+            mBinding.txLinkCount.text = it.size.toString()
+        })
+
+
+    }
+
+    private fun observe() = mViewModel.let { vm ->
+
+        vm.btnEditState.observe(viewLifecycleOwner) {
+            if (it) {
+
+            }
+        }
+
+        vm.btnSavedLinkState.observe(viewLifecycleOwner){
             if (it){
 
+                Log.d("뷰모델 공유", urlList.toString())
+
+                val intent = Intent(context, SavedLinkActivity::class.java)
+                startActivityAnimation.startActivityAnimation(intent, requireContext())
+                activity?.finish()
             }
         }
 

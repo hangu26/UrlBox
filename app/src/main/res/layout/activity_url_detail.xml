@@ -113,6 +113,7 @@
                 android:paddingEnd="@dimen/url_detail_text_margin_side"
                 android:text="https://www.youtube.com/wersadfasdgwear"
                 android:textSize="@dimen/url_detail_text_size"
+                android:textColor="@color/tx_black"
                 android:transitionName="titleTran"
                 android:onClick="@{() -> viewmodel.btnLoadUrl()}"
                 app:layout_constraintBottom_toBottomOf="parent"

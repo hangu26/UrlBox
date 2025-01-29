@@ -46,6 +46,32 @@
     <dimen name="url_detail_text_margin_top">25dp</dimen>
     <dimen name="url_detail_img_margin">11dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
+    <dimen name="my_page_constraint_margin_top">17dp</dimen>
+    <dimen name="my_page_img_margin_top">17dp</dimen>
+    <dimen name="tx_guest_email_size">17sp</dimen>
+    <dimen name="my_page_linear_margin_top">29dp</dimen>
+    <dimen name="my_page_linear_height">90dp</dimen>
+    <dimen name="border_box_corner">8dp</dimen>
+    <dimen name="border_box_stroke_width">1dp</dimen>
+    <dimen name="my_page_box_text_size">25sp</dimen>
+    <dimen name="my_page_text_margin_top">14dp</dimen>
+    <dimen name="my_page_tx_link_size">14sp</dimen>
+    <dimen name="space_box_height">5dp</dimen>
+    <dimen name="space_box_width">12dp</dimen>
+    <dimen name="background_link_box_corner">8dp</dimen>
+    <dimen name="tx_saved_link_size">17sp</dimen>
+    <dimen name="tx_show_all_link">14sp</dimen>
+    <dimen name="margin_tx_saved_start">17dp</dimen>
+    <dimen name="my_page_margin_constraint_text_top">25dp</dimen>
+    <dimen name="img_arrow_size">29dp</dimen>
+    <dimen name="img_my_page_constraint_icon">25dp</dimen>
+    <dimen name="my_page_constraint_background">50dp</dimen>
+    <dimen name="my_page_constraint_margin_size">20dp</dimen>
+    <dimen name="margin_side_edit_profile">17dp</dimen>
+    <dimen name="margin_side_saved_link">20dp</dimen>
+    <dimen name="margin_vertical_saved_link">34dp</dimen>
+    <dimen name="img_profile">70dp</dimen>
+    <dimen name="tx_profile_name">20sp</dimen>
 
 
 </resources>

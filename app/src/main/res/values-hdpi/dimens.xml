@@ -66,5 +66,12 @@
     <dimen name="img_arrow_size">29dp</dimen>
     <dimen name="img_my_page_constraint_icon">25dp</dimen>
     <dimen name="my_page_constraint_background">50dp</dimen>
+    <dimen name="my_page_constraint_margin_size">20dp</dimen>
+    <dimen name="margin_side_edit_profile">17dp</dimen>
+    <dimen name="margin_side_saved_link">20dp</dimen>
+    <dimen name="margin_vertical_saved_link">34dp</dimen>
+    <dimen name="img_profile">70dp</dimen>
+    <dimen name="tx_profile_name">20sp</dimen>
+
 
 </resources>

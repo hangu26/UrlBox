@@ -21,18 +21,21 @@
     <string name="tx_profile_guest">게스트</string>
     <string name="tx_profile_guest_emil">user@example.com</string>
     <string name="tx_edit_profile">프로필 수정</string>
-    <string name="tx_link_count">24</string>
+    <string name="tx_link_count">0</string>
     <string name="tx_link">링크</string>
     <string name="tx_folder">폴더</string>
-    <string name="tx_folder_count">50</string>
-    <string name="tx_favorites_count">10</string>
+    <string name="tx_folder_count">0</string>
+    <string name="tx_favorites_count">0</string>
     <string name="tx_favorites">즐겨찾기</string>
     <string name="tx_show_all_link">모든 저장된 링크 보기</string>
-    <string name="tx_saved_link">저장된 링크</string>
+    <string name="tx_saved_link">클립보드</string>
     <string name="tx_my_folder">내 폴더</string>
     <string name="tx_folder_detail">링크를 정리하세요</string>
     <string name="tx_show_favorite">즐겨찾는 항목 보기</string>
     <string name="tx_favorite">즐겨찾기</string>
+    <string name="tx_logout">로그아웃</string>
+    <string name="tx_use_guest_mode">게스트로 이용하기</string>
+    <string name="tx_login">로그인</string>
 
 
 </resources>
