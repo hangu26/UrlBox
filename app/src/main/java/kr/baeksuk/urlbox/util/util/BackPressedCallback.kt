@@ -24,7 +24,7 @@ class BackPressedCallback(private val activity: FragmentActivity) {
                 } else {
                     context.startActivity(intent)
                 }
-                context.finish()
+                context.finishAffinity()
             }
         }
         activity.onBackPressedDispatcher.addCallback(activity, callback)

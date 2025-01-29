@@ -7,6 +7,7 @@
     <color name="appBar_title_03">#D6C4B1</color>
     <color name="bottom_border">#E8E8E8</color>
     <color name="main_color">#A1824A</color>
+    <color name="tx_user_email_color">#A1824A</color>
     <color name="app_green">#009963</color>
     <color name="blur">#DC000000</color>
 

@@ -159,7 +159,7 @@ class CaptureActivity : BaseActivity() {
 
                         val intent = Intent(this@CaptureActivity, MainActivity::class.java)
                         startActivityAnimation(intent, this)
-                        finish()
+                        finishAffinity()
 
                     }
 
@@ -188,7 +188,7 @@ class CaptureActivity : BaseActivity() {
 
                     val intent = Intent(this@CaptureActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this)
-                    finish()
+                    finishAffinity()
 
                 }
 

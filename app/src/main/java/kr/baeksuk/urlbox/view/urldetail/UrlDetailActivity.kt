@@ -105,10 +105,9 @@ class UrlDetailActivity : BaseActivity() {
 
         vm.btnLoadUrl.observe(this@UrlDetailActivity) {
             if (it) {
-
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uBinding.txUrl.text.toString()))
                 startActivity(intent)
-
+                finish()
             }
         }
 

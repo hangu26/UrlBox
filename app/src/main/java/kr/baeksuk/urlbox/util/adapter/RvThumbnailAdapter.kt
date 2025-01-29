@@ -91,7 +91,6 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
                 intent.putExtra("title", txUrl)
                 intent.putExtra("image", imageKey)
                 context.startActivity(intent, options.toBundle())
-
             }
 
         }

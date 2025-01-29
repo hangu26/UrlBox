@@ -3,6 +3,7 @@ package kr.baeksuk.urlbox.util.util
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
+import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
@@ -18,5 +19,6 @@ val module = module {
     viewModel { CaptureViewModel(androidApplication()) }
     viewModel { UrlDetailViewModel(androidApplication()) }
     viewModel { ThumbnailViewModel(androidApplication()) }
+    viewModel { MyPageViewModel(androidApplication()) }
 
 }

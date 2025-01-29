@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <corners
+        android:radius="@dimen/border_box_corner"/>
+
+    <stroke
+        android:width="@dimen/border_box_stroke_width"
+        android:color="@color/appBar_title_01"/>
+
+</shape>

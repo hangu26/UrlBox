@@ -88,14 +88,12 @@ class RvUrlAdapter(ctx: Context, act : Activity) : RecyclerView.Adapter<RvUrlAda
                 intent.putExtra("title", txUrl.text.toString())
                 intent.putExtra("image", imageKey)
                 context.startActivity(intent, options.toBundle())
-
             }
 
             txUrl.setOnClickListener {
 
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.text.toString()))
                 context.startActivity(intent)
-
             }
 
         }
