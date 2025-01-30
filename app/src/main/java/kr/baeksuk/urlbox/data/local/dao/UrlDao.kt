@@ -17,6 +17,9 @@ interface UrlDao{
     @Query("UPDATE url_history SET imageKey = :newImageKey WHERE urlLink = :url")
     suspend fun update(url:String, newImageKey : String)
 
+    @Query("UPDATE url_history SET favorite = :newFavorite WHERE urlLink = :url")
+    suspend fun updateFavorite(url:String, newFavorite : Boolean)
+
     @Query("SELECT * FROM url_history WHERE urlLink = :url LIMIT 1")
     suspend fun getUrlIsExist(url: String): UrlEntity?
 

@@ -361,6 +361,7 @@
                     android:id="@+id/btn_my_favorite"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
+                    android:onClick="@{() -> viewmodel.btnFavorite()}"
                     android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
                     android:layout_weight="1">
 

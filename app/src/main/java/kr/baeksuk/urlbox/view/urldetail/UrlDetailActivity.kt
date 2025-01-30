@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
@@ -23,6 +24,8 @@ class UrlDetailActivity : BaseActivity() {
     private lateinit var uBinding: ActivityUrlDetailBinding
     private val uViewModel: UrlDetailViewModel by inject()
     private val autoLogin = false
+    private var favoriteClicked = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         uBinding =
@@ -41,18 +44,27 @@ class UrlDetailActivity : BaseActivity() {
 
         val imageKey = intent.extras?.getString("image")
         val url = intent.extras?.getString("title")
+        val favoriteState = intent.extras?.getBoolean("isFavorite")
         uBinding.txUrl.text = url
         val directory = this.filesDir // UrlFragment에서 context 사용
         val filePath = "$directory/$imageKey.png"
         val file = File(filePath)
         val bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
+        if (favoriteState == true) {
+            favoriteClicked = true
+            uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
+        } else {
+            favoriteClicked = false
+            uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
+        }
+
         if (file.exists()) {
 
             uBinding.imgUrl.setImageBitmap(bitmap)
 
         } else {
-
+            Log.e("사진 파일", "파일이 존재하지 않습니다.")
         }
 
     }
@@ -72,6 +84,8 @@ class UrlDetailActivity : BaseActivity() {
                 val url = intent.extras?.getString("title")
 
                 if (autoLogin) {
+
+
 
                 } else {
 
@@ -93,6 +107,8 @@ class UrlDetailActivity : BaseActivity() {
 
                 if (autoLogin) {
 
+
+
                 } else {
                     vm.deleteGuestData(url!!)
                     val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
@@ -108,6 +124,31 @@ class UrlDetailActivity : BaseActivity() {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uBinding.txUrl.text.toString()))
                 startActivity(intent)
                 finish()
+            }
+        }
+
+        vm.btnFavoriteState.observe(this@UrlDetailActivity) {
+            if (it) {
+                val url = intent.extras?.getString("title")
+
+                if (!favoriteClicked) {
+
+                    favoriteClicked = true
+
+                    uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
+                    Toast.makeText(this, "즐겨찾기가 설정되었습니다.", Toast.LENGTH_SHORT).show()
+                    vm.updateFavorite(url!!, favoriteClicked)
+
+                } else {
+
+                    favoriteClicked = false
+
+                    uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
+                    Toast.makeText(this, "즐겨찾기가 해제되었습니다.", Toast.LENGTH_SHORT).show()
+                    vm.updateFavorite(url!!, favoriteClicked)
+
+                }
+
             }
         }
 

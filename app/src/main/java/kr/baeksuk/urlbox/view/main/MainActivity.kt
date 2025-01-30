@@ -48,6 +48,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun observeViewModel() = mViewModel.let { vm ->
+
         vm.menu.observe(this@MainActivity) { menu ->
             menu ?: return@observe // menu가 null이면 이벤트 무시 후, 리턴
             when (menu) {
@@ -60,10 +61,6 @@ class MainActivity : BaseActivity() {
     }
 
     private fun configureBottomNavigation() {
-
-        mViewModel.pageLoaded.observe(this) {
-            navigateUrl()
-        } // 초기 네이게이션 화면 단어장 화면으로 설정
 
         mBinding.ibThumbnail.setOnClickListener {
             mViewModel.changeMenu(NavigationMenu.THUMBNAIL)

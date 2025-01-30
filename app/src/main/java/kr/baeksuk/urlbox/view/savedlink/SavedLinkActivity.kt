@@ -44,7 +44,7 @@ class SavedLinkActivity : BaseActivity() {
             rvUrl.adapter = adapter
         }
 
-        backPressedCallback.addCallbackActivity(this, MainActivity::class.java)
+        backPressedCallback.finishActivity(this)
 
         observe()
 
@@ -66,8 +66,8 @@ class SavedLinkActivity : BaseActivity() {
 
         vm.btnCloseState.observe(this@SavedLinkActivity){
             if (it){
-                val intent = Intent(this@SavedLinkActivity, MainActivity::class.java)
-                startActivityAnimation(intent, this@SavedLinkActivity)
+//                val intent = Intent(this@SavedLinkActivity, MainActivity::class.java)
+//                startActivityAnimation(intent, this@SavedLinkActivity)
                 finish()
             }
         }

@@ -29,12 +29,26 @@ class RvUrlAdapter(ctx: Context, act : Activity) : RecyclerView.Adapter<RvUrlAda
         urlList = url.map { urlEntity ->
             Url(
                 url = urlEntity.urlLink,
-                imageKey = urlEntity.imageKey
+                imageKey = urlEntity.imageKey,
+                favorite = urlEntity.favorite
             )
         }
 
         notifyDataSetChanged()
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setFavoriteData(url: List<UrlEntity>) {
+        urlList = url.map { urlEntity ->
+            Url(
+                url = urlEntity.urlLink,
+                imageKey = urlEntity.imageKey,
+                favorite = urlEntity.favorite
+            )
+        }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
+
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -52,13 +66,14 @@ class RvUrlAdapter(ctx: Context, act : Activity) : RecyclerView.Adapter<RvUrlAda
 
     inner class MyViewHolder(binding: ItemUrlListBinding) : RecyclerView.ViewHolder(binding.root) {
         private var imageKey = ""
+        private var isFavorite = false
         private val txUrl = binding.txUrl
         private val imgView = binding.imgThumbnail
         private val btnUrl = binding.btnUrl
         fun bind(url: Url) {
             txUrl.text = url.url
             imageKey = url.imageKey
-
+            isFavorite = url.favorite
             val directory = context.filesDir // UrlFragment에서 context 사용
             val filePath = "$directory/$imageKey.png"
             val file = File(filePath)
@@ -87,6 +102,8 @@ class RvUrlAdapter(ctx: Context, act : Activity) : RecyclerView.Adapter<RvUrlAda
                 val intent = Intent(context, UrlDetailActivity::class.java)
                 intent.putExtra("title", txUrl.text.toString())
                 intent.putExtra("image", imageKey)
+                intent.putExtra("isFavorite", isFavorite)
+
                 context.startActivity(intent, options.toBundle())
             }
 

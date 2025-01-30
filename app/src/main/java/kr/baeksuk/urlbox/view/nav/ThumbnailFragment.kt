@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentThumbnailBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -15,6 +16,7 @@ import kr.baeksuk.urlbox.util.adapter.RvThumbnailAdapter
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
+import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import org.koin.android.ext.android.inject
 
 class ThumbnailFragment : Fragment() {
@@ -54,6 +56,10 @@ class ThumbnailFragment : Fragment() {
         } else {
 
             vm.getGuestThumbnail().observe(viewLifecycleOwner, Observer<List<UrlEntity>> { url ->
+
+                val urlDataViewModel = ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
+                urlDataViewModel.sendUrlCount(url)
+
                 adapter.setGuestData(url)
                 adapter.notifyDataSetChanged()
             })

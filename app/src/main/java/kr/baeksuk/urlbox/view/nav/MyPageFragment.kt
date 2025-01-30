@@ -13,6 +13,7 @@ import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentMyPageBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
+import kr.baeksuk.urlbox.view.favorite.FavoritesActivity
 import kr.baeksuk.urlbox.view.savedlink.SavedLinkActivity
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
@@ -45,6 +46,9 @@ class MyPageFragment : Fragment() {
         urlDataViewModel.urlData.observe(viewLifecycleOwner, Observer{
             urlList = it
             mBinding.txLinkCount.text = it.size.toString()
+
+            mBinding.txFavoriteCount.text = urlList.filter { it.favorite }.size.toString()
+
         })
 
 
@@ -65,7 +69,17 @@ class MyPageFragment : Fragment() {
 
                 val intent = Intent(context, SavedLinkActivity::class.java)
                 startActivityAnimation.startActivityAnimation(intent, requireContext())
-                activity?.finish()
+//                activity?.finish()
+            }
+        }
+
+        vm.btnFavoriteState.observe(viewLifecycleOwner){
+            if (it){
+
+                val intent = Intent(context, FavoritesActivity::class.java)
+                startActivityAnimation.startActivityAnimation(intent, requireContext())
+
+
             }
         }
 

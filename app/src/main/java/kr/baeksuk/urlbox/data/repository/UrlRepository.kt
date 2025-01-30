@@ -36,6 +36,16 @@ class UrlRepository(application: Application) : ViewModel(){
         }
     }
 
+    fun updateFavorite(url : String, isFavorite : Boolean){
+        viewModelScope.launch(Dispatchers.IO){
+            try {
+                urlDao.updateFavorite(url, isFavorite)
+            }catch (e: java.lang.Exception){
+
+            }
+        }
+    }
+
     fun deleteGuestData(url : String){
 
         viewModelScope.launch(Dispatchers.IO){

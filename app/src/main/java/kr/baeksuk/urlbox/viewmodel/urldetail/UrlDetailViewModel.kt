@@ -1,8 +1,13 @@
 package kr.baeksuk.urlbox.viewmodel.urldetail
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 
 class UrlDetailViewModel(application: Application) : AndroidViewModel(application) {
@@ -21,6 +26,9 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private val _btnLoadUrl = MutableLiveData<Boolean>()
     val btnLoadUrl = _btnLoadUrl
 
+    private val _btnFavoriteState = MutableLiveData<Boolean>()
+    val btnFavoriteState = _btnFavoriteState
+
     fun btnLoadUrl() {
         _btnLoadUrl.value = true
     }
@@ -38,6 +46,22 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deleteGuestData(url : String){
         _repo.deleteGuestData(url)
+    }
+
+    fun btnFavorite(){
+        _btnFavoriteState.value = true
+    }
+
+    fun updateFavorite(url : String, isFavorite : Boolean){
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                _repo.updateFavorite(url, isFavorite)
+            }
+
+        }
+
     }
 
 }

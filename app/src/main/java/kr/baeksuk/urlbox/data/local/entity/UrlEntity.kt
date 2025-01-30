@@ -8,5 +8,6 @@ data class UrlEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0, // ID 필드 자동으로 생성
     val urlLink : String,
-    val imageKey : String
+    val imageKey : String,
+    val favorite : Boolean
 )

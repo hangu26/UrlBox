@@ -72,6 +72,7 @@
     <dimen name="margin_vertical_saved_link">34dp</dimen>
     <dimen name="img_profile">70dp</dimen>
     <dimen name="tx_profile_name">20sp</dimen>
+    <dimen name="img_star_size">27dp</dimen>
 
 
 </resources>

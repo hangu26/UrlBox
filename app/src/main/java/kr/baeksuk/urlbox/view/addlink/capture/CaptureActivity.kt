@@ -120,7 +120,8 @@ class CaptureActivity : BaseActivity() {
                     } else {
                         val urlEntity = UrlEntity(
                             urlLink = url.toString(),
-                            imageKey = imageKey
+                            imageKey = imageKey,
+                            favorite = false
                         )
 
                         val isEditUrl = intent.extras?.getBoolean("edit")
@@ -181,7 +182,8 @@ class CaptureActivity : BaseActivity() {
                 } else {
                     val urlEntity = UrlEntity(
                         urlLink = url.toString(),
-                        imageKey = "skip"
+                        imageKey = "skip",
+                        favorite = false
                     )
 
                     vm.insertUrl(urlEntity, url.toString(), this)

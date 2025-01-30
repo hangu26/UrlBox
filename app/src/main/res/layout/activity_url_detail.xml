@@ -66,6 +66,17 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
+                    <ImageView
+                        android:id="@+id/icon_favorite"
+                        android:layout_width="@dimen/img_star_size"
+                        android:layout_height="@dimen/img_star_size"
+                        android:src="@drawable/icon_favorite_app_color"
+                        android:onClick="@{() -> viewmodel.btnFavorite()}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginEnd="15dp"/>
+
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.appcompat.widget.Toolbar>

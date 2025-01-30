@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemThumbnailListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
 import java.io.File
 
@@ -28,7 +29,8 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
         thumbnailList = url.map { urlEntity ->
             Url(
                 url = urlEntity.urlLink,
-                imageKey = urlEntity.imageKey
+                imageKey = urlEntity.imageKey,
+                favorite = urlEntity.favorite
             )
         }
 
@@ -57,10 +59,12 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
         private var thumbnail = binding.imgThumbnail
         private var imageKey = ""
         private var txUrl = ""
+        private var isFavorite = false
 
         fun bind(url : Url){
             imageKey = url.imageKey
             txUrl = url.url
+            isFavorite = url.favorite
 
             val directory = context.filesDir // UrlFragment에서 context 사용
             val filePath = "$directory/$imageKey.png"
@@ -90,6 +94,12 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
                 val intent = Intent(context, UrlDetailActivity::class.java)
                 intent.putExtra("title", txUrl)
                 intent.putExtra("image", imageKey)
+                intent.putExtra("isFavorite", isFavorite)
+
+                UrlData.urlList = thumbnailList
+                UrlData.selectedPosition = layoutPosition
+
+                Log.d("포지션", layoutPosition.toString())
                 context.startActivity(intent, options.toBundle())
             }
 
