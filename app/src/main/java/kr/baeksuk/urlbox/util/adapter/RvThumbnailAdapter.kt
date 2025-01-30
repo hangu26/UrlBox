@@ -15,6 +15,7 @@ import kr.baeksuk.urlBox.databinding.ItemThumbnailListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.util.UrlData
+import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
 import java.io.File
 
@@ -91,14 +92,13 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
                     Pair.create(thumbnail, "imageTran")
                 )
 
-                val intent = Intent(context, UrlDetailActivity::class.java)
+                val intent = Intent(context, ImgDetailActivity::class.java)
                 intent.putExtra("title", txUrl)
                 intent.putExtra("image", imageKey)
                 intent.putExtra("isFavorite", isFavorite)
-
+                intent.putExtra("itemPosition", layoutPosition)
                 UrlData.urlList = thumbnailList
                 UrlData.selectedPosition = layoutPosition
-
                 Log.d("포지션", layoutPosition.toString())
                 context.startActivity(intent, options.toBundle())
             }

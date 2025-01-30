@@ -28,6 +28,7 @@ class ThumbnailFragment : Fragment() {
     private val autoLogin = false
 
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
