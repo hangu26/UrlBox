@@ -8,9 +8,11 @@ import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 import java.io.File
 
 class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Activity) : RecyclerView.Adapter<ImgPagerRvAdapter.MyViewHolder>() {
@@ -41,10 +43,16 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
         private var txUrl = binding.txUrl
         private var isFavorite = false
 
+        fun getThumbnail(): ImageView {
+            return thumbnail
+        }
+
         fun bind(url : Url, position : Int){
             imageKey = url.imageKey
             txUrl.text = url.url.toString()
             isFavorite = url.favorite
+
+            ViewPagerPosition.thumbnail = thumbnail
 
             val directory = context.filesDir // UrlFragment에서 context 사용
             val filePath = "$directory/$imageKey.png"
@@ -67,6 +75,7 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
 
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.text.toString()))
                 context.startActivity(intent)
+
             }
 
         }

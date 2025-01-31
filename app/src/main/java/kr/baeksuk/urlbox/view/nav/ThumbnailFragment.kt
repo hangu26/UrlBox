@@ -58,7 +58,8 @@ class ThumbnailFragment : Fragment() {
 
             vm.getGuestThumbnail().observe(viewLifecycleOwner, Observer<List<UrlEntity>> { url ->
 
-                val urlDataViewModel = ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
+                val urlDataViewModel =
+                    ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
                 urlDataViewModel.sendUrlCount(url)
 
                 adapter.setGuestData(url)

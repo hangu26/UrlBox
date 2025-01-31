@@ -16,10 +16,10 @@ import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
-import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
 import java.io.File
 
-class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvThumbnailAdapter.MyViewHolder>() {
+class RvThumbnailAdapter(ctx: Context, act: Activity) :
+    RecyclerView.Adapter<RvThumbnailAdapter.MyViewHolder>() {
 
     private val context = ctx
     private val activity = act
@@ -55,14 +55,15 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
         return thumbnailList.size
     }
 
-    inner class MyViewHolder(binding : ItemThumbnailListBinding) : RecyclerView.ViewHolder(binding.root){
+    inner class MyViewHolder(binding: ItemThumbnailListBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         private var thumbnail = binding.imgThumbnail
         private var imageKey = ""
         private var txUrl = ""
         private var isFavorite = false
 
-        fun bind(url : Url){
+        fun bind(url: Url) {
             imageKey = url.imageKey
             txUrl = url.url
             isFavorite = url.favorite
@@ -86,20 +87,20 @@ class RvThumbnailAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvT
         init {
 
             thumbnail.setOnClickListener {
+//                ViewCompat.setTransitionName(thumbnail, "image_$layoutPosition")
 
                 val options = ActivityOptions.makeSceneTransitionAnimation(
                     activity,
                     Pair.create(thumbnail, "imageTran")
                 )
-
                 val intent = Intent(context, ImgDetailActivity::class.java)
                 intent.putExtra("title", txUrl)
                 intent.putExtra("image", imageKey)
                 intent.putExtra("isFavorite", isFavorite)
-                intent.putExtra("itemPosition", layoutPosition)
+
                 UrlData.urlList = thumbnailList
                 UrlData.selectedPosition = layoutPosition
-                Log.d("포지션", layoutPosition.toString())
+
                 context.startActivity(intent, options.toBundle())
             }
 

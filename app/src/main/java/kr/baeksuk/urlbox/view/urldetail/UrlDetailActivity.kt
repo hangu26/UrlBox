@@ -86,7 +86,6 @@ class UrlDetailActivity : BaseActivity() {
                 if (autoLogin) {
 
 
-
                 } else {
 
                     val intent = Intent(this@UrlDetailActivity, CaptureActivity::class.java)
@@ -106,7 +105,6 @@ class UrlDetailActivity : BaseActivity() {
                 val url = intent.extras?.getString("title", "")
 
                 if (autoLogin) {
-
 
 
                 } else {

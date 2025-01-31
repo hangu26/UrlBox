@@ -56,6 +56,14 @@ class FavoritesActivity : AppCompatActivity() {
 
         }
 
+        vm.btnCloseState.observe(this@FavoritesActivity){
+            if (it){
+
+                finish()
+
+            }
+        }
+
     }
 
 }

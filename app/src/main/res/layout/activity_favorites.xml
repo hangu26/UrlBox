@@ -60,6 +60,7 @@
                         android:layout_width="@dimen/img_setting_width"
                         android:layout_height="@dimen/img_setting_height"
                         android:layout_marginStart="@dimen/img_setting_margin_end"
+                        android:onClick="@{() -> viewmodel.btnClose()}"
                         android:src="@drawable/close_24px"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -88,8 +89,8 @@
             android:layout_marginTop="@dimen/margin_top_in_url_page"
             android:fontFamily="@font/pretendard_semibold"
             android:text="@string/tx_favorite"
-            android:textSize="@dimen/tx_saved_url_list"
             android:textColor="@color/tx_black"
+            android:textSize="@dimen/tx_saved_url_list"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/appBar_margin" />
 
