@@ -1,6 +1,9 @@
 package kr.baeksuk.urlbox.view.favorite
 
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
+import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -11,16 +14,21 @@ import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityFavoritesBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
+import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.base.NavigationMenu
+import kr.baeksuk.urlbox.util.util.BackPressedCallback
+import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.favorite.FavoriteViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import org.koin.android.ext.android.inject
 
-class FavoritesActivity : AppCompatActivity() {
+class FavoritesActivity : BaseActivity() {
 
     private lateinit var fBinding: ActivityFavoritesBinding
     private val fViewModel: FavoriteViewModel by inject()
     private lateinit var adapter: RvUrlAdapter
     private var autoLogin = false
+    private val backPressedCallback = BackPressedCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +44,8 @@ class FavoritesActivity : AppCompatActivity() {
                 GridLayoutManager(this@FavoritesActivity, 2, GridLayoutManager.VERTICAL, false)
             rvUrl.adapter = adapter // adapter 할당
         }
+
+        backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
         observe()
 
@@ -56,14 +66,21 @@ class FavoritesActivity : AppCompatActivity() {
 
         }
 
-        vm.btnCloseState.observe(this@FavoritesActivity){
-            if (it){
+        vm.btnCloseState.observe(this@FavoritesActivity) {
+            if (it) {
 
-                finish()
+                finishToMyPage()
 
             }
         }
 
+    }
+
+    private fun finishToMyPage() {
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra("TARGET_FRAGMENT", "MyPage")
+        startActivityAnimation(intent, this@FavoritesActivity)
+        finish()
     }
 
 }

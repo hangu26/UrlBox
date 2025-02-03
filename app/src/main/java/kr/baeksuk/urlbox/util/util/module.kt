@@ -4,6 +4,7 @@ import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
 import kr.baeksuk.urlbox.viewmodel.favorite.FavoriteViewModel
 import kr.baeksuk.urlbox.viewmodel.imgdetail.ImgDetailViewModel
+import kr.baeksuk.urlbox.viewmodel.login.LoginViewModel
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
@@ -28,5 +29,6 @@ val module = module {
     viewModel { SavedLinkViewModel(androidApplication()) }
     viewModel { FavoriteViewModel(androidApplication()) }
     viewModel { ImgDetailViewModel(androidApplication()) }
+    viewModel { LoginViewModel(androidApplication()) }
 
 }

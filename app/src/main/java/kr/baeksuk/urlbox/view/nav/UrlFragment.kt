@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
+import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
+import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
@@ -59,7 +61,6 @@ class UrlFragment : Fragment() {
     private fun initView() {
 
 
-
         if (autoLogin) {
 
         } else {
@@ -78,8 +79,12 @@ class UrlFragment : Fragment() {
 
             vm.getGuestUrl().observe(viewLifecycleOwner, Observer<List<UrlEntity>> { url ->
 
-                val urlDataViewModel = ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
+                val urlDataViewModel =
+                    ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
                 urlDataViewModel.sendUrlCount(url)
+
+                InitUrlDataCount.linkCount = url.size
+                InitUrlDataCount.favorite = url.filter { it.favorite }.size
 
                 adapter.setGuestData(url)
                 adapter.notifyDataSetChanged()

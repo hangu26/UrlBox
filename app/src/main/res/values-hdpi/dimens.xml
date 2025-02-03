@@ -73,6 +73,23 @@
     <dimen name="img_profile">70dp</dimen>
     <dimen name="tx_profile_name">20sp</dimen>
     <dimen name="img_star_size">27dp</dimen>
+    <dimen name="tx_save_through_login_size">25sp</dimen>
+    <dimen name="tx_google_login_size">16sp</dimen>
+    <dimen name="border_google_login_height">48dp</dimen>
+    <dimen name="border_google_login_margin_side">57dp</dimen>
+    <dimen name="border_google_login_margin_top">34dp</dimen>
+    <dimen name="img_google_margin_start">14dp</dimen>
+    <dimen name="border_radius_google">3dp</dimen>
+    <dimen name="border_radius_kakao">3dp</dimen>
+    <dimen name="width_google_img">18dp</dimen>
+    <dimen name="height_google_img">18dp</dimen>
+    <dimen name="margin_start_google_text">8dp</dimen>
+    <dimen name="margin_top_constraint_kakao">14dp</dimen>
+    <dimen name="width_btn_login">197dp</dimen>
+    <dimen name="width_img_kakao">19dp</dimen>
+    <dimen name="height_img_kakao">18dp</dimen>
+    <dimen name="margin_top_tx_login_detail">34dp</dimen>
+
 
 
 </resources>

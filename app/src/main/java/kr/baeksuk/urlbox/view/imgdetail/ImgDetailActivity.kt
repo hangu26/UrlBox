@@ -8,13 +8,13 @@ import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
-import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityImgDetailBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.ImgPagerRvAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
@@ -71,16 +71,6 @@ class ImgDetailActivity : BaseActivity() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 favoriteClicked = getCurrentUrl().favorite
-                val url = getCurrentUrl()
-
-                // 현재 페이지의 ViewHolder 가져오기
-                val viewHolder = (viewPager.getChildAt(0) as RecyclerView).findViewHolderForAdapterPosition(position)
-
-                if (viewHolder is ImgPagerRvAdapter.MyViewHolder) {
-                    // 현재 페이지의 ImageView를 저장
-                    ViewPagerPosition.thumbnail = viewHolder.getThumbnail()
-                }
-
 
                 exitPosition = position // 현재 위치 업데이트
 
@@ -120,7 +110,7 @@ class ImgDetailActivity : BaseActivity() {
         vm.btnCloseState.observe(this@ImgDetailActivity) {
             if (it) {
                 ViewPagerPosition.thumbnail?.let { thumbnail ->
-                    ViewCompat.setTransitionName(thumbnail, "imageTran") // 현재 이미지뷰에 트랜지션 적용
+                    ViewCompat.setTransitionName(thumbnail, "image") // 현재 이미지뷰에 트랜지션 적용
                 }
                 finishAfterTransition() // 트랜지션과 함께 종료
             }

@@ -12,8 +12,10 @@ import androidx.lifecycle.ViewModelProvider
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentMyPageBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.view.favorite.FavoritesActivity
+import kr.baeksuk.urlbox.view.login.LoginActivity
 import kr.baeksuk.urlbox.view.savedlink.SavedLinkActivity
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
@@ -41,15 +43,20 @@ class MyPageFragment : Fragment() {
     }
 
     private fun initView() {
+        /**
         val urlDataViewModel = ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
 
         urlDataViewModel.urlData.observe(viewLifecycleOwner, Observer{
-            urlList = it
-            mBinding.txLinkCount.text = it.size.toString()
+        urlList = it
+        mBinding.txLinkCount.text = it.size.toString()
 
-            mBinding.txFavoriteCount.text = urlList.filter { it.favorite }.size.toString()
+        mBinding.txFavoriteCount.text = urlList.filter { it.favorite }.size.toString()
 
         })
+         **/
+
+        mBinding.txLinkCount.text = InitUrlDataCount.linkCount.toString()
+        mBinding.txFavoriteCount.text = InitUrlDataCount.favorite.toString()
 
 
     }
@@ -59,26 +66,28 @@ class MyPageFragment : Fragment() {
         vm.btnEditState.observe(viewLifecycleOwner) {
             if (it) {
 
+                val intent = Intent(context, LoginActivity::class.java)
+                startActivityAnimation.startActivityAnimation(intent, requireContext())
+                activity?.finish()
+
             }
         }
 
-        vm.btnSavedLinkState.observe(viewLifecycleOwner){
-            if (it){
-
-                Log.d("뷰모델 공유", urlList.toString())
+        vm.btnSavedLinkState.observe(viewLifecycleOwner) {
+            if (it) {
 
                 val intent = Intent(context, SavedLinkActivity::class.java)
                 startActivityAnimation.startActivityAnimation(intent, requireContext())
-//                activity?.finish()
+                activity?.finish()
             }
         }
 
-        vm.btnFavoriteState.observe(viewLifecycleOwner){
-            if (it){
+        vm.btnFavoriteState.observe(viewLifecycleOwner) {
+            if (it) {
 
                 val intent = Intent(context, FavoritesActivity::class.java)
                 startActivityAnimation.startActivityAnimation(intent, requireContext())
-
+                activity?.finish()
 
             }
         }

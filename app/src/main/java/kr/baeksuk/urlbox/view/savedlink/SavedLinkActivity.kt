@@ -22,15 +22,16 @@ import org.koin.android.ext.android.inject
 
 class SavedLinkActivity : BaseActivity() {
 
-    private lateinit var sBinding : ActivitySavedLinkBinding
-    private val sViewModel : SavedLinkViewModel by inject()
+    private lateinit var sBinding: ActivitySavedLinkBinding
+    private val sViewModel: SavedLinkViewModel by inject()
     private lateinit var adapter: RvClipAdapter
     private val autoLogin = false
     private val backPressedCallback = BackPressedCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sBinding = DataBindingUtil.setContentView(this@SavedLinkActivity, R.layout.activity_saved_link)
+        sBinding =
+            DataBindingUtil.setContentView(this@SavedLinkActivity, R.layout.activity_saved_link)
         adapter = RvClipAdapter(this, this@SavedLinkActivity)
 
         sBinding.apply {
@@ -44,7 +45,7 @@ class SavedLinkActivity : BaseActivity() {
             rvUrl.adapter = adapter
         }
 
-        backPressedCallback.finishActivity(this)
+        backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
         observe()
 
@@ -57,21 +58,26 @@ class SavedLinkActivity : BaseActivity() {
 
         } else {
 
-            vm.getGuestUrl().observe(this){ url ->
+            vm.getGuestUrl().observe(this) { url ->
                 adapter.setGuestData(url)
                 adapter.notifyDataSetChanged()
             }
 
         }
 
-        vm.btnCloseState.observe(this@SavedLinkActivity){
-            if (it){
-//                val intent = Intent(this@SavedLinkActivity, MainActivity::class.java)
-//                startActivityAnimation(intent, this@SavedLinkActivity)
-                finish()
+        vm.btnCloseState.observe(this@SavedLinkActivity) {
+            if (it) {
+                finishToMyPage()
             }
         }
 
+    }
+
+    private fun finishToMyPage() {
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra("TARGET_FRAGMENT", "MyPage")
+        startActivityAnimation(intent, this@SavedLinkActivity)
+        finish()
     }
 
 }

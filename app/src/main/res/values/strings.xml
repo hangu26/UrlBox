@@ -36,6 +36,9 @@
     <string name="tx_logout">로그아웃</string>
     <string name="tx_use_guest_mode">게스트로 이용하기</string>
     <string name="tx_login">로그인</string>
+    <string name="tx_save_through_login">UrlBox를 통해 \n링크를 저장해보세요</string>
+    <string name="tx_google_login">Google 로그인</string>
+    <string name="tx_login_kakao">카카오 로그인</string>
 
 
 </resources>

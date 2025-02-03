@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.view.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
@@ -40,10 +41,26 @@ class MainActivity : BaseActivity() {
                 mViewModel.changeMenu(NavigationMenu.MYPAGE)
             }
         }
-
+        initView()
         observeViewModel()
         configureBottomNavigation()
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
+
+    }
+
+    private fun initView() {
+
+        when (intent.extras?.getString("TARGET_FRAGMENT")) {
+
+            "Thumbnail" -> {
+                mViewModel.changeMenu(NavigationMenu.THUMBNAIL)
+            }
+
+            "MyPage" -> {
+                mViewModel.changeMenu(NavigationMenu.MYPAGE)
+            }
+
+        }
 
     }
 
