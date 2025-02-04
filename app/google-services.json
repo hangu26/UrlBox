@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "359980205729",
+    "project_id": "urlbox-a74eb",
+    "storage_bucket": "urlbox-a74eb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:359980205729:android:133a8f6199a90ae71d12e0",
+        "android_client_info": {
+          "package_name": "kr.baeksuk.urlBox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPc2oL2BzGAwU_nwilpN-tE040J6EP0tU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
