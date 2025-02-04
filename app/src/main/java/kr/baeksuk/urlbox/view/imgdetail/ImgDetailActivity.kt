@@ -8,9 +8,11 @@ import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityImgDetailBinding
+import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.ImgPagerRvAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
@@ -31,6 +33,7 @@ class ImgDetailActivity : BaseActivity() {
     private val autoLogin = false
     private var favoriteClicked = false
     private var exitPosition: Int = 0 // 현재 ViewPager의 위치 저장 변수
+    private lateinit var adapter: ImgPagerRvAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,12 +42,13 @@ class ImgDetailActivity : BaseActivity() {
 
         postponeEnterTransition() // 트랜지션 시작을 지연
 
+        adapter = ImgPagerRvAdapter(urlList, this@ImgDetailActivity, this@ImgDetailActivity)
+
         iBinding.apply {
             activity = this@ImgDetailActivity
             viewmodel = iViewModel
             lifecycleOwner = this@ImgDetailActivity
-            viewPager.adapter =
-                ImgPagerRvAdapter(urlList, this@ImgDetailActivity, this@ImgDetailActivity)
+            viewPager.adapter = adapter
             viewPager.setCurrentItem(startPosition, false)
         }
 
@@ -72,7 +76,15 @@ class ImgDetailActivity : BaseActivity() {
                 super.onPageSelected(position)
                 favoriteClicked = getCurrentUrl().favorite
 
-                exitPosition = position // 현재 위치 업데이트
+                UrlData.selectedPosition = position // 현재 위치 업데이트
+
+                // ✅ ViewPager2 내부 RecyclerView 가져오기
+                val recyclerView = viewPager.getChildAt(0) as? RecyclerView
+                val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
+                        as? ImgPagerRvAdapter.MyViewHolder
+
+                viewHolder?.updateTransitionName(position) // ✅ ViewHolder가 존재하면 transitionName 업데이트
+
 
                 if (favoriteClicked) {
 
@@ -93,6 +105,7 @@ class ImgDetailActivity : BaseActivity() {
 
         val isFavorite = intent.extras?.getBoolean("isFavorite", false)
 
+
         if (isFavorite == true) {
             favoriteClicked = isFavorite
             iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
@@ -109,10 +122,9 @@ class ImgDetailActivity : BaseActivity() {
 
         vm.btnCloseState.observe(this@ImgDetailActivity) {
             if (it) {
-                ViewPagerPosition.thumbnail?.let { thumbnail ->
-                    ViewCompat.setTransitionName(thumbnail, "image") // 현재 이미지뷰에 트랜지션 적용
-                }
+
                 finishAfterTransition() // 트랜지션과 함께 종료
+
             }
         }
 

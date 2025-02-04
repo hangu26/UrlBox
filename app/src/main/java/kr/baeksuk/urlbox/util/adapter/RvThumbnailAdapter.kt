@@ -49,6 +49,7 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
 
     override fun onBindViewHolder(holder: RvThumbnailAdapter.MyViewHolder, position: Int) {
         holder.bind(thumbnailList[position])
+        holder.thumbnail.transitionName = "imageTran_$position"
     }
 
     override fun getItemCount(): Int {
@@ -58,7 +59,7 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
     inner class MyViewHolder(binding: ItemThumbnailListBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private var thumbnail = binding.imgThumbnail
+        var thumbnail = binding.imgThumbnail
         private var imageKey = ""
         private var txUrl = ""
         private var isFavorite = false
@@ -86,12 +87,17 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
 
         init {
 
+            val itemPosition = UrlData.selectedPosition
+
+            thumbnail.transitionName = "imageTran_$itemPosition"
+            Log.e("아이템 번호 선택 프래그먼트", "imageTran_$layoutPosition")
             thumbnail.setOnClickListener {
 //                ViewCompat.setTransitionName(thumbnail, "image_$layoutPosition")
+                Log.e("아이템 번호 선택 프래그먼트", "imageTran_$layoutPosition")
 
                 val options = ActivityOptions.makeSceneTransitionAnimation(
                     activity,
-                    Pair.create(thumbnail, "imageTran")
+                    Pair.create(thumbnail, "imageTran_$layoutPosition")
                 )
                 val intent = Intent(context, ImgDetailActivity::class.java)
                 intent.putExtra("title", txUrl)

@@ -12,6 +12,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 import java.io.File
 
@@ -34,6 +35,10 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
 
     override fun getItemCount(): Int {
         return urlList.size
+    }
+
+    fun getViewHolderAtPosition(recyclerView: RecyclerView, position: Int): MyViewHolder? {
+        return recyclerView.findViewHolderForAdapterPosition(position) as? MyViewHolder
     }
 
     inner class MyViewHolder(binding: ItemThumbnailPageBinding) : RecyclerView.ViewHolder(binding.root){
@@ -69,7 +74,17 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
             }
         }
 
+        fun updateTransitionName(newPosition: Int) {
+            thumbnail.transitionName = "imageTran_$newPosition"
+            Log.e("Transition Name 업데이트", "imageTran_$newPosition")
+        }
+
         init {
+
+            val itemPosition = UrlData.selectedPosition
+
+            thumbnail.transitionName = "imageTran_$itemPosition"
+            Log.e("아이템 번호 뷰페이저", "imageTran_$itemPosition")
 
             txUrl.setOnClickListener {
 
