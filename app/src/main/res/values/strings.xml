@@ -39,6 +39,8 @@
     <string name="tx_save_through_login">UrlBox를 통해 \n링크를 저장해보세요</string>
     <string name="tx_google_login">Google 로그인</string>
     <string name="tx_login_kakao">카카오 로그인</string>
+    <string name="default_web_client_id" translatable="false">645387379425-4h8t119sj2u29j86obook9lnrc520203.apps.googleusercontent.com</string>
+    <string name="tx_backup_to_account">계정에 데이터 동기화</string>
 
 
 </resources>

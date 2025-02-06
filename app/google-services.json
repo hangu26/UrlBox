@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "359980205729",
+    "firebase_url": "https://urlbox-a74eb-default-rtdb.firebaseio.com",
     "project_id": "urlbox-a74eb",
     "storage_bucket": "urlbox-a74eb.firebasestorage.app"
   },
@@ -12,7 +13,20 @@
           "package_name": "kr.baeksuk.urlBox"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "359980205729-uvmnccklslqko3sr6859qtdu6iocj0kc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "kr.baeksuk.urlBox",
+            "certificate_hash": "c46a6eb4ceea940f7b72d681dd5b89a07aaf2f0f"
+          }
+        },
+        {
+          "client_id": "359980205729-01o75funuu025ivj0ric0h6eka6pjdk5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCPc2oL2BzGAwU_nwilpN-tE040J6EP0tU"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "359980205729-01o75funuu025ivj0ric0h6eka6pjdk5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
