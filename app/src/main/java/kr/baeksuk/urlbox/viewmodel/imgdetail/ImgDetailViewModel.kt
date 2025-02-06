@@ -1,6 +1,7 @@
 package kr.baeksuk.urlbox.viewmodel.imgdetail
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -45,6 +46,12 @@ class ImgDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun deleteGuestData(url : String){
         _repo.deleteGuestData(url)
+    }
+
+    fun deleteUserData(url : String, imageKey : String){
+
+        _repo.deleteUserData(url, imageKey)
+
     }
 
     fun btnFavorite(){

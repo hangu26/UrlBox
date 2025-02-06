@@ -12,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentThumbnailBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.adapter.RvThumbnailAdapter
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
@@ -56,6 +57,13 @@ class ThumbnailFragment : Fragment() {
         val autoLogin = pref.getBoolean("auto login", false)
 
         if (autoLogin) {
+
+            vm.getUserThumbnailBackup().observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>>{url ->
+
+                adapter.setUserBackupData(url, true)
+                adapter.notifyDataSetChanged()
+
+            })
 
         } else {
 

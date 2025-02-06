@@ -21,6 +21,7 @@ import androidx.databinding.DataBindingUtil
 import com.canhub.cropper.CropImageView
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityCaptureBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
@@ -40,7 +41,6 @@ class CaptureActivity : BaseActivity() {
     private val cViewModel: CaptureViewModel by inject()
     private var startY: Float = 0f
     private var startHeight: Int = 0
-    private var autoLogin = false
     private val backPressedCallback = BackPressedCallback(this)
 
     @SuppressLint("ClickableViewAccessibility")
@@ -80,6 +80,10 @@ class CaptureActivity : BaseActivity() {
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun observe() = cViewModel.let { vm ->
+
+        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
+
         vm.btnCloseState.observe(this@CaptureActivity) {
             if (it) {
                 val intent = Intent(this@CaptureActivity, MainActivity::class.java)
@@ -118,10 +122,34 @@ class CaptureActivity : BaseActivity() {
                     val directory = this.filesDir
                     val imageKey = UUID.randomUUID().toString()
                     val file = File(directory, "$imageKey.png")
+                    val isEditUrl = intent.extras?.getBoolean("edit")
 
                     if (autoLogin) {
 
+                        val urlBackupEntity = UrlBackupEntity(
+                            urlLink = url.toString(),
+                            imageKey = imageKey,
+                            favorite = false,
+                            imgUri = "",
+                            timeStamp = System.currentTimeMillis(),
+                        )
 
+                        if (isEditUrl == true) {
+                            vm.updateBackupUrl(urlBackupEntity, this)
+
+                        } else {
+
+                            val outputStream = FileOutputStream(file)
+                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                            outputStream.flush()
+                            outputStream.close()
+
+                            vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file)
+
+                            val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+                            startActivityAnimation(intent, this)
+                            finishAffinity()
+                        }
 
                     } else {
                         val urlEntity = UrlEntity(
@@ -130,8 +158,6 @@ class CaptureActivity : BaseActivity() {
                             favorite = false,
                             timeStamp = System.currentTimeMillis()
                         )
-
-                        val isEditUrl = intent.extras?.getBoolean("edit")
 
                         if (isEditUrl == true) {
                             vm.updateUrl(urlEntity, url.toString(), this)
