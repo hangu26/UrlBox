@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemUrlClipBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
 
@@ -32,6 +33,20 @@ class RvClipAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvClipAd
             )
         }
 
+        notifyDataSetChanged()
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setUserData(url : List<UrlBackupEntity>){
+        clipList = url.map { urlBackupEntity ->
+            Url(
+                url = urlBackupEntity.urlLink,
+                imageKey = urlBackupEntity.imageKey,
+                timeStamp = urlBackupEntity.timeStamp,
+                imgUri = urlBackupEntity.imgUri
+            )
+        }
         notifyDataSetChanged()
 
     }

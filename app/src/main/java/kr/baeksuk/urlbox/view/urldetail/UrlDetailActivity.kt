@@ -123,9 +123,14 @@ class UrlDetailActivity : BaseActivity() {
             if (it) {
 
                 val url = intent.extras?.getString("title", "")
+                val imageKey = intent.extras?.getString("imageKey", "")
 
                 if (autoLogin) {
 
+                    vm.deleteUserData(url.toString(), imageKey.toString())
+                    val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
+                    startActivityAnimation(intent, this)
+                    finish()
 
                 } else {
                     vm.deleteGuestData(url!!)

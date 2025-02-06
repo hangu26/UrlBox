@@ -11,7 +11,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
+import kr.baeksuk.urlbox.model.GuestModeHandler
+import kr.baeksuk.urlbox.model.LoggedInModeHandler
+import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.ImgUriListData
 import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 import java.io.File
@@ -47,6 +51,10 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
         private var imageKey = ""
         private var txUrl = binding.txUrl
         private var isFavorite = false
+        private var timeStamp = ""
+        private var imgUri = ""
+        val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
+        private val autoLogin = pref.getBoolean("auto login", false)
 
         fun getThumbnail(): ImageView {
             return thumbnail
@@ -54,24 +62,24 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
 
         fun bind(url : Url, position : Int){
             imageKey = url.imageKey
-            txUrl.text = url.url.toString()
+            txUrl.text = url.url
             isFavorite = url.favorite
+            imgUri = url.imgUri
+            timeStamp = url.timeStamp.toString()
 
             ViewPagerPosition.thumbnail = thumbnail
 
-            val directory = context.filesDir // UrlFragment에서 context 사용
-            val filePath = "$directory/$imageKey.png"
-            val file = File(filePath)
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            val imgUriList = ImgUriListData.imgUriListData
 
-            if (file.exists()) {
-
-                thumbnail.setImageBitmap(bitmap)
-
+            val modeHandler: ModeHandler = if (autoLogin) {
+                LoggedInModeHandler(imgUriList!!, layoutPosition)
             } else {
-                // 기본 이미지 설정 (이미지가 없는 경우)
-                Log.d("파일 없음", "없음")
+                GuestModeHandler(imageKey, context)
+
             }
+
+            /** 인터페이스를 통해 로그인 모드와 게스트 모드 로직 분리 구현 **/
+            modeHandler.loadImage(url.imgUri, thumbnail, context, true)
         }
 
         fun updateTransitionName(newPosition: Int) {
