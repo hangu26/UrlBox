@@ -1,9 +1,12 @@
 package kr.baeksuk.urlbox.view.addlink.capture
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -75,6 +78,7 @@ class CaptureActivity : BaseActivity() {
 
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private fun observe() = cViewModel.let { vm ->
         vm.btnCloseState.observe(this@CaptureActivity) {
             if (it) {
@@ -117,18 +121,21 @@ class CaptureActivity : BaseActivity() {
 
                     if (autoLogin) {
 
+
+
                     } else {
                         val urlEntity = UrlEntity(
                             urlLink = url.toString(),
                             imageKey = imageKey,
-                            favorite = false
+                            favorite = false,
+                            timeStamp = System.currentTimeMillis()
                         )
 
                         val isEditUrl = intent.extras?.getBoolean("edit")
 
-                        if(isEditUrl == true){
-                            vm. updateUrl(urlEntity, url.toString(), this)
-                        }else{
+                        if (isEditUrl == true) {
+                            vm.updateUrl(urlEntity, url.toString(), this)
+                        } else {
                             vm.insertUrl(urlEntity, url.toString(), this)
                         }
 
@@ -171,20 +178,40 @@ class CaptureActivity : BaseActivity() {
             }
         }
 
-        vm.btnSkipState.observe(this@CaptureActivity){
-            if (it){
+        vm.btnSkipState.observe(this@CaptureActivity) {
+            if (it) {
                 val url = intent.getStringExtra("url")
 
                 if (autoLogin) {
 
 
-
                 } else {
+
+                    val directory = this.filesDir
+                    val imageKey = UUID.randomUUID().toString()
+                    val file = File(directory, "$imageKey.png")
+
+                    val drawable =
+                        getDrawable(R.drawable.urlbox_icon)  // 이미 Drawable 리소스를 가져온 상태라 가정
+                    val bitmap = (drawable as BitmapDrawable).bitmap
+
                     val urlEntity = UrlEntity(
                         urlLink = url.toString(),
-                        imageKey = "skip",
-                        favorite = false
+                        imageKey = imageKey,
+                        favorite = false,
+                        timeStamp = System.currentTimeMillis()
                     )
+
+                    try {
+                        val outputStream = FileOutputStream(file)
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
+                    }
 
                     vm.insertUrl(urlEntity, url.toString(), this)
 
@@ -197,8 +224,8 @@ class CaptureActivity : BaseActivity() {
             }
         }
 
-        vm.btnCancelState.observe(this@CaptureActivity){
-            if (it){
+        vm.btnCancelState.observe(this@CaptureActivity) {
+            if (it) {
 
                 cBinding.cropImageView.clearImage()
                 cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
@@ -233,6 +260,18 @@ class CaptureActivity : BaseActivity() {
             e.printStackTrace()
             null
         }
+    }
+
+    fun getDrawableFile(context: Context, drawableResId: Int, fileName: String): File {
+        val bitmap =
+            BitmapFactory.decodeResource(context.resources, drawableResId) // drawable → Bitmap
+        val file = File(context.filesDir, fileName) // 내부 저장소에 저장할 파일 경로
+
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out) // Bitmap을 PNG로 변환 후 저장
+        }
+
+        return file // 변환된 File 반환
     }
 
 }

@@ -27,7 +27,8 @@ class RvClipAdapter(ctx : Context, act: Activity): RecyclerView.Adapter<RvClipAd
         clipList = url.map { urlEntity ->
             Url(
                 url = urlEntity.urlLink,
-                imageKey = urlEntity.imageKey
+                imageKey = urlEntity.imageKey,
+                timeStamp = urlEntity.timeStamp
             )
         }
 

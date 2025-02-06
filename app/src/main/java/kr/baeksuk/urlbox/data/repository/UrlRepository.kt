@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 
 class UrlRepository(application: Application) : ViewModel(){
@@ -15,6 +16,7 @@ class UrlRepository(application: Application) : ViewModel(){
     private val urlDatabase = UrlDatabase.getInstance(application)
     private val urlDao : UrlDao = urlDatabase.urlDao()
     private val url: LiveData<List<UrlEntity>> = urlDao.getAll()
+    private val urlBackup: LiveData<List<UrlBackupEntity>> = urlDao.getAllBackup()
 
     fun insert(urlEntity : UrlEntity){
         viewModelScope.launch(Dispatchers.IO){
@@ -25,6 +27,17 @@ class UrlRepository(application: Application) : ViewModel(){
             }
         }
     }
+
+    /** 파이어베이스에서 데이터를 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
+//    fun insertUrlBackup(urlBackupEntity : List<UrlBackupEntity>){
+//        viewModelScope.launch(Dispatchers.IO){
+//            try {
+//                urlDao.insertUrlBackup(urlBackupEntity)
+//            }catch (e: java.lang.Exception){
+//
+//            }
+//        }
+//    }
 
     fun update(urlEntity: UrlEntity){
         viewModelScope.launch(Dispatchers.IO){
@@ -60,6 +73,10 @@ class UrlRepository(application: Application) : ViewModel(){
 
     fun getGuestUrl() : LiveData<List<UrlEntity>>{
         return url
+    }
+
+    fun getUserUrlBackup() : LiveData<List<UrlBackupEntity>>{
+        return urlBackup
     }
 
 }

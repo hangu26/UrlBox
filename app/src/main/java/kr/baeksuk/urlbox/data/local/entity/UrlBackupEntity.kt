@@ -1,3 +1,15 @@
 package kr.baeksuk.urlbox.data.local.entity
 
-data class UrlBackupEntity()
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "url_backup_history") // 테이블
+data class UrlBackupEntity(
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0, // ID 필드 자동으로 생성
+    val urlLink : String,
+    val imageKey : String,
+    val imgUri : String,
+    val favorite : Boolean,
+    val timeStamp : Long
+)

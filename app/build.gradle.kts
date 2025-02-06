@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-kapt")
-
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -41,12 +41,36 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    /** BaseActivity 에서 댓글 알림을 위한 GoogleCredential 의존성 추가를 위한 코드 -> com.google.api-client:google-api-client:1.34.0 **/
+    packaging {
+        resources {
+            excludes += mutableSetOf("META-INF/DEPENDENCIES")
+        }
+    }
+
 }
 
 dependencies {
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    kapt ("com.github.bumptech.glide:compiler:4.15.1")
+
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("androidx.credentials:credentials:1.5.0-alpha05")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0-alpha05")
+    implementation ("com.google.api-client:google-api-client:1.34.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
+
     implementation ("androidx.viewpager2:viewpager2:1.1.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation("com.google.firebase:firebase-database-ktx:21.0.0")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
