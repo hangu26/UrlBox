@@ -1,6 +1,7 @@
 package kr.baeksuk.urlbox.view.urldetail
 
 import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -10,6 +11,7 @@ import android.util.Log
 import android.util.Pair
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import com.bumptech.glide.Glide
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
@@ -23,7 +25,6 @@ class UrlDetailActivity : BaseActivity() {
 
     private lateinit var uBinding: ActivityUrlDetailBinding
     private val uViewModel: UrlDetailViewModel by inject()
-    private val autoLogin = false
     private var favoriteClicked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,15 +42,35 @@ class UrlDetailActivity : BaseActivity() {
     }
 
     private fun initView() {
+        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
 
-        val imageKey = intent.extras?.getString("image")
+        val imageKey = intent.extras?.getString("image", "")
         val url = intent.extras?.getString("title")
         val favoriteState = intent.extras?.getBoolean("isFavorite")
+        val imgUri = intent.extras?.getString("imgUri", "")
         uBinding.txUrl.text = url
-        val directory = this.filesDir // UrlFragment에서 context 사용
-        val filePath = "$directory/$imageKey.png"
-        val file = File(filePath)
-        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+        if (autoLogin) {
+
+            Glide.with(this@UrlDetailActivity)
+                .load(imgUri)
+                .into(uBinding.imgUrl)
+
+        } else {
+            val directory = this.filesDir
+            val filePath = "$directory/$imageKey.png"
+            val file = File(filePath)
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+
+            if (file.exists()) {
+
+                uBinding.imgUrl.setImageBitmap(bitmap)
+
+            } else {
+                Log.e("사진 파일", "파일이 존재하지 않습니다.")
+            }
+        }
 
         if (favoriteState == true) {
             favoriteClicked = true
@@ -59,13 +80,6 @@ class UrlDetailActivity : BaseActivity() {
             uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
         }
 
-        if (file.exists()) {
-
-            uBinding.imgUrl.setImageBitmap(bitmap)
-
-        } else {
-            Log.e("사진 파일", "파일이 존재하지 않습니다.")
-        }
 
     }
 
@@ -80,6 +94,9 @@ class UrlDetailActivity : BaseActivity() {
         }
 
         vm.btnEditState.observe(this@UrlDetailActivity) {
+            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+            val autoLogin = pref.getBoolean("auto login", false)
+
             if (it) {
                 val url = intent.extras?.getString("title")
 
@@ -100,6 +117,9 @@ class UrlDetailActivity : BaseActivity() {
         }
 
         vm.btnDelete.observe(this@UrlDetailActivity) {
+            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+            val autoLogin = pref.getBoolean("auto login", false)
+
             if (it) {
 
                 val url = intent.extras?.getString("title", "")

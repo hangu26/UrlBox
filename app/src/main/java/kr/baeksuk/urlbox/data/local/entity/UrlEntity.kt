@@ -9,5 +9,6 @@ data class UrlEntity(
     var id: Long = 0, // ID 필드 자동으로 생성
     val urlLink : String,
     val imageKey : String,
-    val favorite : Boolean
+    val favorite : Boolean,
+    val timeStamp : Long
 )

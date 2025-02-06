@@ -1,6 +1,7 @@
 package kr.baeksuk.urlbox.view.nav
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -25,7 +26,6 @@ class ThumbnailFragment : Fragment() {
     private val tViewModel: ThumbnailViewModel by inject()
     private lateinit var adapter: RvThumbnailAdapter
     private val startActivityAnimation = StartActivityAnimation()
-    private val autoLogin = false
 
 
     @SuppressLint("NotifyDataSetChanged")
@@ -51,6 +51,9 @@ class ThumbnailFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = tViewModel.let { vm ->
+
+        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
 
         if (autoLogin) {
 

@@ -1,7 +1,9 @@
 package kr.baeksuk.urlbox.view.nav
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -12,7 +14,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
@@ -29,7 +33,6 @@ class UrlFragment : Fragment() {
     private val uViewModel: UrlViewModel by inject()
     private lateinit var adapter: RvUrlAdapter
     private val startActivityAnimation = StartActivityAnimation()
-    private val autoLogin = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,23 +48,25 @@ class UrlFragment : Fragment() {
             rvUrl.adapter = adapter // adapter 할당
         }
 
-        val file = File(requireContext().filesDir, "cropped_thumbnail.png")
-        if (file.exists()) {
-            // BitmapFactory로 파일을 Bitmap으로 변환
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            // ImageView에 설정
-        }
-
         initView()
         observe()
         return uBinding.root
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun initView() {
 
+        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
 
         if (autoLogin) {
+
+            uViewModel.getUserUrlBackup().observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
+
+                adapter.setUserBackupData(url,true)
+                adapter.notifyDataSetChanged()
+            })
 
         } else {
 
@@ -73,7 +78,33 @@ class UrlFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = uViewModel.let { vm ->
 
+        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
+
         if (autoLogin) {
+
+            vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
+
+                val urlDataList : List<Url> = listPair.first
+                val imgUriList : List<String> = listPair.second
+
+                val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
+                    UrlBackupEntity(
+                        urlLink = url.url,
+                        imageKey = url.imageKey,
+                        imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
+                        favorite = url.favorite,
+                        timeStamp = url.timeStamp
+                    )
+                }
+
+                /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
+                vm.insertUrlBackup(urlBackupEntity)
+
+                adapter.setLoginData(urlDataList, imgUriList, false)
+                adapter.notifyDataSetChanged()
+
+            }
 
         } else {
 

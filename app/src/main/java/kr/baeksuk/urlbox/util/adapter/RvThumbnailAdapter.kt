@@ -31,7 +31,8 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
             Url(
                 url = urlEntity.urlLink,
                 imageKey = urlEntity.imageKey,
-                favorite = urlEntity.favorite
+                favorite = urlEntity.favorite,
+                timeStamp = urlEntity.timeStamp
             )
         }
 
