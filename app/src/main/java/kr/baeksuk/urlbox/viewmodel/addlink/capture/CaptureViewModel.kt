@@ -11,8 +11,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
+import java.io.File
 
 class CaptureViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -72,11 +74,38 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun insertBackupUrl(urlBackupEntity: UrlBackupEntity, url: String, context: Context, file : File) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val existingUrl = urlDao.getBackupUrlIsExist(url)
+            withContext(Dispatchers.Main) {
+                if (existingUrl == null) {
+                    repo.insertBackup(urlBackupEntity, file)
+                    Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+        }
+    }
+
     fun updateUrl(urlEntity: UrlEntity, url: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
                 repo.update(urlEntity)
+                Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+
+            }
+
+        }
+    }
+
+    fun updateBackupUrl(urlBackupEntity: UrlBackupEntity, context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                repo.updateBackup(urlBackupEntity)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             }

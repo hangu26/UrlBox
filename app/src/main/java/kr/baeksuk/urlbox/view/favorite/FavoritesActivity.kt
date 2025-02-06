@@ -2,6 +2,7 @@ package kr.baeksuk.urlbox.view.favorite
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityFavoritesBinding
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
@@ -27,7 +29,6 @@ class FavoritesActivity : BaseActivity() {
     private lateinit var fBinding: ActivityFavoritesBinding
     private val fViewModel: FavoriteViewModel by inject()
     private lateinit var adapter: RvUrlAdapter
-    private var autoLogin = false
     private val backPressedCallback = BackPressedCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +55,17 @@ class FavoritesActivity : BaseActivity() {
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = fViewModel.let { vm ->
 
+        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
+
         if (autoLogin) {
+
+            vm.getUrlBackup().observe(this, Observer<List<UrlBackupEntity>> { url ->
+
+                adapter.setUserFavoriteData(url)
+                adapter.notifyDataSetChanged()
+
+            })
 
         } else {
 

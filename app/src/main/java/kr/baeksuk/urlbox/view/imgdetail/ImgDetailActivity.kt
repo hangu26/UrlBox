@@ -1,8 +1,10 @@
 package kr.baeksuk.urlbox.view.imgdetail
 
 import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.Pair
 import android.view.ViewTreeObserver
 import android.widget.Toast
@@ -30,9 +32,7 @@ class ImgDetailActivity : BaseActivity() {
     private val iViewModel: ImgDetailViewModel by inject()
     private val urlList = UrlData.urlList ?: emptyList()
     private val startPosition = UrlData.selectedPosition
-    private val autoLogin = false
     private var favoriteClicked = false
-    private var exitPosition: Int = 0 // 현재 ViewPager의 위치 저장 변수
     private lateinit var adapter: ImgPagerRvAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,6 +130,10 @@ class ImgDetailActivity : BaseActivity() {
 
         vm.btnEditState.observe(this@ImgDetailActivity) {
             if (it) {
+
+                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+                val autoLogin = pref.getBoolean("auto login", false)
+
                 val url = getCurrentUrl()
 
                 if (autoLogin) {
@@ -151,16 +155,26 @@ class ImgDetailActivity : BaseActivity() {
         vm.btnDelete.observe(this@ImgDetailActivity) {
             if (it) {
 
+                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+                val autoLogin = pref.getBoolean("auto login", false)
+
                 val url = getCurrentUrl()
 
+                Log.e("로그인 상태", autoLogin.toString())
                 if (autoLogin) {
 
+                    vm.deleteUserData(url.url, url.imageKey)
+                    val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
+                    startActivityAnimation(intent, this)
+                    finish()
 
                 } else {
+
                     vm.deleteGuestData(url.url)
                     val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this)
                     finish()
+
                 }
 
             }

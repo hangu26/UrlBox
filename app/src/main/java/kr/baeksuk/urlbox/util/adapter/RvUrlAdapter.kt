@@ -25,7 +25,11 @@ import kotlinx.coroutines.withContext
 import kr.baeksuk.urlBox.databinding.ItemUrlListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.model.GuestModeHandler
+import kr.baeksuk.urlbox.model.LoggedInModeHandler
+import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.ImgUriListData
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
 import java.io.File
 
@@ -92,6 +96,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 it.imgUri
             }
 
+        ImgUriListData.imgUriListData = imgUriList
+
         notifyDataSetChanged()
     }
 
@@ -108,6 +114,26 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
 
         notifyDataSetChanged()
     }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setUserFavoriteData(url: List<UrlBackupEntity>) {
+        urlList = url.map { urlBackupEntity ->
+            Url(
+                url = urlBackupEntity.urlLink,
+                imageKey = urlBackupEntity.imageKey,
+                imgUri = urlBackupEntity.imgUri,
+                favorite = urlBackupEntity.favorite,
+                timeStamp = urlBackupEntity.timeStamp
+            )
+        }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
+
+        imgUriList = urlList.filter { it.favorite }.map {
+            it.imgUri
+        }
+
+        notifyDataSetChanged()
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val binding = ItemUrlListBinding.inflate(LayoutInflater.from(parent.context))
@@ -129,6 +155,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         private val txUrl = binding.txUrl
         private val imgView = binding.imgThumbnail
         private val btnUrl = binding.btnUrl
+        private var timeStamp = ""
         val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
         private val autoLogin = pref.getBoolean("auto login", false)
 
@@ -138,39 +165,53 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
             imageKey = url.imageKey
             isFavorite = url.favorite
             imgUri = url.imgUri
+            timeStamp = url.timeStamp.toString()
+
+            val modeHandler: ModeHandler = if (autoLogin) {
+                LoggedInModeHandler(imgUriList, layoutPosition)
+            } else {
+                GuestModeHandler(imageKey, context)
+
+            }
+
+            /** 인터페이스를 통해 로그인 모드와 게스트 모드 로직 분리 구현 **/
+            modeHandler.loadImage(url.imgUri, imgView, context, isBackup)
 
             /** isBackup -> 파이어베이스에서 받아온 데이터를 ui에 빠르게 처리하기 위해 Room에 백업 처리.  **/
+
+            /**
             if (autoLogin) {
 
-                if (isBackup) {
-                    Glide.with(context)
-                        .load(imgUri)
-                        .into(imgView)
+            if (isBackup) {
+            Glide.with(context)
+            .load(imgUri)
+            .into(imgView)
 
-                } else {
-                    Glide.with(context)
-                        .load(imgUriList[layoutPosition])
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(imgView)
+            } else {
+            Glide.with(context)
+            .load(imgUriList[layoutPosition])
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(imgView)
 
-                }
+            }
 
 
             } else {
-                val directory = context.filesDir // UrlFragment에서 context 사용
-                val filePath = "$directory/$imageKey.png"
-                val file = File(filePath)
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            val directory = context.filesDir // UrlFragment에서 context 사용
+            val filePath = "$directory/$imageKey.png"
+            val file = File(filePath)
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
-                if (file.exists()) {
+            if (file.exists()) {
 
-                    imgView.setImageBitmap(bitmap)
+            imgView.setImageBitmap(bitmap)
 
-                } else {
-                    // 기본 이미지 설정 (이미지가 없는 경우)
-                    Log.d("파일 없음", "없음")
-                }
+            } else {
+            // 기본 이미지 설정 (이미지가 없는 경우)
+            Log.d("파일 없음", "없음")
             }
+            }
+             **/
 
         }
 
@@ -186,15 +227,22 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
 
                 val intent = Intent(context, UrlDetailActivity::class.java)
 
-                if(autoLogin){
-                    intent.putExtra("title", txUrl.text.toString())
-                    intent.putExtra("imgUri", imgUri)
-                    intent.putExtra("isFavorite", isFavorite)
-                }else{
-                    intent.putExtra("title", txUrl.text.toString())
-                    intent.putExtra("image", imageKey)
-                    intent.putExtra("isFavorite", isFavorite)
+                /** ModeHandler 인터페이스를 통해 로그인, 게스트 모드 로직 분리 **/
+
+                val modeHandler: ModeHandler = if (autoLogin) {
+                    LoggedInModeHandler(imgUriList, layoutPosition)
+                } else {
+                    GuestModeHandler(imageKey, context)
                 }
+
+                modeHandler.intentUrlToDetail(
+                    intent,
+                    txUrl.text.toString(),
+                    imgUri,
+                    isFavorite,
+                    imageKey,
+                    timeStamp
+                )
 
                 context.startActivity(intent, options.toBundle())
             }

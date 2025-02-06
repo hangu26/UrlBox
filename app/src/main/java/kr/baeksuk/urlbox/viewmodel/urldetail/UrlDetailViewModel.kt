@@ -48,6 +48,12 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
         _repo.deleteGuestData(url)
     }
 
+    fun deleteUserData(url : String, imageKey : String){
+
+        _repo.deleteUserData(url, imageKey)
+
+    }
+
     fun btnFavorite(){
         _btnFavoriteState.value = true
     }
