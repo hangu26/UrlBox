@@ -165,6 +165,55 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateUserFavorite(url: String, isFavorite: Boolean) {
+
+        val userId = pref.getString("userId", "")
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.updateUserFavorite(url, isFavorite)
+
+                databaseReference =
+                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
+                        .child("url")
+
+                databaseReference.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+
+                                for (child in snapshot.children) {
+                                    val key = child.key
+
+                                    if (key != null) {
+                                        databaseReference.child(key).child("favorite")
+                                            .setValue(isFavorite).addOnCompleteListener {
+                                            Log.e("업데이트 성공", "Firebase favorite 업데이트 완료")
+                                        }
+                                            .addOnFailureListener { e ->
+                                                Log.e("업데이트 실패", e.toString())
+                                            }
+                                    }
+
+                                }
+
+                            } else {
+
+                                Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("Firebase 에러", error.message)
+                        }
+                    })
+
+            } catch (e: java.lang.Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
+            }
+        }
+    }
+
     fun deleteGuestData(url: String) {
 
         viewModelScope.launch(Dispatchers.IO) {

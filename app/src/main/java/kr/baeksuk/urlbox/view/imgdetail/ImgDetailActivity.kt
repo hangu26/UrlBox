@@ -181,8 +181,12 @@ class ImgDetailActivity : BaseActivity() {
         }
 
         vm.btnFavoriteState.observe(this@ImgDetailActivity) {
+            val url = getCurrentUrl()
+
+            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+            val autoLogin = pref.getBoolean("auto login", false)
+
             if (it) {
-                val url = getCurrentUrl()
 
                 if (!favoriteClicked) {
 
@@ -190,7 +194,16 @@ class ImgDetailActivity : BaseActivity() {
 
                     iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
                     Toast.makeText(this, "즐겨찾기가 설정되었습니다.", Toast.LENGTH_SHORT).show()
-                    vm.updateFavorite(url.url, favoriteClicked)
+
+                    if (autoLogin) {
+
+                        vm.updateUserFavorite(url.url, favoriteClicked)
+
+                    } else {
+
+                        vm.updateFavorite(url.url, favoriteClicked)
+
+                    }
 
                 } else {
 
@@ -198,7 +211,16 @@ class ImgDetailActivity : BaseActivity() {
 
                     iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
                     Toast.makeText(this, "즐겨찾기가 해제되었습니다.", Toast.LENGTH_SHORT).show()
-                    vm.updateFavorite(url.url, favoriteClicked)
+
+                    if (autoLogin) {
+
+                        vm.updateUserFavorite(url.url, favoriteClicked)
+
+                    } else {
+
+                        vm.updateFavorite(url.url, favoriteClicked)
+
+                    }
 
                 }
 
