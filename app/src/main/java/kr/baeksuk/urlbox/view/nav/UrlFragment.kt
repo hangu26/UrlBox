@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -62,11 +63,12 @@ class UrlFragment : Fragment() {
 
         if (autoLogin) {
 
-            uViewModel.getUserUrlBackup().observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
+            uViewModel.getUserUrlBackup()
+                .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
 
-                adapter.setUserBackupData(url,true)
-                adapter.notifyDataSetChanged()
-            })
+                    adapter.setUserBackupData(url, true)
+                    adapter.notifyDataSetChanged()
+                })
 
         } else {
 
@@ -79,32 +81,68 @@ class UrlFragment : Fragment() {
     private fun observe() = uViewModel.let { vm ->
 
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val isFirst = pref.getInt("isFirst", 0)
         val autoLogin = pref.getBoolean("auto login", false)
 
         if (autoLogin) {
 
-            vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
+            if (isFirst == 1) {
+                vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
 
-                val urlDataList : List<Url> = listPair.first
-                val imgUriList : List<String> = listPair.second
+                    val urlDataList: List<Url> = listPair.first
+                    val imgUriList: List<String> = listPair.second
 
-                val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
-                    UrlBackupEntity(
-                        urlLink = url.url,
-                        imageKey = url.imageKey,
-                        imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
-                        favorite = url.favorite,
-                        timeStamp = url.timeStamp
-                    )
+                    val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
+                        UrlBackupEntity(
+                            urlLink = url.url,
+                            imageKey = url.imageKey,
+                            imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
+                            favorite = url.favorite,
+                            timeStamp = url.timeStamp
+                        )
+                    }
+
+                    /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
+                    vm.insertUrlBackup(urlBackupEntity)
+
+                    adapter.setLoginData(urlDataList, imgUriList, false)
+                    adapter.notifyDataSetChanged()
+
                 }
-
-                /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
-                vm.insertUrlBackup(urlBackupEntity)
-
-                adapter.setLoginData(urlDataList, imgUriList, false)
-                adapter.notifyDataSetChanged()
-
+                pref.edit().putInt("isFirst", 0).commit()
+                Log.e("모든 데이터 받아오기", "앱 시작 시 데이터 받아오기 성공")
             }
+
+            vm.hasBackupData().observe(viewLifecycleOwner) { hasData ->
+                if (hasData && isFirst != 1) {
+                    Log.e("모든 데이터 받아오기", "이미 데이터가 받아와져있음")
+                } else if (isFirst != 1){
+                    vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
+
+                        val urlDataList: List<Url> = listPair.first
+                        val imgUriList: List<String> = listPair.second
+
+                        val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
+                            UrlBackupEntity(
+                                urlLink = url.url,
+                                imageKey = url.imageKey,
+                                imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
+                                favorite = url.favorite,
+                                timeStamp = url.timeStamp
+                            )
+                        }
+
+                        /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
+                        vm.insertUrlBackup(urlBackupEntity)
+
+                        adapter.setLoginData(urlDataList, imgUriList, false)
+                        adapter.notifyDataSetChanged()
+
+                    }
+                    Log.e("모든 데이터 받아오기", "성공")
+                }
+            }
+
 
         } else {
 

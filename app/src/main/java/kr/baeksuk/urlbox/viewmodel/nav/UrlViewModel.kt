@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,6 +71,10 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun hasBackupData(): LiveData<Boolean> = liveData {
+        val result = _repo.hasBackupData() // suspend 함수 호출
+        emit(result) // LiveData로 반환
+    }
 }
 
 

@@ -218,30 +218,64 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
         val urlInUser: DatabaseReference = userRef.child("url")
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${user.userId}/")
 
+        /**
+        urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+        if (snapshot.exists()) {
+        // 기존 URL 데이터를 가져오기
+        val existingUrls =
+        snapshot.child("url").children.mapNotNull { it.getValue(Url::class.java) }
+
+        // 새로운 URL 중에서 기존 데이터와 중복되지 않은 URL만 필터링
+        val newUrls =
+        urlList.filter { newUrl -> existingUrls.none { it.url == newUrl.url } }
+
+        if (newUrls.isNotEmpty()) {
+
+        newUrls.forEach { newUrl ->
+        urlInUser.child("img" + newUrl.timeStamp)
+        .setValue(newUrl) // ✅ `imageKey`를 키로 저장
+        }
+
+        } else {
+        Log.e("URL 데이터 저장", "모든 URL이 중복되어 저장하지 않음")
+        }
+        } else {
+        urlList.forEach { newUrl ->
+        urlInUser.child(newUrl.imageKey).setValue(newUrl) // ✅ `imageKey`를 키로 저장
+        }
+        }
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+        Log.e("Firebase Error", "데이터 읽기 실패: ${error.message}")
+        }
+        })
+         **/
+
         urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
-                    // 기존 URL 데이터를 가져오기
-                    val existingUrls =
-                        snapshot.child("url").children.mapNotNull { it.getValue(Url::class.java) }
+                    // 기존 URL 데이터 가져오기
+                    val existingUrls = snapshot.children.mapNotNull { it.getValue(Url::class.java) }
 
-                    // 새로운 URL 중에서 기존 데이터와 중복되지 않은 URL만 필터링
-                    val newUrls =
-                        urlList.filter { newUrl -> existingUrls.none { it.url == newUrl.url } }
+                    // 새로운 URL 중 기존 데이터와 중복되지 않은 URL만 필터링
+                    val newUrls = urlList.filter { newUrl ->
+                        existingUrls.none { it.url == newUrl.url } // ✅ URL이 겹치면 추가 안 함 (favorite 값 무시)
+                    }
 
                     if (newUrls.isNotEmpty()) {
-
                         newUrls.forEach { newUrl ->
-                            urlInUser.child("img" + newUrl.timeStamp)
-                                .setValue(newUrl) // ✅ `imageKey`를 키로 저장
+                            urlInUser.child("img"+newUrl.timeStamp).setValue(newUrl)
                         }
-
+                        Log.d("URL 데이터 저장", "새로운 URL 데이터 저장 완료")
                     } else {
                         Log.e("URL 데이터 저장", "모든 URL이 중복되어 저장하지 않음")
                     }
                 } else {
+                    // 기존 데이터가 없을 때는 바로 삽입
                     urlList.forEach { newUrl ->
-                        urlInUser.child(newUrl.imageKey).setValue(newUrl) // ✅ `imageKey`를 키로 저장
+                        urlInUser.child(newUrl.imageKey).setValue(newUrl)
                     }
                 }
             }
