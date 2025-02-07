@@ -122,6 +122,7 @@ class MyPageFragment : Fragment() {
             }
         }
 
+        /** 로그아웃 시, 룸에 저장된 백업 데이터 삭제 -> 다른 계정으로 로그인 시 데이터 겹치는 문제 방지 **/
         vm.btnOutState.observe(viewLifecycleOwner) {
             if (it) {
 
@@ -131,13 +132,14 @@ class MyPageFragment : Fragment() {
                     try {
                         credentialManager?.clearCredentialState(ClearCredentialStateRequest())
 
+                        vm.deleteUserBackup()
+
                         restartApp(requireContext())
 
                     } catch (e: Exception) {
                         e.printStackTrace() // 로그 출력 (에러 확인용)
                     }
                 }
-
 
             }
         }

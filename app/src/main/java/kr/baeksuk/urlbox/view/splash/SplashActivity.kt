@@ -2,6 +2,7 @@ package kr.baeksuk.urlbox.view.splash
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -37,6 +38,8 @@ class SplashActivity : AppCompatActivity() {
 //                finish()
 
             } else {
+                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+                pref.edit().putInt("isFirst", 1).apply()
 
                 val intent = Intent(this@SplashActivity, MainActivity::class.java)
 
