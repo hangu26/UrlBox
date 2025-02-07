@@ -151,6 +151,10 @@ class UrlDetailActivity : BaseActivity() {
         }
 
         vm.btnFavoriteState.observe(this@UrlDetailActivity) {
+
+            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+            val autoLogin = pref.getBoolean("auto login", false)
+
             if (it) {
                 val url = intent.extras?.getString("title")
 
@@ -160,7 +164,18 @@ class UrlDetailActivity : BaseActivity() {
 
                     uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
                     Toast.makeText(this, "즐겨찾기가 설정되었습니다.", Toast.LENGTH_SHORT).show()
-                    vm.updateFavorite(url!!, favoriteClicked)
+
+                    if (autoLogin) {
+
+                        vm.updateUserFavorite(url!!, favoriteClicked)
+
+                    } else {
+
+                        vm.updateFavorite(url!!, favoriteClicked)
+
+                    }
+
+
 
                 } else {
 
@@ -168,7 +183,16 @@ class UrlDetailActivity : BaseActivity() {
 
                     uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
                     Toast.makeText(this, "즐겨찾기가 해제되었습니다.", Toast.LENGTH_SHORT).show()
-                    vm.updateFavorite(url!!, favoriteClicked)
+
+                    if (autoLogin) {
+
+                        vm.updateUserFavorite(url!!, favoriteClicked)
+
+                    } else {
+
+                        vm.updateFavorite(url!!, favoriteClicked)
+
+                    }
 
                 }
 

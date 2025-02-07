@@ -70,4 +70,16 @@ class ImgDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     }
 
+    fun updateUserFavorite(url: String, isFavorite: Boolean){
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                _repo.updateUserFavorite(url, isFavorite)
+            }
+
+        }
+
+    }
+
 }
