@@ -55,4 +55,10 @@ interface UrlDao{
     @Query("DELETE FROM url_backup_history WHERE urlLink = :url")
     suspend fun deleteUserUrl(url: String)
 
+    @Query("DELETE FROM url_backup_history")
+    suspend fun deleteUserBackup()
+
+    @Query("SELECT EXISTS (SELECT 1 FROM url_backup_history LIMIT 1)")
+    suspend fun hasBackupData(): Boolean
+
 }

@@ -39,6 +39,10 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
         return mutableUrl
     }
 
+    fun deleteUserBackup(){
+        _urlRepo.deleteUserBackup()
+    }
+
     fun getUrlBackup(): LiveData<List<UrlBackupEntity>> {
         return this.urlBackup
     }

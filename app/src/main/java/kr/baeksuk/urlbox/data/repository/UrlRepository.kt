@@ -278,12 +278,26 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun deleteUserBackup(){
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.deleteUserBackup()
+            } catch (e: java.lang.Exception) {
+                Log.e("로그아웃 시, 백업 데이터 전체 삭제", e.toString())
+            }
+        }
+    }
+
     fun getGuestUrl(): LiveData<List<UrlEntity>> {
         return url
     }
 
     fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> {
         return urlBackup
+    }
+
+    suspend fun hasBackupData(): Boolean {
+        return urlDao.hasBackupData() // suspend 함수 호출
     }
 
 }
