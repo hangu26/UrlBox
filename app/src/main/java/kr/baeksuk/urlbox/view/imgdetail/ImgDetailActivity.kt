@@ -166,14 +166,14 @@ class ImgDetailActivity : BaseActivity() {
                     vm.deleteUserData(url.url, url.imageKey)
                     val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this)
-                    finish()
+                    finishAffinity()
 
                 } else {
 
                     vm.deleteGuestData(url.url)
                     val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this)
-                    finish()
+                    finishAffinity()
 
                 }
 

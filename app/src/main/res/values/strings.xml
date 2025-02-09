@@ -41,6 +41,8 @@
     <string name="tx_login_kakao">카카오 로그인</string>
     <string name="default_web_client_id" translatable="false">***REMOVED***</string>
     <string name="tx_backup_to_account">계정에 데이터 동기화</string>
+    <string name="kakao_native_app_key">***REMOVED***</string>
+    <string name="kakao_app_key">kakao***REMOVED***</string>
 
 
 </resources>

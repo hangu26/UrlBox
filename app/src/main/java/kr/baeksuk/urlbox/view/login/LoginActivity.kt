@@ -5,7 +5,6 @@ import android.content.Intent
 import androidx.credentials.CredentialManager
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.credentials.CustomCredential
 import androidx.databinding.DataBindingUtil
@@ -55,6 +54,10 @@ class LoginActivity : BaseActivity() {
         }
         auth = Firebase.auth
 
+        // 카카오 로그인
+        // 카카오계정으로 로그인 공통 callback 구성
+        // 카카오톡으로 로그인 할 수 없어 카카오계정으로 로그인할 경우 사용됨
+
         observe()
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
@@ -87,7 +90,7 @@ class LoginActivity : BaseActivity() {
 
             if (it) {
 
-                finishToMyPage()
+                finishToMyPage(this)
 
             }
 
@@ -95,7 +98,52 @@ class LoginActivity : BaseActivity() {
 
         vm.btnGoogleState.observe(this@LoginActivity) {
 
-            signGoogle()
+            if (it) {
+                signGoogle()
+            }
+        }
+
+        /**
+        vm.googleLoginState.observe(this@LoginActivity) { isSuccess ->
+
+        if (isSuccess){
+        uploadData(isSuccess)
+        restartApp(this@LoginActivity)
+        }else{
+        Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
+        }
+        }
+         **/
+
+        vm.kakaoLoginState.observe(this@LoginActivity) { isSuccess ->
+
+            if (isSuccess) {
+
+                vm.userData.observe(this@LoginActivity){
+                    uploadData(isUpload,it)
+                }
+
+                InitUrlDataCount.clear()
+
+                UrlData.clear()
+
+                finishToMyPage(this)
+
+            } else {
+
+                Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
+
+            }
+
+        }
+
+        vm.btnKakaoState.observe(this@LoginActivity) {
+
+            if (it) {
+
+                vm.kakaoLogin(this)
+
+            }
 
         }
 
@@ -149,6 +197,9 @@ class LoginActivity : BaseActivity() {
 
     /** isUpload -> 계정에 동기화 체크 시, url 데이터 보내기 **/
     private fun handleSignIn(result: GetCredentialResponse) {
+
+        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+
         Log.d("SignIn", "handleSignIn called")
         when (val credential = result.credential) {
 
@@ -169,7 +220,15 @@ class LoginActivity : BaseActivity() {
 
                                 if (task.isSuccessful) {
 
-                                    uploadData(isUpload)
+                                    val firebaseUser = auth.currentUser
+                                    val name = firebaseUser?.displayName
+                                    val userId = User(
+                                        userId = firebaseUser?.uid!!,
+                                        userEmail = firebaseUser.email!!,
+                                        userName = name!!,
+                                    )
+
+                                    uploadData(isUpload, userId)
                                     InitUrlDataCount.clear()
                                     UrlData.clear()
 
@@ -202,40 +261,23 @@ class LoginActivity : BaseActivity() {
         // 오류에 따라 사용자에게 알리거나 추가 처리를 할 수 있습니다.
     }
 
-
-    private fun finishToMyPage() {
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra("TARGET_FRAGMENT", "MyPage")
-        startActivityAnimation(intent, this@LoginActivity)
-        finish()
-    }
-
-    private fun uploadData(isUpload: Boolean) {
-
-        val firebaseUser = auth.currentUser
-        val name = firebaseUser?.displayName
-        val userId = User(
-            userId = firebaseUser?.uid!!,
-            userEmail = firebaseUser.email!!,
-            userName = name!!,
-        )
+    private fun uploadData(isUpload: Boolean, user : User) {
 
         if (isUpload) {
 
-            lViewModel.insertAllData(userId = userId, url = url, imgFileList = imgFileList)
+            lViewModel.insertAllData(userId = user, url = url, imgFileList = imgFileList)
 
         } else {
 
-            lViewModel.insertUserId(userId = userId)
+            lViewModel.insertUserId(userId = user)
 
         }
 
-
         getSharedPreferences("User", Context.MODE_PRIVATE).edit()
             .apply {
-                putString("userId", firebaseUser.uid)
-                putString("userEmail", firebaseUser.email)
-                putString("userName", name)
+                putString("userId", user.userId)
+                putString("userEmail", user.userEmail)
+                putString("userName", user.userName)
                 putBoolean("auto login", true)
                 apply()
             }
