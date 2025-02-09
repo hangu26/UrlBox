@@ -1,13 +1,15 @@
 package kr.baeksuk.urlbox.viewmodel.login
 
 import android.app.Application
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.data.repository.GoogleLoginRepository
+import kr.baeksuk.urlbox.data.repository.KakaoLoginRepository
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.model.Url
@@ -16,6 +18,8 @@ import java.io.File
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _repo = UserRepository(application)
+    private val _kakaoRepo = KakaoLoginRepository(application)
+    private val _googleRepo = GoogleLoginRepository(application)
 
     private val _urlRepo = UrlRepository(application)
     private val url = _urlRepo.getGuestUrl()
@@ -26,11 +30,39 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _btnGoogleState = MutableLiveData<Boolean>()
     val btnGoogleState = _btnGoogleState
 
+    private val _btnKakaoState = MutableLiveData<Boolean>()
+    val btnKakaoState = _btnKakaoState
+
     private val _insertComplete = MutableLiveData<Boolean>()
     val insertComplete: LiveData<Boolean> = _insertComplete
 
     private val _isDataSyncEnabled = MutableLiveData(false)
     val isDataSyncEnabled = _isDataSyncEnabled
+
+    private val _kakaoLoginState = MutableLiveData<Boolean>()
+    val kakaoLoginState: LiveData<Boolean> get() = _kakaoLoginState
+
+    private val _googleLoginState = MutableLiveData<Boolean>()
+    val googleLoginState: LiveData<Boolean> get() = _googleLoginState
+
+    private val _userData = MutableLiveData<User>()
+    val userData: LiveData<User> get() = _userData
+
+    fun setKakaoUserData(user: User) {
+        _userData.value = user
+    }
+
+    fun kakaoLogin(context: Context) {
+        _kakaoRepo.kakaoLogin(context,this@LoginViewModel) { success ->
+            _kakaoLoginState.postValue(success)
+        }
+    }
+
+    fun googleLogin(context: Context){
+        _googleRepo.signGoogle(context){ success ->
+            _googleLoginState.postValue(success)
+        }
+    }
 
     fun getGuestUrl() : LiveData<List<UrlEntity>>{
         return this.url
@@ -61,6 +93,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     fun btnGoogleLogin() {
         _btnGoogleState.value = true
+    }
+
+    fun btnKakaoLogin(){
+        _btnKakaoState.value = true
     }
 
     /** 구글 로그인 시, db에 아이디 저장 함수 **/

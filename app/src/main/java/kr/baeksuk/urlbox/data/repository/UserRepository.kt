@@ -218,6 +218,29 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
         val urlInUser: DatabaseReference = userRef.child("url")
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${user.userId}/")
 
+        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+
+                    insertUrlDataInFirebase(urlInUser,urlList)
+
+                } else {
+                    userRef.setValue(user).addOnSuccessListener {
+                        Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
+
+                        insertUrlDataInFirebase(urlInUser,urlList)
+
+                    }.addOnFailureListener {
+
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // 예외 처리 필요
+            }
+        })
+
         /**
         urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
         override fun onDataChange(snapshot: DataSnapshot) {
@@ -253,11 +276,32 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
         })
          **/
 
+
+        // 🔥 이미지 파일 리스트를 Firebase Storage에 업로드
+        imgFileList.forEach { file ->
+            if (file.exists()) {
+                val fileUri = Uri.fromFile(file) // File을 Uri로 변환
+                val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
+
+                fileRef.putFile(fileUri).addOnSuccessListener {
+                    Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
+                }.addOnFailureListener {
+                    Log.e("Storage Upload", "파일 업로드 실패: ${file.name}, 오류: ${it.message}")
+                }
+            } else {
+                Log.e("Storage Upload", "파일이 존재하지 않음: ${file.absolutePath}")
+            }
+        }
+
+    }
+
+    fun insertUrlDataInFirebase(urlInUser : DatabaseReference, urlList : List<Url>){
         urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
                     // 기존 URL 데이터 가져오기
-                    val existingUrls = snapshot.children.mapNotNull { it.getValue(Url::class.java) }
+                    val existingUrls =
+                        snapshot.children.mapNotNull { it.getValue(Url::class.java) }
 
                     // 새로운 URL 중 기존 데이터와 중복되지 않은 URL만 필터링
                     val newUrls = urlList.filter { newUrl ->
@@ -266,7 +310,8 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
                     if (newUrls.isNotEmpty()) {
                         newUrls.forEach { newUrl ->
-                            urlInUser.child("img"+newUrl.timeStamp).setValue(newUrl)
+                            urlInUser.child("img" + newUrl.timeStamp)
+                                .setValue(newUrl)
                         }
                         Log.d("URL 데이터 저장", "새로운 URL 데이터 저장 완료")
                     } else {
@@ -284,23 +329,6 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                 Log.e("Firebase Error", "데이터 읽기 실패: ${error.message}")
             }
         })
-
-
-        // 🔥 이미지 파일 리스트를 Firebase Storage에 업로드
-        imgFileList.forEach { file ->
-            if (file.exists()) {
-                val fileUri = Uri.fromFile(file) // File을 Uri로 변환
-                val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
-
-                fileRef.putFile(fileUri).addOnSuccessListener {
-                    Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                }.addOnFailureListener {
-                    Log.e("Storage Upload", "파일 업로드 실패: ${file.name}, 오류: ${it.message}")
-                }
-            } else {
-                Log.e("Storage Upload", "파일이 존재하지 않음: ${file.absolutePath}")
-            }
-        }
 
     }
 

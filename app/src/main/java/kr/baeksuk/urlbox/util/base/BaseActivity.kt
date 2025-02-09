@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.util.base
 
+import android.app.Activity
 import android.app.ActivityOptions
 import android.content.ContentValues.TAG
 import android.content.Context
@@ -18,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import kr.baeksuk.urlbox.util.util.network.MyState
 import kr.baeksuk.urlbox.util.util.network.NetworkStatusTracker
 import kr.baeksuk.urlbox.util.util.network.NetworkStatusViewModel
+import kr.baeksuk.urlbox.view.main.MainActivity
 
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -30,6 +32,28 @@ abstract class BaseActivity : AppCompatActivity() {
                 MyState.Error -> networkDialog()
                 MyState.Fetched -> networkDialog()
             }
+        }
+    }
+
+    fun finishToMyPage(activity: Context) {
+        val intent = Intent(this, MainActivity::class.java)
+            .putExtra("TARGET_FRAGMENT", "MyPage")
+        startActivityAnimation(intent, activity)
+        finish()
+    }
+
+    fun restartApp(context: Context) {
+        val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
+
+        pref.edit().clear().commit() // 동기적으로 적용
+
+
+        // 앱 재시작
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            context.startActivity(intent)
+            Runtime.getRuntime().exit(0)
         }
     }
 
