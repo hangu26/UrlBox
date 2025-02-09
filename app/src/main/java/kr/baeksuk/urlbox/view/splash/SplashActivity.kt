@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import com.kakao.sdk.common.util.Utility
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.view.main.MainActivity
 
@@ -17,7 +19,6 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-//        val isTutorialClear = getSharedPreferences("tutorial", Context.MODE_PRIVATE).getInt("isClear", 0)
         val isTutorialClear = 1
 
 

@@ -116,7 +116,7 @@ class UrlDetailActivity : BaseActivity() {
             }
         }
 
-        vm.btnDelete.observe(this@UrlDetailActivity) {
+        vm.btnDelete.observe(this@UrlDetailActivity) { 
             val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
             val autoLogin = pref.getBoolean("auto login", false)
 
@@ -130,13 +130,13 @@ class UrlDetailActivity : BaseActivity() {
                     vm.deleteUserData(url.toString(), imageKey.toString())
                     val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this)
-                    finish()
+                    finishAffinity()
 
                 } else {
                     vm.deleteGuestData(url!!)
                     val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this)
-                    finish()
+                    finishAffinity()
                 }
 
             }

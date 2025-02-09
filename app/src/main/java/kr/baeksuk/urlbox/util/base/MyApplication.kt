@@ -4,6 +4,8 @@ import android.app.Application
 import android.content.Context
 import android.util.DisplayMetrics
 import android.view.WindowManager
+import com.kakao.sdk.common.KakaoSdk
+import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.util.util.module
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -23,7 +25,8 @@ class MyApplication : Application() {
             modules(module)
         }
 
-//        deleteAppCashe()
+        val kakaoAppKey = resources.getString(R.string.kakao_native_app_key)
+        KakaoSdk.init(this, kakaoAppKey)
 
         initView()
 

@@ -41,6 +41,8 @@
     <string name="tx_login_kakao">카카오 로그인</string>
     <string name="default_web_client_id" translatable="false">645387379425-4h8t119sj2u29j86obook9lnrc520203.apps.googleusercontent.com</string>
     <string name="tx_backup_to_account">계정에 데이터 동기화</string>
+    <string name="kakao_native_app_key">dd8e8958e1ec731849c96b1b5275ba5f</string>
+    <string name="kakao_app_key">kakaodd8e8958e1ec731849c96b1b5275ba5f</string>
 
 
 </resources>
