@@ -26,6 +26,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/icon_favorite"
+            android:layout_width="@dimen/size_img_star_in_main"
+            android:layout_height="@dimen/size_img_star_in_main"
+            android:layout_marginTop="@dimen/margin_favorite_in_img"
+            android:layout_marginEnd="@dimen/margin_favorite_in_img"
+            android:src="@drawable/icon_favorite_corral"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tx_url"
             android:layout_width="0dp"
@@ -34,11 +45,11 @@
             android:fontFamily="@font/pretendard_semibold"
             android:gravity="center"
             android:paddingStart="@dimen/item_url_padding_side"
-            android:paddingEnd="@dimen/item_url_padding_side"
             android:paddingTop="5dp"
+            android:paddingEnd="@dimen/item_url_padding_side"
             android:text="https://www.youtube.com/wersadfasdgwear"
-            android:textSize="@dimen/tx_confirm_url_size"
             android:textColor="@color/tx_black"
+            android:textSize="@dimen/tx_confirm_url_size"
             android:transitionName="titleTran"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

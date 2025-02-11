@@ -127,8 +127,6 @@ class LoginActivity : BaseActivity() {
 
                 UrlData.clear()
 
-                finishToMyPage(this)
-
             } else {
 
                 Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
@@ -226,6 +224,7 @@ class LoginActivity : BaseActivity() {
                                         userId = firebaseUser?.uid!!,
                                         userEmail = firebaseUser.email!!,
                                         userName = name!!,
+                                        profileImage = firebaseUser.photoUrl.toString()
                                     )
 
                                     uploadData(isUpload, userId)
@@ -278,6 +277,7 @@ class LoginActivity : BaseActivity() {
                 putString("userId", user.userId)
                 putString("userEmail", user.userEmail)
                 putString("userName", user.userName)
+                putString("userProfile", user.profileImage)
                 putBoolean("auto login", true)
                 apply()
             }

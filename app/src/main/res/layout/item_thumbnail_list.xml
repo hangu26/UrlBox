@@ -26,6 +26,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/icon_favorite"
+            android:layout_width="@dimen/size_img_star_in_main"
+            android:layout_height="@dimen/size_img_star_in_main"
+            android:layout_marginTop="@dimen/margin_favorite_in_thumbnail"
+            android:layout_marginEnd="@dimen/margin_favorite_in_thumbnail"
+            android:src="@drawable/icon_favorite_corral"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/img_thumbnail"
+            app:layout_constraintTop_toTopOf="@+id/img_thumbnail" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
