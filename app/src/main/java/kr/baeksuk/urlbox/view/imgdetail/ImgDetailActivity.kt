@@ -138,6 +138,11 @@ class ImgDetailActivity : BaseActivity() {
 
                 if (autoLogin) {
 
+                    val intent = Intent(this@ImgDetailActivity, CaptureActivity::class.java)
+                    intent.putExtra("url", url.url)
+                    intent.putExtra("edit", true)
+                    startActivityAnimation(intent, this)
+                    finish()
 
                 } else {
 
