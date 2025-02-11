@@ -12,6 +12,7 @@ import android.net.Uri
 import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -154,6 +155,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         private var imgUri = ""
         private val txUrl = binding.txUrl
         private val imgView = binding.imgThumbnail
+        private val iconFavorite = binding.iconFavorite
         private val btnUrl = binding.btnUrl
         private var timeStamp = ""
         val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
@@ -166,6 +168,12 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
             isFavorite = url.favorite
             imgUri = url.imgUri
             timeStamp = url.timeStamp.toString()
+
+            if (isFavorite){
+                iconFavorite.visibility = View.VISIBLE
+            }else{
+                iconFavorite.visibility = View.GONE
+            }
 
             val modeHandler: ModeHandler = if (autoLogin) {
                 LoggedInModeHandler(imgUriList, layoutPosition)

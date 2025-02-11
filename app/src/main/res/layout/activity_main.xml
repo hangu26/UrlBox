@@ -92,8 +92,7 @@
             app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBar_margin">
-        </FrameLayout>
+            app:layout_constraintTop_toBottomOf="@+id/appBar_margin" />
 
         <LinearLayout
             android:id="@+id/bottom_nav"
@@ -106,46 +105,136 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <ImageButton
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ib_thumbnail"
-                style="@style/ImageButton.size.icon"
-                android:layout_gravity="top"
-                android:layout_weight="1"
-                android:src="@drawable/img_thumbnail"
-                android:tint="@{viewModel.menu == NavigationMenu.THUMBNAIL ? @color/main_color : @color/black}"
-                tools:ignore="UseAppTint" />
-            <!--이미지 버튼 색조 설정, -->
+                android:layout_width="@dimen/img_btn_width"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/img_thumbnail"
+                    android:layout_width="@dimen/size_img_thumbnail_02"
+                    android:layout_height="@dimen/size_img_thumbnail_02"
+                    android:layout_marginTop="@dimen/margin_top_img_thumbnail_02"
+                    android:src="@drawable/img_thumbnail_02"
+                    android:tint="@{viewModel.menu == NavigationMenu.THUMBNAIL ? @color/main_color : @color/black}"
+                    app:layout_constraintBottom_toTopOf="@+id/tx_thumbnail"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="UseAppTint" />
+
+                <TextView
+                    android:id="@+id/tx_thumbnail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_btn_thumbnail_between_img_text"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_thumbnail"
+                    android:textColor="@{viewModel.menu == NavigationMenu.THUMBNAIL ? @color/main_color : @color/black}"
+                    android:textSize="@dimen/size_tx_thumbnail_in_btn"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/img_thumbnail" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
             <ImageView
                 style="@style/ImageButton.size.icon"
                 android:layout_weight="1" />
 
-            <ImageButton
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/ib_my"
-                style="@style/ImageButton.size.icon"
-                android:layout_gravity="top"
-                android:layout_weight="1"
-                android:src="@drawable/img_my_page"
-                android:tint="@{viewModel.menu == NavigationMenu.MYPAGE ? @color/main_color : @color/black}"
-                tools:ignore="UseAppTint" />
+                android:layout_width="@dimen/img_btn_width"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
 
+                <ImageView
+                    android:id="@+id/img_my_page"
+                    android:layout_width="@dimen/width_img_my_page_02"
+                    android:layout_height="@dimen/height_img_my_page_02"
+                    android:layout_marginTop="@dimen/margin_top_img_thumbnail_02"
+                    android:src="@drawable/img_my_page_02"
+                    android:tint="@{viewModel.menu == NavigationMenu.MYPAGE ? @color/main_color : @color/black}"
+                    app:layout_constraintBottom_toTopOf="@+id/tx_my_page"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="UseAppTint" />
+
+                <TextView
+                    android:id="@+id/tx_my_page"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_btn_thumbnail_between_img_text"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_my_page"
+                    android:textColor="@{viewModel.menu == NavigationMenu.MYPAGE ? @color/main_color : @color/black}"
+                    android:textSize="@dimen/size_tx_thumbnail_in_btn"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/img_my_page" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
-        <ImageView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ib_url"
             style="@style/UrlButton.size"
             android:layout_width="@dimen/url_btn_width"
             android:layout_height="@dimen/url_btn_height"
             android:layout_marginBottom="@dimen/btn_url_margin_bottom"
             android:layout_weight="1"
+            android:background="@drawable/background_btn_url"
             android:elevation="0dp"
-            android:src="@drawable/img_url"
             app:layout_anchor="@id/bottom_nav"
             app:layout_constraintBottom_toBottomOf="@+id/bottom_nav"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent">
+
+            <ImageView
+                android:id="@+id/img_url"
+                android:layout_width="@dimen/width_img_url"
+                android:layout_height="@dimen/height_img_url"
+                android:layout_marginTop="@dimen/margin_top_img_url"
+                android:src="@drawable/btn_url"
+                app:layout_constraintBottom_toTopOf="@+id/tx_url"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:id="@+id/tx_url"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_top_tx_url"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="@string/tx_url"
+                android:textColor="@color/white"
+                android:textSize="@dimen/size_tx_thumbnail_in_btn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/img_url" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--        <ImageView-->
+        <!--            android:id="@+id/ib_url"-->
+        <!--            style="@style/UrlButton.size"-->
+        <!--            android:layout_width="@dimen/url_btn_width"-->
+        <!--            android:layout_height="@dimen/url_btn_height"-->
+        <!--            android:layout_marginBottom="@dimen/btn_url_margin_bottom"-->
+        <!--            android:layout_weight="1"-->
+        <!--            android:elevation="0dp"-->
+        <!--            android:src="@drawable/img_url"-->
+        <!--            app:layout_anchor="@id/bottom_nav"-->
+        <!--            app:layout_constraintBottom_toBottomOf="@+id/bottom_nav"-->
+        <!--            app:layout_constraintEnd_toEndOf="parent"-->
+        <!--            app:layout_constraintStart_toStartOf="parent" />-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

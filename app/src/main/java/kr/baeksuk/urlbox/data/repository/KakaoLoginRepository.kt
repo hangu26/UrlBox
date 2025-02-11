@@ -75,6 +75,7 @@ class KakaoLoginRepository(application: Application) : AndroidViewModel(applicat
                     }
 
                     Log.i("카카오 로그인", "카카오톡으로 로그인 성공 ${token.accessToken}")
+                    Log.i("카카오 로그인", userData.userId)
 
                     callback(true)
 

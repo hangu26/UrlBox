@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemThumbnailListBinding
@@ -92,6 +93,7 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
         private var imageKey = ""
         private var txUrl = ""
         private var isFavorite = false
+        private val iconFavorite = binding.iconFavorite
         val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
         private val autoLogin = pref.getBoolean("auto login", false)
 
@@ -99,6 +101,12 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
             imageKey = url.imageKey
             txUrl = url.url
             isFavorite = url.favorite
+
+            if (isFavorite){
+                iconFavorite.visibility = View.VISIBLE
+            }else{
+                iconFavorite.visibility = View.GONE
+            }
 
             val modeHandler: ModeHandler = if (autoLogin) {
                 LoggedInModeHandler(imgUriList, layoutPosition)

@@ -1,9 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">UrlBox</string>
     <string name="tx_splash_title_01">UrlBox</string>
     <string name="tx_splash_tx_02">링크를 저장하세요</string>
     <string name="tx_appbar_title">UrlBox</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tx_save_url">링크 추가 및 저장</string>
     <string name="tx_saved_url_list">저장된 링크</string>
@@ -36,13 +36,10 @@
     <string name="tx_logout">로그아웃</string>
     <string name="tx_use_guest_mode">게스트로 이용하기</string>
     <string name="tx_login">로그인</string>
-    <string name="tx_save_through_login">UrlBox를 통해 \n링크를 저장해보세요</string>
+    <string name="tx_save_through_login">"UrlBox를 통해 "</string>
     <string name="tx_google_login">Google 로그인</string>
     <string name="tx_login_kakao">카카오 로그인</string>
-    <string name="default_web_client_id" translatable="false">645387379425-4h8t119sj2u29j86obook9lnrc520203.apps.googleusercontent.com</string>
     <string name="tx_backup_to_account">계정에 데이터 동기화</string>
-    <string name="kakao_native_app_key" translatable="false">dd8e8958e1ec731849c96b1b5275ba5f</string>
-    <string name="kakao_app_key" translatable="false">kakaodd8e8958e1ec731849c96b1b5275ba5f</string>
     <string name="tx_setting_info">설정 및 정보</string>
     <string name="tx_set_lauguage">언어 설정</string>
     <string name="tx_set_language_detail">앱 표시 언어 설정</string>
@@ -55,12 +52,7 @@
     <string name="tx_version">앱 버전</string>
     <string name="tx_version_detail">1.0.0</string>
     <string name="tx_language_setting">언어 선택</string>
-    <string name="tx_korean" translatable="false">한국어</string>
-    <string name="tx_english" translatable="false">English</string>
-    <string name="tx_japanese" translatable="false">日本語</string>
     <string name="tx_thumbnail">썸네일</string>
     <string name="tx_my_page">마이페이지</string>
-    <string name="tx_url">URL</string>
-
-
+    <string name="tx_url">링크</string>
 </resources>

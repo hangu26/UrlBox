@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.data.local.UrlDatabase
@@ -222,13 +223,13 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
 
-                    insertUrlDataInFirebase(urlInUser,urlList)
+                    insertUrlDataInFirebase(urlInUser,urlList, imgFileList, storageRef)
 
                 } else {
                     userRef.setValue(user).addOnSuccessListener {
                         Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
 
-                        insertUrlDataInFirebase(urlInUser,urlList)
+                        insertUrlDataInFirebase(urlInUser,urlList, imgFileList, storageRef)
 
                     }.addOnFailureListener {
 
@@ -241,61 +242,10 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
             }
         })
 
-        /**
-        urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
-        override fun onDataChange(snapshot: DataSnapshot) {
-        if (snapshot.exists()) {
-        // 기존 URL 데이터를 가져오기
-        val existingUrls =
-        snapshot.child("url").children.mapNotNull { it.getValue(Url::class.java) }
-
-        // 새로운 URL 중에서 기존 데이터와 중복되지 않은 URL만 필터링
-        val newUrls =
-        urlList.filter { newUrl -> existingUrls.none { it.url == newUrl.url } }
-
-        if (newUrls.isNotEmpty()) {
-
-        newUrls.forEach { newUrl ->
-        urlInUser.child("img" + newUrl.timeStamp)
-        .setValue(newUrl) // ✅ `imageKey`를 키로 저장
-        }
-
-        } else {
-        Log.e("URL 데이터 저장", "모든 URL이 중복되어 저장하지 않음")
-        }
-        } else {
-        urlList.forEach { newUrl ->
-        urlInUser.child(newUrl.imageKey).setValue(newUrl) // ✅ `imageKey`를 키로 저장
-        }
-        }
-        }
-
-        override fun onCancelled(error: DatabaseError) {
-        Log.e("Firebase Error", "데이터 읽기 실패: ${error.message}")
-        }
-        })
-         **/
-
-
-        // 🔥 이미지 파일 리스트를 Firebase Storage에 업로드
-        imgFileList.forEach { file ->
-            if (file.exists()) {
-                val fileUri = Uri.fromFile(file) // File을 Uri로 변환
-                val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
-
-                fileRef.putFile(fileUri).addOnSuccessListener {
-                    Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                }.addOnFailureListener {
-                    Log.e("Storage Upload", "파일 업로드 실패: ${file.name}, 오류: ${it.message}")
-                }
-            } else {
-                Log.e("Storage Upload", "파일이 존재하지 않음: ${file.absolutePath}")
-            }
-        }
 
     }
 
-    fun insertUrlDataInFirebase(urlInUser : DatabaseReference, urlList : List<Url>){
+    fun insertUrlDataInFirebase(urlInUser : DatabaseReference, urlList : List<Url>, imgFileList: List<File>, storageRef : StorageReference){
         urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
@@ -323,6 +273,23 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                         urlInUser.child(newUrl.imageKey).setValue(newUrl)
                     }
                 }
+
+                // 🔥 이미지 파일 리스트를 Firebase Storage에 업로드
+                imgFileList.forEach { file ->
+                    if (file.exists()) {
+                        val fileUri = Uri.fromFile(file) // File을 Uri로 변환
+                        val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
+
+                        fileRef.putFile(fileUri).addOnSuccessListener {
+                            Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
+                        }.addOnFailureListener {
+                            Log.e("Storage Upload", "파일 업로드 실패: ${file.name}, 오류: ${it.message}")
+                        }
+                    } else {
+                        Log.e("Storage Upload", "파일이 존재하지 않음: ${file.absolutePath}")
+                    }
+                }
+
             }
 
             override fun onCancelled(error: DatabaseError) {
