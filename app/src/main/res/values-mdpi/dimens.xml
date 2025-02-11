@@ -89,7 +89,15 @@
     <dimen name="width_img_kakao">19dp</dimen>
     <dimen name="height_img_kakao">18dp</dimen>
     <dimen name="margin_top_tx_login_detail">34dp</dimen>
-
-
+    <dimen name="margin_favorite_in_img">10dp</dimen>
+    <dimen name="margin_favorite_in_thumbnail">5dp</dimen>
+    <dimen name="size_img_star_in_main">18dp</dimen>
+    <dimen name="width_height_icon_setting_btn">50dp</dimen>
+    <dimen name="margin_side_in_setting_btn_constraint">17dp</dimen>
+    <dimen name="margin_start_between_tx_in_setting">17dp</dimen>
+    <dimen name="size_btn_go_in_setting">29dp</dimen>
+    <dimen name="margin_top_in_setting_constraint">25dp</dimen>
+    <dimen name="tx_btn_in_setting_01">17sp</dimen>
+    <dimen name="tx_btn_in_setting_02">14sp</dimen>
 
 </resources>

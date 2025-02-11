@@ -63,6 +63,7 @@ class MyPageFragment : Fragment() {
         val userId = pref.getString("userId", "")
         val userEmail = pref.getString("userEmail", "")
         val userName = pref.getString("userName", "")
+        val userProfile = pref.getString("userProfile", "")
 
 
 
@@ -72,6 +73,9 @@ class MyPageFragment : Fragment() {
             mBinding.txGuestEmail.text = userEmail
             mBinding.btnLogin.visibility = View.GONE
             mBinding.btnLogout.visibility = View.VISIBLE
+            Glide.with(requireContext())
+                .load(userProfile)
+                .into(mBinding.imgProfile)
 
             mViewModel.getUrlBackup()
                 .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->

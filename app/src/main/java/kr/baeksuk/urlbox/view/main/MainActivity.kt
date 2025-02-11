@@ -16,6 +16,7 @@ import kr.baeksuk.urlbox.util.util.MakeVibrator
 import kr.baeksuk.urlbox.view.nav.MyPageFragment
 import kr.baeksuk.urlbox.view.nav.ThumbnailFragment
 import kr.baeksuk.urlbox.view.nav.UrlFragment
+import kr.baeksuk.urlbox.view.setting.SettingActivity
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
 import org.koin.android.ext.android.inject
 
@@ -74,6 +75,16 @@ class MainActivity : BaseActivity() {
                 NavigationMenu.MYPAGE -> navigateMy()
             }
         } // menu 관찰
+
+        vm.btnSettingState.observe(this@MainActivity){
+            if (it){
+
+                val intent = Intent(this@MainActivity, SettingActivity::class.java)
+                startActivityAnimation(intent,this@MainActivity)
+                finish()
+
+            }
+        }
 
     }
 
