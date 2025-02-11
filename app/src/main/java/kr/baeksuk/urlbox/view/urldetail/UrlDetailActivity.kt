@@ -102,6 +102,11 @@ class UrlDetailActivity : BaseActivity() {
 
                 if (autoLogin) {
 
+                    val intent = Intent(this@UrlDetailActivity, CaptureActivity::class.java)
+                    intent.putExtra("url", url)
+                    intent.putExtra("edit", true)
+                    startActivityAnimation(intent, this)
+                    finish()
 
                 } else {
 

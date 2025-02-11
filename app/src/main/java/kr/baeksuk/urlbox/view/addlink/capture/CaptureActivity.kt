@@ -135,7 +135,15 @@ class CaptureActivity : BaseActivity() {
                         )
 
                         if (isEditUrl == true) {
-                            vm.updateBackupUrl(urlBackupEntity, this)
+
+                            val outputStream = FileOutputStream(file)
+                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                            outputStream.flush()
+                            outputStream.close()
+
+                            vm.updateBackupUrl(urlBackupEntity, this, file)
+
+                            backToMain()
 
                         } else {
 
@@ -146,9 +154,7 @@ class CaptureActivity : BaseActivity() {
 
                             vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file)
 
-                            val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-                            startActivityAnimation(intent, this)
-                            finishAffinity()
+                            backToMain()
                         }
 
                     } else {
@@ -161,23 +167,21 @@ class CaptureActivity : BaseActivity() {
 
                         if (isEditUrl == true) {
                             vm.updateUrl(urlEntity, url.toString(), this)
+
+                            backToMain()
+
                         } else {
                             vm.insertUrl(urlEntity, url.toString(), this)
-                        }
 
+                            backToMain()
+
+                        }
 
                         try {
                             val outputStream = FileOutputStream(file)
                             croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
                             outputStream.flush()
                             outputStream.close()
-
-                            /**
-                            val croppedUri =
-                            FileProvider.getUriForFile(this, "$packageName.provider", filePath)
-                            Toast.makeText(this, "크롭된 이미지 저장 완료: $croppedUri", Toast.LENGTH_SHORT)
-                            .show()
-                             **/
 
                             // 저장 완료 후 UI 초기화
                             cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
@@ -191,10 +195,6 @@ class CaptureActivity : BaseActivity() {
                             Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
                         }
 
-                        val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-                        startActivityAnimation(intent, this)
-                        finishAffinity()
-
                     }
 
                 } else {
@@ -205,21 +205,53 @@ class CaptureActivity : BaseActivity() {
         }
 
         vm.btnSkipState.observe(this@CaptureActivity) {
+
             if (it) {
                 val url = intent.getStringExtra("url")
+                val isEditUrl = intent.extras?.getBoolean("edit")
+                val directory = this.filesDir
+                val imageKey = UUID.randomUUID().toString()
+                val file = File(directory, "$imageKey.png")
+
+                val drawable =
+                    getDrawable(R.drawable.urlbox_icon)  // 이미 Drawable 리소스를 가져온 상태라 가정
+                val bitmap = (drawable as BitmapDrawable).bitmap
 
                 if (autoLogin) {
 
+                    val urlBackupEntity = UrlBackupEntity(
+                        urlLink = url.toString(),
+                        imageKey = imageKey,
+                        favorite = false,
+                        imgUri = "",
+                        timeStamp = System.currentTimeMillis(),
+                    )
+
+                    if (isEditUrl == true) {
+
+                        val outputStream = FileOutputStream(file)
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+
+                        vm.updateBackupUrl(urlBackupEntity, this, file)
+
+                        backToMain()
+
+                    } else {
+
+                        val outputStream = FileOutputStream(file)
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+
+                        vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file)
+
+                        backToMain()
+
+                    }
 
                 } else {
-
-                    val directory = this.filesDir
-                    val imageKey = UUID.randomUUID().toString()
-                    val file = File(directory, "$imageKey.png")
-
-                    val drawable =
-                        getDrawable(R.drawable.urlbox_icon)  // 이미 Drawable 리소스를 가져온 상태라 가정
-                    val bitmap = (drawable as BitmapDrawable).bitmap
 
                     val urlEntity = UrlEntity(
                         urlLink = url.toString(),
@@ -241,9 +273,7 @@ class CaptureActivity : BaseActivity() {
 
                     vm.insertUrl(urlEntity, url.toString(), this)
 
-                    val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
+                    backToMain()
 
                 }
 
@@ -298,6 +328,12 @@ class CaptureActivity : BaseActivity() {
         }
 
         return file // 변환된 File 반환
+    }
+
+    fun backToMain(){
+        val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+        startActivityAnimation(intent, this)
+        finishAffinity()
     }
 
 }

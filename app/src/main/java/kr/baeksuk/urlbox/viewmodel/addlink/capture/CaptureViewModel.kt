@@ -101,11 +101,11 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun updateBackupUrl(urlBackupEntity: UrlBackupEntity, context: Context) {
+    fun updateBackupUrl(urlBackupEntity: UrlBackupEntity, context: Context, file : File) {
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
-                repo.updateBackup(urlBackupEntity)
+                repo.updateBackup(urlBackupEntity, file)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             }
