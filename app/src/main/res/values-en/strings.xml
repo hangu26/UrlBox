@@ -55,4 +55,5 @@
     <string name="tx_thumbnail">Thumbnail</string>
     <string name="tx_my_page">Mypage</string>
     <string name="tx_url">URL</string>
+    <string name="tx_loading">Loading..</string>
 </resources>

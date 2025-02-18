@@ -80,18 +80,12 @@ class FavoritesActivity : BaseActivity() {
         vm.btnCloseState.observe(this@FavoritesActivity) {
             if (it) {
 
-                finishToMyPage()
+                finishToMyPage(this@FavoritesActivity)
 
             }
         }
 
     }
 
-    private fun finishToMyPage() {
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra("TARGET_FRAGMENT", "MyPage")
-        startActivityAnimation(intent, this@FavoritesActivity)
-        finish()
-    }
 
 }

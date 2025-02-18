@@ -19,404 +19,84 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <ScrollView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/my_page_constraint_margin_size"
             android:layout_marginTop="@dimen/my_page_constraint_margin_top"
             android:layout_marginEnd="@dimen/my_page_constraint_margin_size"
+            android:paddingBottom="@dimen/padding_bottom_scrollview_my_page"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/img_profile"
-                android:layout_width="@dimen/img_profile"
-                android:layout_height="@dimen/img_profile"
-                android:src="@drawable/account_circle_24px"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/tx_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendard_bold"
-                android:text="@string/tx_profile_guest"
-                android:textColor="@color/tx_black"
-                android:textSize="@dimen/tx_profile_name"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/img_profile" />
-
-            <TextView
-                android:id="@+id/tx_guest_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendard_light"
-                android:text="@string/tx_profile_guest_emil"
-                android:textColor="@color/tx_user_email_color"
-                android:textSize="@dimen/tx_guest_email_size"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tx_name" />
-
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/constraint_id"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/btn_save_url_height"
-                android:layout_marginStart="@dimen/margin_side_edit_profile"
-                android:layout_marginTop="@dimen/my_page_constraint_margin_top"
-                android:layout_marginEnd="@dimen/margin_side_edit_profile"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tx_guest_email">
+                android:layout_height="wrap_content">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btn_login"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/btn_save_url_height"
-                    android:background="@drawable/border_btn_url"
-                    android:onClick="@{() -> viewmodel.btnEdit()}"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                <ImageView
+                    android:id="@+id/img_profile"
+                    android:layout_width="@dimen/img_profile"
+                    android:layout_height="@dimen/img_profile"
+                    android:src="@drawable/account_circle_24px"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/tx_login"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_medium"
-                        android:text="@string/tx_login"
-                        android:textColor="@color/appBar_title_02"
-                        android:textSize="@dimen/tx_save_url_size"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btn_logout"
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/btn_save_url_height"
-                    android:background="@drawable/border_btn_url"
-                    android:onClick="@{() -> viewmodel.btnOut()}"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                <TextView
+                    android:id="@+id/tx_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_bold"
+                    android:text="@string/tx_profile_guest"
+                    android:textColor="@color/tx_black"
+                    android:textSize="@dimen/tx_profile_name"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toBottomOf="@+id/img_profile" />
 
-                    <TextView
-                        android:id="@+id/tx_logout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_medium"
-                        android:text="@string/tx_logout"
-                        android:textColor="@color/appBar_title_02"
-                        android:textSize="@dimen/tx_save_url_size"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/tx_guest_email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_light"
+                    android:text="@string/tx_profile_guest_emil"
+                    android:textColor="@color/tx_user_email_color"
+                    android:textSize="@dimen/tx_guest_email_size"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tx_name" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constraint_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_save_url_height"
+                    android:layout_marginStart="@dimen/margin_side_edit_profile"
+                    android:layout_marginTop="@dimen/my_page_constraint_margin_top"
+                    android:layout_marginEnd="@dimen/margin_side_edit_profile"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tx_guest_email">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-            <LinearLayout
-                android:id="@+id/linear_box"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/my_page_linear_height"
-                android:layout_marginTop="@dimen/my_page_linear_margin_top"
-                android:orientation="horizontal"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/constraint_id">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@drawable/border_constraint_box"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tx_link_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_bold"
-                        android:text="@string/tx_link_count"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/my_page_box_text_size" />
-
-                    <Space
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_login"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/space_box_height" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="@string/tx_link"
-                        android:textColor="@color/appBar_title_02"
-                        android:textSize="@dimen/my_page_tx_link_size" />
-
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="@dimen/space_box_width"
-                    android:layout_height="match_parent" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@drawable/border_constraint_box"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tx_folder_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_bold"
-                        android:text="@string/tx_folder_count"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/my_page_box_text_size" />
-
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/space_box_height" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="@string/tx_folder"
-                        android:textColor="@color/appBar_title_02"
-                        android:textSize="@dimen/my_page_tx_link_size" />
-
-                </LinearLayout>
-
-                <Space
-                    android:layout_width="@dimen/space_box_width"
-                    android:layout_height="match_parent" />
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:background="@drawable/border_constraint_box"
-                    android:gravity="center"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tx_favorite_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_bold"
-                        android:text="@string/tx_favorites_count"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/my_page_box_text_size" />
-
-                    <Space
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/space_box_height" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/pretendard_regular"
-                        android:text="@string/tx_favorites"
-                        android:textColor="@color/appBar_title_02"
-                        android:textSize="@dimen/my_page_tx_link_size" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/my_page_linear_margin_top"
-                android:orientation="vertical"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linear_box">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btn_saved_link"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:onClick="@{() -> viewmodel.btnSavedLink()}">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/constraint_img_link"
-                        android:layout_width="@dimen/my_page_constraint_background"
-                        android:layout_height="@dimen/my_page_constraint_background"
-                        android:background="@drawable/border_link_box"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:layout_width="@dimen/img_my_page_constraint_icon"
-                            android:layout_height="@dimen/img_my_page_constraint_icon"
-                            android:src="@drawable/img_saved_link"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/btn_go_saved"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start"
+                        android:layout_height="@dimen/btn_save_url_height"
+                        android:background="@drawable/border_btn_url"
+                        android:onClick="@{() -> viewmodel.btnEdit()}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/constraint_img_link"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <TextView
-                            android:id="@+id/tx_saved_link"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_saved_link"
-                            android:textColor="@color/tx_black"
-                            android:textSize="@dimen/tx_saved_link_size"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_show_all_link"
-                            android:textColor="@color/appBar_title_02"
-                            android:textSize="@dimen/tx_show_all_link"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/tx_saved_link" />
-
-                        <ImageView
-                            android:layout_width="@dimen/img_arrow_size"
-                            android:layout_height="@dimen/img_arrow_size"
-                            android:src="@drawable/img_arrow_right"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btn_my_folder"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                    android:layout_weight="1">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/constraint_folder"
-                        android:layout_width="@dimen/my_page_constraint_background"
-                        android:layout_height="@dimen/my_page_constraint_background"
-                        android:background="@drawable/border_link_box"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
-                        <ImageView
-                            android:layout_width="@dimen/img_my_page_constraint_icon"
-                            android:layout_height="@dimen/img_my_page_constraint_icon"
-                            android:src="@drawable/img_folder"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/btn_go_folder"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/constraint_folder"
-                        app:layout_constraintTop_toTopOf="parent">
-
                         <TextView
-                            android:id="@+id/tx_my_folder"
+                            android:id="@+id/tx_login"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_my_folder"
-                            android:textColor="@color/tx_black"
-                            android:textSize="@dimen/tx_saved_link_size"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_folder_detail"
+                            android:text="@string/tx_login"
                             android:textColor="@color/appBar_title_02"
-                            android:textSize="@dimen/tx_show_all_link"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/tx_my_folder" />
-
-                        <ImageView
-                            android:layout_width="@dimen/img_arrow_size"
-                            android:layout_height="@dimen/img_arrow_size"
-                            android:src="@drawable/img_arrow_right"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/btn_my_favorite"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                    android:layout_weight="1"
-                    android:onClick="@{() -> viewmodel.btnFavorite()}">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/constraint_favorite"
-                        android:layout_width="@dimen/my_page_constraint_background"
-                        android:layout_height="@dimen/my_page_constraint_background"
-                        android:background="@drawable/border_link_box"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:layout_width="@dimen/img_my_page_constraint_icon"
-                            android:layout_height="@dimen/img_my_page_constraint_icon"
-                            android:src="@drawable/img_favorite"
+                            android:textSize="@dimen/tx_save_url_size"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
@@ -424,86 +104,16 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/btn_go_favorite"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/constraint_favorite"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <TextView
-                            android:id="@+id/tx_favorite"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_favorite"
-                            android:textColor="@color/tx_black"
-                            android:textSize="@dimen/tx_saved_link_size"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_show_favorite"
-                            android:textColor="@color/appBar_title_02"
-                            android:textSize="@dimen/tx_show_all_link"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/tx_favorite" />
-
-                        <ImageView
-                            android:layout_width="@dimen/img_arrow_size"
-                            android:layout_height="@dimen/img_arrow_size"
-                            android:src="@drawable/img_arrow_right"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                    android:layout_weight="1"
-                    android:visibility="gone">
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/constraint_logout"
-                        android:layout_width="@dimen/my_page_constraint_background"
-                        android:layout_height="@dimen/my_page_constraint_background"
-                        android:background="@drawable/border_link_box"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent">
-
-                        <ImageView
-                            android:layout_width="@dimen/img_my_page_constraint_icon"
-                            android:layout_height="@dimen/img_my_page_constraint_icon"
-                            android:src="@drawable/img_logout"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                    </androidx.constraintlayout.widget.ConstraintLayout>
-
-                    <!--
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/btn_logout"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_marginStart="@dimen/margin_tx_saved_start"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/btn_save_url_height"
+                        android:background="@drawable/border_btn_url"
+                        android:onClick="@{() -> viewmodel.btnOut()}"
+                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/constraint_logout"
+                        app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
@@ -512,38 +122,435 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_medium"
                             android:text="@string/tx_logout"
-                            android:textSize="@dimen/tx_saved_link_size"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_use_guest_mode"
                             android:textColor="@color/appBar_title_02"
-                            android:textSize="@dimen/tx_show_all_link"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/tx_logout" />
-
-                        <ImageView
-                            android:layout_width="@dimen/img_arrow_size"
-                            android:layout_height="@dimen/img_arrow_size"
-                            android:src="@drawable/img_arrow_right"
+                            android:textSize="@dimen/tx_save_url_size"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
                             app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
--->
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-            </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <LinearLayout
+                    android:id="@+id/linear_box"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/my_page_linear_height"
+                    android:layout_marginTop="@dimen/my_page_linear_margin_top"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/constraint_id">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:background="@drawable/border_constraint_box"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tx_link_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_bold"
+                            android:text="@string/tx_link_count"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/my_page_box_text_size" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/space_box_height" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="@string/tx_link"
+                            android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/my_page_tx_link_size" />
+
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="@dimen/space_box_width"
+                        android:layout_height="match_parent" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:background="@drawable/border_constraint_box"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tx_folder_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_bold"
+                            android:text="@string/tx_folder_count"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/my_page_box_text_size" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/space_box_height" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="@string/tx_folder"
+                            android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/my_page_tx_link_size" />
+
+                    </LinearLayout>
+
+                    <Space
+                        android:layout_width="@dimen/space_box_width"
+                        android:layout_height="match_parent" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:background="@drawable/border_constraint_box"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tx_favorite_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_bold"
+                            android:text="@string/tx_favorites_count"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/my_page_box_text_size" />
+
+                        <Space
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/space_box_height" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_regular"
+                            android:text="@string/tx_favorites"
+                            android:textColor="@color/appBar_title_02"
+                            android:textSize="@dimen/my_page_tx_link_size" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/my_page_linear_margin_top"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/linear_box">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_saved_link"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewmodel.btnSavedLink()}">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/constraint_img_link"
+                            android:layout_width="@dimen/my_page_constraint_background"
+                            android:layout_height="@dimen/my_page_constraint_background"
+                            android:background="@drawable/border_link_box"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:layout_width="@dimen/img_my_page_constraint_icon"
+                                android:layout_height="@dimen/img_my_page_constraint_icon"
+                                android:src="@drawable/img_saved_link"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/btn_go_saved"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="@dimen/margin_tx_saved_start"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/constraint_img_link"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/tx_saved_link"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_saved_link"
+                                android:textColor="@color/tx_black"
+                                android:textSize="@dimen/tx_saved_link_size"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_show_all_link"
+                                android:textColor="@color/appBar_title_02"
+                                android:textSize="@dimen/tx_show_all_link"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tx_saved_link" />
+
+                            <ImageView
+                                android:layout_width="@dimen/img_arrow_size"
+                                android:layout_height="@dimen/img_arrow_size"
+                                android:src="@drawable/img_arrow_right"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_my_folder"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
+                        android:layout_weight="1">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/constraint_folder"
+                            android:layout_width="@dimen/my_page_constraint_background"
+                            android:layout_height="@dimen/my_page_constraint_background"
+                            android:background="@drawable/border_link_box"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:layout_width="@dimen/img_my_page_constraint_icon"
+                                android:layout_height="@dimen/img_my_page_constraint_icon"
+                                android:src="@drawable/img_folder"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/btn_go_folder"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="@dimen/margin_tx_saved_start"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/constraint_folder"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/tx_my_folder"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_my_folder"
+                                android:textColor="@color/tx_black"
+                                android:textSize="@dimen/tx_saved_link_size"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_folder_detail"
+                                android:textColor="@color/appBar_title_02"
+                                android:textSize="@dimen/tx_show_all_link"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tx_my_folder" />
+
+                            <ImageView
+                                android:layout_width="@dimen/img_arrow_size"
+                                android:layout_height="@dimen/img_arrow_size"
+                                android:src="@drawable/img_arrow_right"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_my_favorite"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewmodel.btnFavorite()}">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/constraint_favorite"
+                            android:layout_width="@dimen/my_page_constraint_background"
+                            android:layout_height="@dimen/my_page_constraint_background"
+                            android:background="@drawable/border_link_box"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:layout_width="@dimen/img_my_page_constraint_icon"
+                                android:layout_height="@dimen/img_my_page_constraint_icon"
+                                android:src="@drawable/img_favorite"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/btn_go_favorite"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="@dimen/margin_tx_saved_start"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/constraint_favorite"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/tx_favorite"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_favorite"
+                                android:textColor="@color/tx_black"
+                                android:textSize="@dimen/tx_saved_link_size"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_show_favorite"
+                                android:textColor="@color/appBar_title_02"
+                                android:textSize="@dimen/tx_show_all_link"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tx_favorite" />
+
+                            <ImageView
+                                android:layout_width="@dimen/img_arrow_size"
+                                android:layout_height="@dimen/img_arrow_size"
+                                android:src="@drawable/img_arrow_right"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
+                        android:layout_weight="1"
+                        android:visibility="gone">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/constraint_logout"
+                            android:layout_width="@dimen/my_page_constraint_background"
+                            android:layout_height="@dimen/my_page_constraint_background"
+                            android:background="@drawable/border_link_box"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:layout_width="@dimen/img_my_page_constraint_icon"
+                                android:layout_height="@dimen/img_my_page_constraint_icon"
+                                android:src="@drawable/img_logout"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <!--
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/btn_logout"
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_marginStart="@dimen/margin_tx_saved_start"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toEndOf="@+id/constraint_logout"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                android:id="@+id/tx_logout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_logout"
+                                android:textSize="@dimen/tx_saved_link_size"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_use_guest_mode"
+                                android:textColor="@color/appBar_title_02"
+                                android:textSize="@dimen/tx_show_all_link"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/tx_logout" />
+
+                            <ImageView
+                                android:layout_width="@dimen/img_arrow_size"
+                                android:layout_height="@dimen/img_arrow_size"
+                                android:src="@drawable/img_arrow_right"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    -->
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

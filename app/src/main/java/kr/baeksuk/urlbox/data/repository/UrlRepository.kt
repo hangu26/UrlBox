@@ -60,7 +60,8 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     urlBackupEntity.imageKey,
                     urlBackupEntity.imgUri,
                     urlBackupEntity.favorite,
-                    urlBackupEntity.timeStamp
+                    urlBackupEntity.timeStamp,
+                    urlBackupEntity.urlName
                 )
 
                 userRef.orderByChild("url").equalTo(urlLink)
@@ -133,6 +134,71 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 //            }
 //        }
 //    }
+
+    fun updateUrlInfo(url: String, urlName: String, urlMemo: String) {
+
+        val userId = pref.getString("userId", "")
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            try {
+
+                urlDao.updateUrlInfo(url, urlName, urlMemo)
+
+                databaseReference =
+                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
+                        .child("url")
+
+                databaseReference.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+
+                            if (snapshot.exists()) {
+
+                                for (child in snapshot.children) {
+                                    val key = child.key
+
+                                    if (key != null) {
+                                        databaseReference.child(key).child("urlName")
+                                            .setValue(urlName)
+                                            .addOnCompleteListener {
+                                                Log.e("업데이트 성공", "URL 이름 변경 완료")
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.e("업데이트 실패", e.toString())
+                                            }
+
+                                        databaseReference.child(key).child("urlMemo")
+                                            .setValue(urlMemo)
+                                            .addOnCompleteListener {
+                                                Log.e("업데이트 성공", "URL 메모 변경 완료")
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.e("업데이트 실패", e.toString())
+                                            }
+
+                                    }
+
+                                }
+
+                            } else {
+
+                            }
+
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+
+                        }
+                    })
+
+            } catch (e: java.lang.Exception) {
+
+            }
+
+        }
+
+    }
 
     fun update(urlEntity: UrlEntity) {
         viewModelScope.launch(Dispatchers.IO) {

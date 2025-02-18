@@ -74,7 +74,9 @@ class LoginActivity : BaseActivity() {
                     url = data.urlLink,
                     imageKey = data.imageKey,
                     favorite = data.favorite,
-                    timeStamp = data.timeStamp
+                    timeStamp = data.timeStamp,
+                    urlName = data.urlName,
+                    urlMemo = ""
                 )
             }
 

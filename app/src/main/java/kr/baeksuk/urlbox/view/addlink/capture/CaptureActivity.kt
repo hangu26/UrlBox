@@ -126,15 +126,15 @@ class CaptureActivity : BaseActivity() {
 
                     if (autoLogin) {
 
-                        val urlBackupEntity = UrlBackupEntity(
-                            urlLink = url.toString(),
-                            imageKey = imageKey,
-                            favorite = false,
-                            imgUri = "",
-                            timeStamp = System.currentTimeMillis(),
-                        )
-
                         if (isEditUrl == true) {
+
+                            val urlBackupEntity = UrlBackupEntity(
+                                urlLink = url.toString(),
+                                imageKey = imageKey,
+                                favorite = false,
+                                imgUri = "",
+                                timeStamp = System.currentTimeMillis(),
+                            )
 
                             val outputStream = FileOutputStream(file)
                             croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -146,6 +146,16 @@ class CaptureActivity : BaseActivity() {
                             backToMain()
 
                         } else {
+
+                            val urlBackupEntity = UrlBackupEntity(
+                                urlLink = url.toString(),
+                                imageKey = imageKey,
+                                favorite = false,
+                                imgUri = "",
+                                timeStamp = System.currentTimeMillis(),
+                                urlName = url.toString(),
+                                urlMemo = ""
+                            )
 
                             val outputStream = FileOutputStream(file)
                             croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
@@ -162,7 +172,9 @@ class CaptureActivity : BaseActivity() {
                             urlLink = url.toString(),
                             imageKey = imageKey,
                             favorite = false,
-                            timeStamp = System.currentTimeMillis()
+                            timeStamp = System.currentTimeMillis(),
+                            urlName = url.toString(),
+                            urlMemo = ""
                         )
 
                         if (isEditUrl == true) {
@@ -225,6 +237,8 @@ class CaptureActivity : BaseActivity() {
                         favorite = false,
                         imgUri = "",
                         timeStamp = System.currentTimeMillis(),
+                        urlName = url.toString(),
+                        urlMemo = ""
                     )
 
                     if (isEditUrl == true) {
@@ -257,7 +271,9 @@ class CaptureActivity : BaseActivity() {
                         urlLink = url.toString(),
                         imageKey = imageKey,
                         favorite = false,
-                        timeStamp = System.currentTimeMillis()
+                        timeStamp = System.currentTimeMillis(),
+                        urlName = url.toString(),
+                        urlMemo = ""
                     )
 
                     try {
