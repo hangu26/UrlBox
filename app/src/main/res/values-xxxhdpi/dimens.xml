@@ -44,7 +44,7 @@
     <dimen name="url_detail_text_size">18sp</dimen>
     <dimen name="url_detail_text_margin_side">27dp</dimen>
     <dimen name="url_detail_text_margin_top">25dp</dimen>
-    <dimen name="url_detail_img_margin">11dp</dimen>
+    <dimen name="url_detail_img_margin">15dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
     <dimen name="my_page_constraint_margin_top">17dp</dimen>
     <dimen name="my_page_img_margin_top">17dp</dimen>
@@ -99,5 +99,36 @@
     <dimen name="margin_top_in_setting_constraint">25dp</dimen>
     <dimen name="tx_btn_in_setting_01">17sp</dimen>
     <dimen name="tx_btn_in_setting_02">14sp</dimen>
+    <dimen name="size_img_thumbnail_02">21dp</dimen>
+    <dimen name="margin_top_img_thumbnail_02">22dp</dimen>
+    <dimen name="width_img_my_page_02">25dp</dimen>
+    <dimen name="height_img_my_page_02">21dp</dimen>
+    <dimen name="margin_btn_thumbnail_between_img_text">6dp</dimen>
+    <dimen name="size_tx_thumbnail_in_btn">11sp</dimen>
+    <dimen name="margin_top_tx_url">6dp</dimen>
+    <dimen name="margin_top_img_url">20dp</dimen>
+    <dimen name="width_img_url">37dp</dimen>
+    <dimen name="height_img_url">21dp</dimen>
+    <dimen name="size_tx_loading">20sp</dimen>
+    <dimen name="margin_top_url_name">10dp</dimen>
+    <dimen name="size_url_name_text">17sp</dimen>
+    <dimen name="size_memo_text">17sp</dimen>
+    <dimen name="height_edt_url_name">58dp</dimen>
+    <dimen name="margin_top_edt_url_name">8dp</dimen>
+    <dimen name="margin_top_edt_memo">8dp</dimen>
+    <dimen name="margin_top_memo_text">10dp</dimen>
+    <dimen name="margin_top_linear_btn_edit_delete">20dp</dimen>
+    <dimen name="padding_start_edt_url_name">15dp</dimen>
+    <dimen name="padding_start_edt_memo">15dp</dimen>
+    <dimen name="height_edt_memo">90dp</dimen>
+    <dimen name="padding_bottom_scrollview_my_page">50dp</dimen>
+    <dimen name="size_img_url">21dp</dimen>
+    <dimen name="margin_img_url_to_tx_visit">8dp</dimen>
+    <dimen name="height_constraint_btn_recapture">50dp</dimen>
+    <dimen name="size_icon_camera">21dp</dimen>
+    <dimen name="size_icon_album">21dp</dimen>
+    <dimen name="margin_icon_camera">10dp</dimen>
+    <dimen name="padding_top_tx_memo">10dp</dimen>
+    <dimen name="size_tx_url_name">14sp</dimen>
 
 </resources>

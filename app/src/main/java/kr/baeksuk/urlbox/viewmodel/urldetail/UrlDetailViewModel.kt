@@ -1,7 +1,6 @@
 package kr.baeksuk.urlbox.viewmodel.urldetail
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -17,8 +16,8 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
 
-    private val _btnEditState = MutableLiveData<Boolean>()
-    val btnEditState = _btnEditState
+    private val _btnChangeImgState = MutableLiveData<Boolean>()
+    val btnChangeImgState = _btnChangeImgState
 
     private val _btnDelete = MutableLiveData<Boolean>()
     val btnDelete = _btnDelete
@@ -29,6 +28,13 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private val _btnFavoriteState = MutableLiveData<Boolean>()
     val btnFavoriteState = _btnFavoriteState
 
+    private val _btnEditState = MutableLiveData<Boolean>()
+    val btnEditState = _btnEditState
+
+    fun btnEdit() {
+        _btnEditState.value = true
+    }
+
     fun btnLoadUrl() {
         _btnLoadUrl.value = true
     }
@@ -36,29 +42,30 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
     fun btnClose() {
         _btnCloseState.value = true
     }
-    fun btnEdit() {
-        _btnEditState.value = true
+
+    fun btnChangeImg() {
+        _btnChangeImgState.value = true
     }
 
     fun btnDelete() {
         _btnDelete.value = true
     }
 
-    fun deleteGuestData(url : String){
+    fun deleteGuestData(url: String) {
         _repo.deleteGuestData(url)
     }
 
-    fun deleteUserData(url : String, imageKey : String){
+    fun deleteUserData(url: String, imageKey: String) {
 
         _repo.deleteUserData(url, imageKey)
 
     }
 
-    fun btnFavorite(){
+    fun btnFavorite() {
         _btnFavoriteState.value = true
     }
 
-    fun updateFavorite(url : String, isFavorite : Boolean){
+    fun updateFavorite(url: String, isFavorite: Boolean) {
 
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -70,7 +77,7 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     }
 
-    fun updateUserFavorite(url: String, isFavorite: Boolean){
+    fun updateUserFavorite(url: String, isFavorite: Boolean) {
 
         viewModelScope.launch(Dispatchers.IO) {
 

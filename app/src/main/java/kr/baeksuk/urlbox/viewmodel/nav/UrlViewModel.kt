@@ -2,6 +2,8 @@ package kr.baeksuk.urlbox.viewmodel.nav
 
 import android.app.Application
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
@@ -33,6 +35,9 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
     private val _btnAddState = MutableLiveData<Boolean>()
     val btnAddState = _btnAddState
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading = _isLoading
+
     fun btnAdd() {
         _btnAddState.value = true
     }
@@ -47,10 +52,25 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getUrlData(lifecycleOwner: LifecycleOwner): LiveData<Pair<List<Url>, List<String>>> {
         val mutableUrl = MutableLiveData<Pair<List<Url>, List<String>>>()
+
+        _isLoading.value = true
+
         _userRepo.getUrlData().observe(lifecycleOwner) {
+
+            _isLoading.value = false
+
             mutableUrl.value = it
+
         }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+
+            if (_isLoading.value == true) _isLoading.value = false
+
+        }, 4000)
+
         return mutableUrl
+
     }
 
     /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/

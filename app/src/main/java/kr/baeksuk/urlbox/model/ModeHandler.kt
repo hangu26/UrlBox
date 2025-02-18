@@ -19,7 +19,9 @@ interface ModeHandler {
         imgUri: String,
         isFavorite: Boolean,
         imageKey: String,
-        timeStamp : String
+        timeStamp : String,
+        urlName : String? = null,
+        urlMemo : String? = null
     )
 
 }
@@ -52,13 +54,17 @@ class LoggedInModeHandler(private val imgUriList: List<String>, private val layo
         imgUri: String,
         isFavorite: Boolean,
         imageKey: String,
-        timeStamp : String
+        timeStamp : String,
+        urlName: String?,
+        urlMemo : String?
     ) {
         intent.putExtra("title", txUrl)
         intent.putExtra("imgUri", imgUri)
         intent.putExtra("imageKey", imageKey)
         intent.putExtra("timeStamp", timeStamp)
         intent.putExtra("isFavorite", isFavorite)
+        intent.putExtra("urlName", urlName)
+        intent.putExtra("urlMemo", urlMemo)
     }
 }
 
@@ -89,7 +95,9 @@ class GuestModeHandler(private val imageKey: String, private val context: Contex
         imgUri: String,
         isFavorite: Boolean,
         imageKey: String,
-        timeStamp : String
+        timeStamp : String,
+        urlName: String?,
+        urlMemo : String?
     ) {
         intent.putExtra("title", txUrl)
         intent.putExtra("image", imageKey)

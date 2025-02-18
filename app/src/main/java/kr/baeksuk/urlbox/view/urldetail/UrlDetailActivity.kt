@@ -1,14 +1,12 @@
 package kr.baeksuk.urlbox.view.urldetail
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.util.Pair
+import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
@@ -16,6 +14,7 @@ import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
+import kr.baeksuk.urlbox.view.editurl.EditInfoActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import org.koin.android.ext.android.inject
@@ -26,6 +25,7 @@ class UrlDetailActivity : BaseActivity() {
     private lateinit var uBinding: ActivityUrlDetailBinding
     private val uViewModel: UrlDetailViewModel by inject()
     private var favoriteClicked = false
+    private var visitUrl = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +49,10 @@ class UrlDetailActivity : BaseActivity() {
         val url = intent.extras?.getString("title")
         val favoriteState = intent.extras?.getBoolean("isFavorite")
         val imgUri = intent.extras?.getString("imgUri", "")
-        uBinding.txUrl.text = url
+        val urlName = intent.extras?.getString("urlName", "")
+        val urlMemo = intent.extras?.getString("urlMemo", "")
+
+        visitUrl = url!!
 
         if (autoLogin) {
 
@@ -57,7 +60,11 @@ class UrlDetailActivity : BaseActivity() {
                 .load(imgUri)
                 .into(uBinding.imgUrl)
 
+            uBinding.txUrlNameInfo.text = urlName.toString()
+            uBinding.txMemoInfo.text = urlMemo.toString()
+
         } else {
+
             val directory = this.filesDir
             val filePath = "$directory/$imageKey.png"
             val file = File(filePath)
@@ -85,6 +92,26 @@ class UrlDetailActivity : BaseActivity() {
 
     private fun observe() = uViewModel.let { vm ->
 
+        vm.btnEditState.observe(this@UrlDetailActivity) {
+            if (it) {
+
+                val url = intent.extras?.getString("title")
+                val imageKey = intent.extras?.getString("image", "")
+                val imgUri = intent.extras?.getString("imgUri", "")
+                val urlName = intent.extras?.getString("urlName", "")
+
+                val intent = Intent(this@UrlDetailActivity, EditInfoActivity::class.java)
+                intent.putExtra("title", url)
+                intent.putExtra("memo", uBinding.txMemoInfo.text.toString())
+                intent.putExtra("imgUri", imgUri)
+                intent.putExtra("imageKey", imageKey)
+                intent.putExtra("urlName", urlName)
+
+                startActivityAnimation(intent, this@UrlDetailActivity)
+
+            }
+        }
+
         vm.btnCloseState.observe(this@UrlDetailActivity) {
             if (it) {
 
@@ -93,7 +120,7 @@ class UrlDetailActivity : BaseActivity() {
             }
         }
 
-        vm.btnEditState.observe(this@UrlDetailActivity) {
+        vm.btnChangeImgState.observe(this@UrlDetailActivity) {
             val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
             val autoLogin = pref.getBoolean("auto login", false)
 
@@ -121,7 +148,7 @@ class UrlDetailActivity : BaseActivity() {
             }
         }
 
-        vm.btnDelete.observe(this@UrlDetailActivity) { 
+        vm.btnDelete.observe(this@UrlDetailActivity) {
             val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
             val autoLogin = pref.getBoolean("auto login", false)
 
@@ -149,9 +176,8 @@ class UrlDetailActivity : BaseActivity() {
 
         vm.btnLoadUrl.observe(this@UrlDetailActivity) {
             if (it) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uBinding.txUrl.text.toString()))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(visitUrl.toString()))
                 startActivity(intent)
-                finish()
             }
         }
 
@@ -179,7 +205,6 @@ class UrlDetailActivity : BaseActivity() {
                         vm.updateFavorite(url!!, favoriteClicked)
 
                     }
-
 
 
                 } else {

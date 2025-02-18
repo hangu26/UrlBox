@@ -7,11 +7,11 @@
 
         <variable
             name="activity"
-            type="kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity" />
+            type="kr.baeksuk.urlbox.view.editurl.EditInfoActivity" />
 
         <variable
             name="viewmodel"
-            type="kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel" />
+            type="kr.baeksuk.urlbox.viewmodel.editurl.EditUrlViewModel" />
 
     </data>
 
@@ -61,33 +61,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/img_setting_margin_end"
-                        android:onClick="@{() -> viewmodel.btnClose()}"
-                        android:src="@drawable/close_24px"
+                        android:src="@drawable/arrow_back_24px"
                         android:visibility="visible"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:id="@+id/icon_edit"
-                        android:layout_width="@dimen/img_star_size"
-                        android:layout_height="@dimen/img_star_size"
-                        android:layout_marginEnd="15dp"
-                        android:onClick="@{() -> viewmodel.btnEdit()}"
-                        android:src="@drawable/icon_edit"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/icon_favorite"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <ImageView
-                        android:id="@+id/icon_favorite"
-                        android:layout_width="@dimen/img_star_size"
-                        android:layout_height="@dimen/img_star_size"
-                        android:layout_marginEnd="15dp"
-                        android:onClick="@{() -> viewmodel.btnFavorite()}"
-                        android:src="@drawable/icon_favorite_app_color"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -114,38 +91,118 @@
 
                 <ImageView
                     android:id="@+id/img_url"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_marginStart="@dimen/url_detail_img_margin"
                     android:layout_marginEnd="@dimen/url_detail_img_margin"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/urlbox_icon"
                     android:transitionName="imageTran"
-                    app:layout_constraintDimensionRatio="1:1"
-                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintDimensionRatio="1:0.6"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <!--
-                <TextView
-                    android:id="@+id/tx_url"
+                <LinearLayout
+                    android:id="@+id/linear_change_img"
                     android:layout_width="0dp"
-                    android:layout_height="45dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/url_detail_text_margin_top"
-                    android:fontFamily="@font/pretendard_semibold"
-                    android:gravity="center"
-                    android:onClick="@{() -> viewmodel.btnLoadUrl()}"
-                    android:paddingStart="@dimen/url_detail_text_margin_side"
-                    android:paddingEnd="@dimen/url_detail_text_margin_side"
-                    android:text="https://www.youtube.com/wersadfasdgwear"
-                    android:textColor="@color/tx_black"
-                    android:textSize="@dimen/url_detail_text_size"
-                    android:transitionName="titleTran"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/img_url" />
--->
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_top_linear_btn_edit_delete"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toEndOf="@+id/tx_url_name_info"
+                    app:layout_constraintStart_toStartOf="@+id/img_url"
+                    app:layout_constraintTop_toBottomOf="@+id/img_url">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_capture"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/height_constraint_btn_recapture"
+                        android:layout_gravity="start"
+                        android:background="@drawable/border_btn_capture"
+                        android:onClick="@{() -> viewmodel.btnChangeImg()}">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/icon_capture"
+                                android:layout_width="@dimen/size_icon_camera"
+                                android:layout_height="@dimen/size_icon_camera"
+                                android:layout_marginEnd="@dimen/margin_icon_camera"
+                                android:src="@drawable/icon_camera"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@+id/tx_capture"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tx_capture"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_btn_capture"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/text_btn_capture"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/icon_capture"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/btn_album"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/height_constraint_btn_recapture"
+                        android:layout_gravity="end"
+                        android:layout_marginTop="@dimen/margin_top_linear_btn_edit_delete"
+                        android:background="@drawable/border_btn_delete">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <ImageView
+                                android:id="@+id/icon_album"
+                                android:layout_width="@dimen/size_icon_album"
+                                android:layout_height="@dimen/size_icon_album"
+                                android:layout_marginEnd="@dimen/margin_icon_camera"
+                                android:src="@drawable/icon_album"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toStartOf="@+id/tx_album"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tx_album"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/pretendard_medium"
+                                android:text="@string/tx_choose_album"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/text_btn_capture"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/icon_album"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/tx_url_name"
@@ -157,20 +214,19 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_url_name_text"
                     app:layout_constraintStart_toStartOf="@+id/img_url"
-                    app:layout_constraintTop_toBottomOf="@+id/img_url" />
+                    app:layout_constraintTop_toBottomOf="@+id/linear_change_img" />
 
-                <TextView
+                <EditText
                     android:id="@+id/tx_url_name_info"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/height_edt_url_name"
                     android:layout_marginTop="@dimen/margin_top_edt_url_name"
+                    android:layout_marginEnd="@dimen/url_detail_img_margin"
                     android:background="@drawable/border_edt_url"
-                    android:gravity="center|start"
                     android:paddingStart="@dimen/padding_start_edt_url_name"
                     android:paddingEnd="@dimen/padding_start_edt_url_name"
                     android:textColor="@color/black"
-                    android:textSize="@dimen/size_tx_url_name"
-                    app:layout_constraintEnd_toEndOf="@+id/img_url"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/img_url"
                     app:layout_constraintTop_toBottomOf="@+id/tx_url_name" />
 
@@ -186,7 +242,7 @@
                     app:layout_constraintStart_toStartOf="@+id/img_url"
                     app:layout_constraintTop_toBottomOf="@+id/tx_url_name_info" />
 
-                <TextView
+                <EditText
                     android:id="@+id/tx_memo_info"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/height_edt_memo"
@@ -196,7 +252,7 @@
                     android:paddingTop="@dimen/padding_top_tx_memo"
                     android:paddingEnd="@dimen/padding_start_edt_memo"
                     android:paddingBottom="@dimen/padding_top_tx_memo"
-                    android:text="메모"
+                    android:gravity="start"
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_tx_url_name"
                     app:layout_constraintEnd_toEndOf="@+id/img_url"
@@ -213,7 +269,7 @@
                     android:orientation="horizontal"
                     android:visibility="visible"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/img_url"
+                    app:layout_constraintEnd_toEndOf="@+id/tx_url_name_info"
                     app:layout_constraintStart_toStartOf="@+id/img_url"
                     app:layout_constraintTop_toBottomOf="@+id/tx_memo_info">
 
@@ -224,42 +280,20 @@
                         android:layout_gravity="start"
                         android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
                         android:layout_weight="1"
-                        android:background="@drawable/border_btn_capture"
-                        android:onClick="@{() -> viewmodel.btnLoadUrl()}">
+                        android:background="@drawable/border_btn_delete">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                        <TextView
+                            android:id="@+id/textView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/pretendard_medium"
+                            android:text="@string/tx_back"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/text_btn_capture"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent">
-
-                            <ImageView
-                                android:id="@+id/icon_url"
-                                android:layout_width="@dimen/size_img_url"
-                                android:layout_height="@dimen/size_img_url"
-                                android:src="@drawable/icon_visit_link"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toStartOf="@+id/tx_visit"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/tx_visit"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/margin_img_url_to_tx_visit"
-                                android:fontFamily="@font/pretendard_medium"
-                                android:text="@string/tx_visit_url"
-                                android:textColor="@color/white"
-                                android:textSize="@dimen/text_btn_capture"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintEnd_toEndOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/icon_url"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
+                            app:layout_constraintTop_toTopOf="parent" />
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -274,15 +308,15 @@
                         android:layout_gravity="end"
                         android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
                         android:layout_weight="1"
-                        android:background="@drawable/border_btn_delete"
-                        android:onClick="@{() -> viewmodel.btnDelete()}">
+                        android:onClick="@{() -> viewmodel.btnSaveChanges()}"
+                        android:background="@drawable/border_btn_capture">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_medium"
-                            android:text="@string/tx_delete"
-                            android:textColor="@color/black"
+                            android:text="@string/tx_save"
+                            android:textColor="@color/white"
                             android:textSize="@dimen/text_btn_capture"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
