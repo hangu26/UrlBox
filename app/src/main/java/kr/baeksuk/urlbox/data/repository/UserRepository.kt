@@ -145,6 +145,8 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                     val imageKey = dataSnapshot.child("imageKey").value.toString()
                     val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
                     val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
+                    val urlName = dataSnapshot.child("urlName").value.toString()
+                    val urlMemo = dataSnapshot.child("urlMemo").value.toString()
 
                     // Firebase Storage에서 이미지 URL 가져오기
                     val storageReference =
@@ -166,7 +168,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
 
                         // UrlEntity 객체를 생성하여 urlDataList에 추가
-                        urlDataList.add(Url(url, imageKey, uri.toString(), favorite, timeStamp))
+                        urlDataList.add(Url(url, imageKey, uri.toString(), favorite, timeStamp, urlName, urlMemo))
 
                         // 이미지 다운로드 완료 시, 카운트 증가
                         loadedImagesCount++

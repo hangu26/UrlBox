@@ -61,6 +61,13 @@ class UrlFragment : Fragment() {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
 
+        val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+
+        val params = uBinding.loadingBar.layoutParams as ViewGroup.MarginLayoutParams
+        params.topMargin = (screenWidth / 1.5).toInt()
+        uBinding.loadingBar.layoutParams = params
+
         if (autoLogin) {
 
             uViewModel.getUserUrlBackup()
@@ -98,7 +105,9 @@ class UrlFragment : Fragment() {
                             imageKey = url.imageKey,
                             imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
                             favorite = url.favorite,
-                            timeStamp = url.timeStamp
+                            timeStamp = url.timeStamp,
+                            urlName = url.urlName,
+                            urlMemo = url.urlMemo
                         )
                     }
 
@@ -113,10 +122,14 @@ class UrlFragment : Fragment() {
                 Log.e("모든 데이터 받아오기", "앱 시작 시 데이터 받아오기 성공")
             }
 
+            vm.isLoading.observe(viewLifecycleOwner) { isLoading ->
+                uBinding.loadingBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            }
+
             vm.hasBackupData().observe(viewLifecycleOwner) { hasData ->
                 if (hasData && isFirst != 1) {
                     Log.e("모든 데이터 받아오기", "이미 데이터가 받아와져있음")
-                } else if (isFirst != 1){
+                } else if (isFirst != 1) {
                     vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
 
                         val urlDataList: List<Url> = listPair.first
@@ -128,7 +141,9 @@ class UrlFragment : Fragment() {
                                 imageKey = url.imageKey,
                                 imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
                                 favorite = url.favorite,
-                                timeStamp = url.timeStamp
+                                timeStamp = url.timeStamp,
+                                urlName = url.urlName,
+                                urlMemo = url.urlMemo
                             )
                         }
 

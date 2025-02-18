@@ -61,6 +61,13 @@
     <string name="tx_thumbnail">썸네일</string>
     <string name="tx_my_page">마이페이지</string>
     <string name="tx_url">URL</string>
+    <string name="tx_loading">로딩중..</string>
+    <string name="tx_url_name">URL Name</string>
+    <string name="tx_enter_url_name">Enter URL name</string>
+    <string name="tx_memo">Memo</string>
+    <string name="tx_visit_url">Visit URL</string>
+    <string name="tx_choose_album">앨범에서 선택</string>
+    <string name="tx_back">뒤로가기</string>
 
 
 </resources>

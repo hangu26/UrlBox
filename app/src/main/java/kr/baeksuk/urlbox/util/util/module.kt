@@ -2,11 +2,13 @@ package kr.baeksuk.urlbox.util.util
 
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
+import kr.baeksuk.urlbox.viewmodel.editurl.EditUrlViewModel
 import kr.baeksuk.urlbox.viewmodel.favorite.FavoriteViewModel
 import kr.baeksuk.urlbox.viewmodel.imgdetail.ImgDetailViewModel
 import kr.baeksuk.urlbox.viewmodel.language.LanguageViewModel
 import kr.baeksuk.urlbox.viewmodel.login.LoginViewModel
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
+import kr.baeksuk.urlbox.viewmodel.myfolder.MyFolderViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
@@ -34,5 +36,7 @@ val module = module {
     viewModel { LoginViewModel(androidApplication()) }
     viewModel { SettingViewModel(androidApplication()) }
     viewModel { LanguageViewModel(androidApplication()) }
+    viewModel { MyFolderViewModel(androidApplication()) }
+    viewModel { EditUrlViewModel(androidApplication()) }
 
 }

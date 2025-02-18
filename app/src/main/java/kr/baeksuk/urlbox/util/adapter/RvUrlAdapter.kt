@@ -50,7 +50,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 url = urlEntity.urlLink,
                 imageKey = urlEntity.imageKey,
                 favorite = urlEntity.favorite,
-                timeStamp = urlEntity.timeStamp
+                timeStamp = urlEntity.timeStamp,
+                urlName = urlEntity.urlName
             )
         }
 
@@ -68,7 +69,9 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                     imageKey = urlBackupEntity.imageKey,
                     imgUri = urlBackupEntity.imgUri,
                     favorite = urlBackupEntity.favorite,
-                    timeStamp = urlBackupEntity.timeStamp
+                    timeStamp = urlBackupEntity.timeStamp,
+                    urlName = urlBackupEntity.urlName,
+                    urlMemo = urlBackupEntity.urlMemo
                 )
 
             }
@@ -88,7 +91,9 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                     imageKey = url.imageKey,
                     imgUri = url.imgUri,
                     favorite = url.favorite,
-                    timeStamp = url.timeStamp
+                    timeStamp = url.timeStamp,
+                    urlName = url.urlName,
+                    urlMemo = url.urlMemo
                 )
             }
 
@@ -124,7 +129,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 imageKey = urlBackupEntity.imageKey,
                 imgUri = urlBackupEntity.imgUri,
                 favorite = urlBackupEntity.favorite,
-                timeStamp = urlBackupEntity.timeStamp
+                timeStamp = urlBackupEntity.timeStamp,
+                urlName = urlBackupEntity.urlName
             )
         }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
 
@@ -153,21 +159,26 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         private var imageKey = ""
         private var isFavorite = false
         private var imgUri = ""
+        private var urlLink = ""
         private val txUrl = binding.txUrl
         private val imgView = binding.imgThumbnail
         private val iconFavorite = binding.iconFavorite
         private val btnUrl = binding.btnUrl
         private var timeStamp = ""
+        private var urlName = ""
+        private var urlMemo = ""
         val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
         private val autoLogin = pref.getBoolean("auto login", false)
 
         fun bind(url: Url) {
-
-            txUrl.text = url.url
+            urlLink = url.url
+            txUrl.text = url.urlName
             imageKey = url.imageKey
             isFavorite = url.favorite
             imgUri = url.imgUri
             timeStamp = url.timeStamp.toString()
+            urlName = url.urlName.toString()
+            urlMemo = url.urlMemo.toString()
 
             if (isFavorite){
                 iconFavorite.visibility = View.VISIBLE
@@ -245,11 +256,13 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
 
                 modeHandler.intentUrlToDetail(
                     intent,
-                    txUrl.text.toString(),
+                    urlLink,
                     imgUri,
                     isFavorite,
                     imageKey,
-                    timeStamp
+                    timeStamp,
+                    urlName,
+                    urlMemo
                 )
 
                 context.startActivity(intent, options.toBundle())
@@ -257,7 +270,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
 
             txUrl.setOnClickListener {
 
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.text.toString()))
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(urlLink))
                 context.startActivity(intent)
             }
 

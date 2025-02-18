@@ -36,7 +36,7 @@
     <string name="tx_logout">로그아웃</string>
     <string name="tx_use_guest_mode">게스트로 이용하기</string>
     <string name="tx_login">로그인</string>
-    <string name="tx_save_through_login">"UrlBox를 통해 "</string>
+    <string name="tx_save_through_login">"UrlBox를 통해 \n링크를 저장해보세요 "</string>
     <string name="tx_google_login">Google 로그인</string>
     <string name="tx_login_kakao">카카오 로그인</string>
     <string name="tx_backup_to_account">계정에 데이터 동기화</string>
@@ -55,4 +55,5 @@
     <string name="tx_thumbnail">썸네일</string>
     <string name="tx_my_page">마이페이지</string>
     <string name="tx_url">링크</string>
+    <string name="tx_loading">로딩중..</string>
 </resources>
