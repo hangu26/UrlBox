@@ -16,11 +16,11 @@
     <dimen name="url_btn_width">63dp</dimen>
     <dimen name="url_btn_height">76dp</dimen>
     <dimen name="btn_url_margin_bottom">22dp</dimen>
-    <dimen name="btn_save_url_height">55dp</dimen>
+    <dimen name="btn_save_url_height">52dp</dimen>
     <dimen name="margin_side_in_url_page">34dp</dimen>
     <dimen name="margin_top_frame_layout">9dp</dimen>
     <dimen name="margin_side_frame_layout">8dp</dimen>
-    <dimen name="btn_save_url_margin_top">34dp</dimen>
+    <dimen name="btn_save_url_margin_top">25dp</dimen>
     <dimen name="margin_top_in_url_page">34dp</dimen>
     <dimen name="border_url_radius">14dp</dimen>
     <dimen name="tx_save_url_margin_start">20dp</dimen>
@@ -110,7 +110,7 @@
     <dimen name="width_img_url">37dp</dimen>
     <dimen name="height_img_url">21dp</dimen>
     <dimen name="size_tx_loading">20sp</dimen>
-    <dimen name="margin_top_url_name">10dp</dimen>
+    <dimen name="margin_top_url_name">15dp</dimen>
     <dimen name="size_url_name_text">17sp</dimen>
     <dimen name="size_memo_text">17sp</dimen>
     <dimen name="height_edt_url_name">58dp</dimen>
@@ -130,5 +130,32 @@
     <dimen name="margin_icon_camera">10dp</dimen>
     <dimen name="padding_top_tx_memo">10dp</dimen>
     <dimen name="size_tx_url_name">14sp</dimen>
+    <dimen name="size_icon_refresh">12dp</dimen>
+    <dimen name="height_skeleton_02">17dp</dimen>
+    <dimen name="margin_top_skeleton_02">16dp</dimen>
+    <dimen name="margin_top_skeleton_03">28dp</dimen>
+    <dimen name="width_skeleton_img">171dp</dimen>
+    <dimen name="height_skeleton_tx">12dp</dimen>
+    <dimen name="margin_skeleton_img">17dp</dimen>
+    <dimen name="margin_top_rv_tag">17dp</dimen>
+    <dimen name="margin_side_rv_tag">15dp</dimen>
+    <dimen name="margin_top_tx_saved_link">17dp</dimen>
+    <dimen name="margin_start_tx_refresh">4dp</dimen>
+    <dimen name="margin_vertical_tx_tag_in_btn">8dp</dimen>
+    <dimen name="margin_side_tx_tag_in_btn">15dp</dimen>
+    <dimen name="padding_end_item_tag">10dp</dimen>
+    <dimen name="size_btn_add_url">61dp</dimen>
+    <dimen name="margin_end_btn_add_url">20dp</dimen>
+    <dimen name="margin_bottom_btn_add_url">51dp</dimen>
+    <dimen name="size_border_btn_add_url">50dp</dimen>
+    <dimen name="radius_border_btn_add_url">50dp</dimen>
+    <dimen name="size_stroke_border_edt_tag">3dp</dimen>
+    <dimen name="height_constraint_edt_tag">40dp</dimen>
+    <dimen name="margin_top_constraint_edt_tag">20dp</dimen>
+    <dimen name="margin_side_edt_tag">10dp</dimen>
+    <dimen name="size_hint_edt_tag">14sp</dimen>
+    <dimen name="width_icon_down">12dp</dimen>
+    <dimen name="height_icon_down">7dp</dimen>
+    <dimen name="radius_border_rv_tags">14dp</dimen>
 
 </resources>

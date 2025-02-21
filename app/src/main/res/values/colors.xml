@@ -12,5 +12,9 @@
     <color name="blur">#DC000000</color>
     <color name="tx_black">#1C170D</color>
     <color name="background_kakao">#FEE500</color>
+    <color name="color_tx_refresh">#848990</color>
+    <color name="color_skeleton">#F2F4F5</color>
+    <color name="color_btn_tag_clicked">#E8D9C9</color>
+    <color name="color_hint_edt_tag">#E3DAC9</color>
 
 </resources>

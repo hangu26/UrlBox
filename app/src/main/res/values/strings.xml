@@ -68,6 +68,7 @@
     <string name="tx_visit_url">Visit URL</string>
     <string name="tx_choose_album">앨범에서 선택</string>
     <string name="tx_back">뒤로가기</string>
+    <string name="tx_refresh">새로고침</string>
 
 
 </resources>

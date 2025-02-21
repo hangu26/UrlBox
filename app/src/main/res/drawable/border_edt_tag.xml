@@ -5,8 +5,8 @@
         android:radius="@dimen/border_url_radius"/>
 
     <stroke
-        android:width="@dimen/border_url_stroke"
-        android:color="@color/appBar_title_01"/>
+        android:width="@dimen/size_stroke_border_edt_tag"
+        android:color="@color/appBar_title_02"/>
 
     <solid
         android:color="@color/white"/>

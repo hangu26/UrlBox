@@ -77,6 +77,10 @@ class UrlDetailActivity : BaseActivity() {
             } else {
                 Log.e("사진 파일", "파일이 존재하지 않습니다.")
             }
+
+            uBinding.txUrlNameInfo.text = urlName.toString()
+            uBinding.txMemoInfo.text = urlMemo.toString()
+
         }
 
         if (favoriteState == true) {
@@ -104,7 +108,7 @@ class UrlDetailActivity : BaseActivity() {
                 intent.putExtra("title", url)
                 intent.putExtra("memo", uBinding.txMemoInfo.text.toString())
                 intent.putExtra("imgUri", imgUri)
-                intent.putExtra("imageKey", imageKey)
+                intent.putExtra("image", imageKey)
                 intent.putExtra("urlName", urlName)
 
                 startActivityAnimation(intent, this@UrlDetailActivity)
