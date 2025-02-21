@@ -56,4 +56,10 @@
     <string name="tx_my_page">Mypage</string>
     <string name="tx_url">URL</string>
     <string name="tx_loading">Loading..</string>
+    <string name="tx_url_name">URL Name</string>
+    <string name="tx_enter_url_name">Enter URL name</string>
+    <string name="tx_memo">Memo</string>
+    <string name="tx_visit_url">Visit URL</string>
+    <string name="tx_choose_album">Select from album</string>
+    <string name="tx_back">Go back</string>
 </resources>

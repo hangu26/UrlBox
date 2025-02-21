@@ -64,6 +64,7 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun observe() = lViewModel.let { vm ->
+        val txMemo = resources.getString(R.string.tx_memo)
 
         vm.getGuestUrl().observe(this@LoginActivity) { it ->
             val directory = this.filesDir
@@ -76,7 +77,7 @@ class LoginActivity : BaseActivity() {
                     favorite = data.favorite,
                     timeStamp = data.timeStamp,
                     urlName = data.urlName,
-                    urlMemo = ""
+                    urlMemo = data.urlMemo
                 )
             }
 

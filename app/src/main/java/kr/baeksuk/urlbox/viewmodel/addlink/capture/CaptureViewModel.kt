@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -21,8 +22,8 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     private val urlDatabase = UrlDatabase.getInstance(application)
 
     private val urlDao: UrlDao = urlDatabase.urlDao()
-
-    private val repo = UrlRepository(application)
+    private val _repo = UrlRepository(application)
+    private val urlBackup = _repo.getUserUrlBackup()
 
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
@@ -38,6 +39,20 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     private val _btnCancelState = MutableLiveData<Boolean>()
     val btnCancelState = _btnCancelState
+
+    private val _btnShowTagsState = MutableLiveData<Boolean>()
+    val btnShowTagsState = _btnShowTagsState
+
+    private var isClicked = 0
+
+    fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> {
+        return this.urlBackup
+    }
+
+    fun btnShowTags() {
+        _btnShowTagsState.value = isClicked % 2 == 0
+        isClicked++
+    }
 
     fun btnSkip() {
         _btnSkipState.value = true
@@ -55,7 +70,7 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         _btnSaveState.value = true
     }
 
-    fun btnCancel(){
+    fun btnCancel() {
         _btnCancelState.value = true
     }
 
@@ -64,7 +79,7 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
             val existingUrl = urlDao.getUrlIsExist(url)
             withContext(Dispatchers.Main) {
                 if (existingUrl == null) {
-                    repo.insert(urlEntity)
+                    _repo.insert(urlEntity)
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
@@ -74,12 +89,17 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun insertBackupUrl(urlBackupEntity: UrlBackupEntity, url: String, context: Context, file : File) {
+    fun insertBackupUrl(
+        urlBackupEntity: UrlBackupEntity,
+        url: String,
+        context: Context,
+        file: File
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getBackupUrlIsExist(url)
             withContext(Dispatchers.Main) {
                 if (existingUrl == null) {
-                    repo.insertBackup(urlBackupEntity, file)
+                    _repo.insertBackup(urlBackupEntity, file)
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
@@ -93,7 +113,7 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
-                repo.update(urlEntity)
+                _repo.update(urlEntity)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             }
@@ -101,11 +121,11 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun updateBackupUrl(urlBackupEntity: UrlBackupEntity, context: Context, file : File) {
+    fun updateBackupUrl(urlBackupEntity: UrlBackupEntity, context: Context, file: File) {
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
-                repo.updateBackup(urlBackupEntity, file)
+                _repo.updateBackup(urlBackupEntity, file)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             }

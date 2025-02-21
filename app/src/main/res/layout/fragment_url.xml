@@ -20,110 +20,223 @@
         android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_save_url"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_save_url_height"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginTop="@dimen/btn_save_url_margin_top"
-            android:layout_marginEnd="@dimen/margin_side_in_url_page"
-            android:background="@drawable/border_btn_url"
-            android:onClick="@{() -> viewModel.btnAdd()}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/tx_save_url_margin_start"
-                android:fontFamily="@font/pretendard_medium"
-                android:text="@string/tx_save_url"
-                android:textColor="@color/appBar_title_02"
-                android:textSize="@dimen/tx_save_url_size"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <TextView
-            android:id="@+id/tx_saved_url_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginTop="@dimen/margin_top_in_url_page"
-            android:fontFamily="@font/pretendard_semibold"
-            android:text="@string/tx_saved_url_list"
-            android:textSize="@dimen/tx_saved_url_list"
-            android:textColor="@color/tx_black"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btn_save_url" />
-
-        <FrameLayout
-            android:id="@+id/frameLayout"
-            android:layout_width="match_parent"
+            android:id="@+id/main_layout"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginStart="@dimen/margin_side_frame_layout"
-            android:layout_marginEnd="@dimen/margin_side_frame_layout"
-            android:paddingBottom="@dimen/frame_recyclerview_padding_bottom"
             android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tx_saved_url_list">
+            app:layout_constraintTop_toTopOf="parent">
+
             <!--
-            <ImageView
-                android:id="@+id/img_thumbnail"
-                android:layout_width="86dp"
-                android:layout_height="86dp"
-                />
-                -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_save_url"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_save_url_height"
+                android:layout_marginStart="@dimen/margin_side_in_url_page"
+                android:layout_marginTop="@dimen/btn_save_url_margin_top"
+                android:layout_marginEnd="@dimen/margin_side_in_url_page"
+                android:background="@drawable/border_btn_url"
+                android:onClick="@{() -> viewModel.btnAdd()}"
+                app:layout_constraintBottom_toTopOf="@+id/rv_tags"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/tx_save_url_margin_start"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_save_url"
+                    android:textColor="@color/appBar_title_02"
+                    android:textSize="@dimen/tx_save_url_size"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+-->
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_url"
+                android:id="@+id/rv_tags"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_side_rv_tag"
+                android:layout_marginTop="@dimen/margin_top_rv_tag"
+                android:layout_marginEnd="@dimen/margin_side_rv_tag"
+                app:layout_constraintBottom_toTopOf="@+id/tx_saved_url_list"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:listitem="@layout/item_url_tag" />
+
+            <TextView
+                android:id="@+id/tx_saved_url_list"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:nestedScrollingEnabled="false"
-                tools:listitem="@layout/item_url_list" />
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_side_in_url_page"
+                android:layout_marginTop="@dimen/margin_top_tx_saved_link"
+                android:fontFamily="@font/pretendard_semibold"
+                android:text="@string/tx_saved_url_list"
+                android:textColor="@color/tx_black"
+                android:textSize="@dimen/tx_saved_url_list"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/rv_tags" />
+
+            <LinearLayout
+                android:id="@+id/linear_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/margin_side_in_url_page"
+                android:onClick="@{() -> viewModel.btnRefresh()}"
+                app:layout_constraintBottom_toBottomOf="@+id/tx_saved_url_list"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tx_saved_url_list">
+
+                <ImageView
+                    android:layout_width="@dimen/size_icon_refresh"
+                    android:layout_height="@dimen/size_icon_refresh"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/icon_refresh" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/margin_start_tx_refresh"
+                    android:text="@string/tx_refresh"
+                    android:textColor="@color/color_tx_refresh" />
+
+            </LinearLayout>
+
+            <FrameLayout
+                android:id="@+id/frameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_side_frame_layout"
+                android:layout_marginEnd="@dimen/margin_side_frame_layout"
+                android:paddingBottom="@dimen/frame_recyclerview_padding_bottom"
+                android:visibility="visible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tx_saved_url_list">
+                <!--
+                <ImageView
+                    android:id="@+id/img_thumbnail"
+                    android:layout_width="86dp"
+                    android:layout_height="86dp"
+                    />
+                    -->
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_url"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_url_list" />
 
 
-        </FrameLayout>
+            </FrameLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/loading_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminateTint="@color/appBar_title_02"
+                    android:scaleY="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/textViewIsLoading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_loading"
+                    android:textColor="@color/appBar_title_02"
+                    android:textSize="@dimen/size_tx_loading"
+                    app:layout_constraintEnd_toEndOf="@id/progressBar"
+                    app:layout_constraintStart_toStartOf="@id/progressBar"
+                    app:layout_constraintTop_toBottomOf="@id/progressBar" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="@dimen/size_btn_add_url"
+                android:layout_height="@dimen/size_btn_add_url"
+                android:layout_marginEnd="@dimen/margin_end_btn_add_url"
+                android:layout_marginBottom="@dimen/margin_bottom_btn_add_url"
+                android:onClick="@{() -> viewModel.btnAdd()}"
+                app:cardBackgroundColor="@color/app_green"
+                app:cardCornerRadius="@dimen/radius_border_btn_add_url"
+                app:cardElevation="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/frameLayout">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="@dimen/size_border_btn_add_url"
+                    android:layout_height="@dimen/size_border_btn_add_url"
+                    android:layout_gravity="center"
+                    android:src="@drawable/add_24px" />
+
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/loading_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:id="@+id/skeleton_layout"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ProgressBar
-                android:id="@+id/progressBar"
+            <include layout="@layout/layout_skeleton_ui" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/loading_bar_skeleton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:scaleY="1"
-                android:indeterminateTint="@color/appBar_title_02"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/textViewIsLoading"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/pretendard_medium"
-                android:text="@string/tx_loading"
-                android:textColor="@color/appBar_title_02"
-                android:textSize="@dimen/size_tx_loading"
-                app:layout_constraintEnd_toEndOf="@id/progressBar"
-                app:layout_constraintStart_toStartOf="@id/progressBar"
-                app:layout_constraintTop_toBottomOf="@id/progressBar" />
+                <ProgressBar
+                    android:id="@+id/progressBar_skeleton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:indeterminateTint="@color/black"
+                    android:scaleY="1"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </layout>

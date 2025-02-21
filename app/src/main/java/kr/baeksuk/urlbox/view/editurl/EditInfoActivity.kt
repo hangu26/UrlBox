@@ -50,16 +50,14 @@ class EditInfoActivity : BaseActivity() {
         val urlName = intent.extras?.getString("urlName", "")
         val memo = intent.extras?.getString("memo", "")
 
+        eBinding.txUrlNameInfo.text = Editable.Factory.getInstance().newEditable(urlName)
+        eBinding.txMemoInfo.text = Editable.Factory.getInstance().newEditable(memo)
 
         if (autoLogin) {
 
             Glide.with(this@EditInfoActivity)
                 .load(imgUri)
                 .into(eBinding.imgUrl)
-
-            eBinding.txUrlNameInfo.text = Editable.Factory.getInstance().newEditable(urlName)
-            eBinding.txMemoInfo.text = Editable.Factory.getInstance().newEditable(memo)
-
 
         } else {
 
@@ -84,6 +82,14 @@ class EditInfoActivity : BaseActivity() {
         val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
         val url = intent.extras?.getString("title")
+
+        vm.btnBackState.observe(this@EditInfoActivity){
+            if (it){
+
+                finish()
+
+            }
+        }
 
         vm.btnChangeImgState.observe(this@EditInfoActivity) {
 
@@ -117,6 +123,11 @@ class EditInfoActivity : BaseActivity() {
                 if (autoLogin){
 
                     vm.updateUserUrl(url!!, eBinding.txUrlNameInfo.text.toString(), eBinding.txMemoInfo.text.toString(), this)
+                    backToMain()
+
+                }else{
+
+                    vm.updateGuestUrl(url!!, eBinding.txUrlNameInfo.text.toString(), eBinding.txMemoInfo.text.toString(), this)
                     backToMain()
 
                 }

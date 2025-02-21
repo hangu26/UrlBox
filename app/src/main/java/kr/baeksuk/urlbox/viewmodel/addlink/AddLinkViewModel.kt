@@ -27,10 +27,10 @@ class AddLinkViewModel(application: Application) : AndroidViewModel(application)
     /** EditText의 onEditorActionListener는 키보드 액션 이벤트를 처리할 때 반드시 Boolean 값을 반환해야 한다.  **/
     fun onUrlInputDone(actionId : Int) : Boolean{
         return if (actionId == EditorInfo.IME_ACTION_DONE){
-            urlInputDoneState.value = true
+            _urlInputDoneState.value = true
             true
         }else{
-            urlInputDoneState.value = false
+            _urlInputDoneState.value = false
             false
         }
     }

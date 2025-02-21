@@ -12,5 +12,6 @@ data class UrlEntity(
     val favorite : Boolean,
     val timeStamp : Long,
     val urlName : String? = null,
-    val urlMemo : String? = null
+    val urlMemo : String? = null,
+    val tag : String? = null
 )

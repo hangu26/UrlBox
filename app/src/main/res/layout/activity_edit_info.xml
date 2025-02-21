@@ -61,6 +61,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/img_setting_margin_end"
+                        android:onClick="@{() -> viewmodel.btnBack()}"
                         android:src="@drawable/arrow_back_24px"
                         android:visibility="visible"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -248,11 +249,11 @@
                     android:layout_height="@dimen/height_edt_memo"
                     android:layout_marginTop="@dimen/margin_top_edt_memo"
                     android:background="@drawable/border_edt_url"
+                    android:gravity="start"
                     android:paddingStart="@dimen/padding_start_edt_memo"
                     android:paddingTop="@dimen/padding_top_tx_memo"
                     android:paddingEnd="@dimen/padding_start_edt_memo"
                     android:paddingBottom="@dimen/padding_top_tx_memo"
-                    android:gravity="start"
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_tx_url_name"
                     app:layout_constraintEnd_toEndOf="@+id/img_url"
@@ -280,7 +281,8 @@
                         android:layout_gravity="start"
                         android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
                         android:layout_weight="1"
-                        android:background="@drawable/border_btn_delete">
+                        android:background="@drawable/border_btn_delete"
+                        android:onClick="@{() -> viewmodel.btnBack()}">
 
                         <TextView
                             android:id="@+id/textView"
@@ -308,8 +310,8 @@
                         android:layout_gravity="end"
                         android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
                         android:layout_weight="1"
-                        android:onClick="@{() -> viewmodel.btnSaveChanges()}"
-                        android:background="@drawable/border_btn_capture">
+                        android:background="@drawable/border_btn_capture"
+                        android:onClick="@{() -> viewmodel.btnSaveChanges()}">
 
                         <TextView
                             android:layout_width="wrap_content"

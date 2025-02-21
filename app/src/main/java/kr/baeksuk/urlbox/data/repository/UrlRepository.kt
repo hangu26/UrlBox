@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.data.local.UrlDatabase
@@ -56,12 +57,13 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 val urlLink = urlBackupEntity.urlLink
 
                 val url = Url(
-                    urlBackupEntity.urlLink,
-                    urlBackupEntity.imageKey,
-                    urlBackupEntity.imgUri,
-                    urlBackupEntity.favorite,
-                    urlBackupEntity.timeStamp,
-                    urlBackupEntity.urlName
+                    url = urlBackupEntity.urlLink,
+                    imageKey = urlBackupEntity.imageKey,
+                    imgUri = urlBackupEntity.imgUri,
+                    favorite = urlBackupEntity.favorite,
+                    timeStamp = urlBackupEntity.timeStamp,
+                    urlName = urlBackupEntity.urlName,
+                    tag = urlBackupEntity.tag
                 )
 
                 userRef.orderByChild("url").equalTo(urlLink)
@@ -134,6 +136,18 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 //            }
 //        }
 //    }
+
+    fun updateGuestUrlInfo(url: String, urlName: String, urlMemo: String) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.updateGuestUrlInfo(url, urlName, urlMemo)
+            } catch (e: java.lang.Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
+            }
+        }
+
+    }
 
     fun updateUrlInfo(url: String, urlName: String, urlMemo: String) {
 
@@ -212,87 +226,98 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     fun updateBackup(urlBackupEntity: UrlBackupEntity, file: File) {
 
-        val userId = pref.getString("userId", "")
-        val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
+        val userId = pref.getString("userId", "") ?: return
+        val storageRef = FirebaseStorage.getInstance().reference.child("images/$userId/")
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 urlDao.updateBackup(urlBackupEntity.urlLink, urlBackupEntity.imageKey)
 
-                databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
-                        .child("url")
+                val databaseReference = FirebaseDatabase.getInstance().reference
+                    .child("User")
+                    .child(userId)
+                    .child("url")
 
                 databaseReference.orderByChild("url").equalTo(urlBackupEntity.urlLink)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
+                            val child = snapshot.children.firstOrNull() ?: run {
+                                Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
+                                return
+                            }
 
-                                for (child in snapshot.children) {
-                                    val key = child.key
+                            val key = child.key ?: return
+                            val oldImageKey = child.child("imageKey").getValue(String::class.java)
+                            Log.e("기존 이미지 키", oldImageKey.toString())
 
-                                    if (key != null) {
-                                        databaseReference.child(key).child("imageKey")
-                                            .setValue(urlBackupEntity.imageKey)
-                                            .addOnCompleteListener {
-                                                Log.e("업데이트 성공", "사진 변경 완료")
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Log.e("업데이트 실패", e.toString())
-                                            }
-
-                                        val fileUri = Uri.fromFile(file) // File을 Uri로 변환
-                                        val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
-
-                                        fileRef.putFile(fileUri).addOnSuccessListener {
-
-                                            fileRef.downloadUrl.addOnSuccessListener { uri ->
-
-                                                viewModelScope.launch(Dispatchers.IO) {
-                                                    try {
-                                                        /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
-                                                        urlDao.insertImgUri(
-                                                            uri.toString(),
-                                                            urlBackupEntity.urlLink
-                                                        )
-                                                    } catch (e: java.lang.Exception) {
-
-                                                    }
-                                                }
-                                                Log.i(
-                                                    "FirebaseStorage",
-                                                    "Image uploaded. URI: $uri"
-                                                )
-                                                // 업로드된 이미지의 URI를 사용하여 추가 작업을 할 수 있음
-                                            }
-
-                                            Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                                        }.addOnFailureListener {
-                                            Log.e(
-                                                "Storage Upload",
-                                                "파일 업로드 실패: ${file.name}, 오류: ${it.message}"
-                                            )
-                                        }
-
-                                    }
-
+                            // 기존 이미지 삭제
+                            storageRef.child("${oldImageKey}.png").delete()
+                                .addOnCompleteListener {
+                                    Log.e("중복 이미지 삭제 여부", "성공")
+                                }.addOnFailureListener {
+                                    Log.e("중복 이미지 삭제 여부", "실패")
                                 }
 
-                            } else {
+                            // 새 이미지 key 저장
+                            databaseReference.child(key).child("imageKey")
+                                .setValue(urlBackupEntity.imageKey)
+                                .addOnCompleteListener {
+                                    Log.e("업데이트 성공", "사진 변경 완료")
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("업데이트 실패", e.toString())
+                                }
 
-                                Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
-                            }
+                            val fileUri = Uri.fromFile(file)
+                            val fileRef = storageRef.child(file.name)
+
+                            fileRef.putFile(fileUri)
+                                .addOnSuccessListener {
+                                    fileRef.downloadUrl.addOnSuccessListener { uri ->
+                                        viewModelScope.launch(Dispatchers.IO) {
+
+                                            try {
+                                                urlDao.insertImgUri(
+                                                    uri.toString(),
+                                                    urlBackupEntity.urlLink
+                                                )
+                                            } catch (e: Exception) {
+                                                Log.e("Room 업데이트 실패", e.toString())
+                                            }
+                                        }
+
+                                        Log.i("FirebaseStorage", "Image uploaded. URI: $uri")
+                                    }
+                                    Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
+                                }
+                                .addOnFailureListener {
+                                    Log.e(
+                                        "Storage Upload",
+                                        "파일 업로드 실패: ${file.name}, 오류: ${it.message}"
+                                    )
+                                }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
                             Log.e("Firebase 에러", error.message)
                         }
                     })
-
-            } catch (e: java.lang.Exception) {
+            } catch (e: Exception) {
                 Log.e("데이터 업데이트 처리", e.toString())
             }
         }
+    }
+
+    /** 🔥 기존 Firebase Storage 이미지 삭제 함수 */
+    private fun deleteOldImage(storageRef: StorageReference, imageKey: String) {
+        val oldImageRef = storageRef.child(imageKey)
+        oldImageRef.delete()
+            .addOnSuccessListener {
+                Log.d("FirebaseStorage", "기존 이미지 삭제 성공: $imageKey")
+            }
+            .addOnFailureListener {
+                Log.e("FirebaseStorage", "기존 이미지 삭제 실패: $imageKey, 오류: ${it.message}")
+            }
     }
 
 

@@ -56,4 +56,10 @@
     <string name="tx_my_page">マイページ</string>
     <string name="tx_url">URL</string>
     <string name="tx_loading">ローディング中…</string>
+    <string name="tx_url_name">URL名</string>
+    <string name="tx_enter_url_name">URL名を入力</string>
+    <string name="tx_memo">メモ</string>
+    <string name="tx_visit_url">URLに移動</string>
+    <string name="tx_choose_album">アルバムから選択</string>
+    <string name="tx_back">戻る</string>
 </resources>

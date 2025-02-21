@@ -5,24 +5,15 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.util.Log
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.UnderlineSpan
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kr.baeksuk.urlBox.databinding.ItemUrlListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -32,7 +23,6 @@ import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.util.ImgUriListData
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
-import java.io.File
 
 class RvUrlAdapter(ctx: Context, act: Activity) :
     RecyclerView.Adapter<RvUrlAdapter.MyViewHolder>() {
@@ -41,7 +31,20 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     private val activity = act
     private var urlList = listOf<Url>()
     private var imgUriList = listOf<String>()
+    private var tagFilteredList = listOf<Url>()
     private var isBackup = false
+
+    // 필터링된 리스트만 갱신
+    @SuppressLint("NotifyDataSetChanged")
+    fun filterByTag(tag: String) {
+        tagFilteredList = if (tag == "전체") {
+            urlList // "전체"가 선택되면 모든 데이터를 표시
+        } else {
+            urlList.filter { it.urlName == tag } // 선택된 태그에 해당하는 데이터만 필터링
+        }
+        notifyDataSetChanged() // RecyclerView 갱신
+    }
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun setGuestData(url: List<UrlEntity>) {
@@ -51,10 +54,11 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 imageKey = urlEntity.imageKey,
                 favorite = urlEntity.favorite,
                 timeStamp = urlEntity.timeStamp,
-                urlName = urlEntity.urlName
+                urlName = urlEntity.urlName,
+                urlMemo = urlEntity.urlMemo
             )
         }
-
+        tagFilteredList = urlList
         notifyDataSetChanged()
 
     }
@@ -75,7 +79,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 )
 
             }
-
+        tagFilteredList = urlList
         notifyDataSetChanged()
 
     }
@@ -101,7 +105,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
             .map {
                 it.imgUri
             }
-
+        tagFilteredList = urlList
         ImgUriListData.imgUriListData = imgUriList
 
         notifyDataSetChanged()
@@ -117,7 +121,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 timeStamp = urlEntity.timeStamp
             )
         }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
-
+        tagFilteredList = urlList
         notifyDataSetChanged()
     }
 
@@ -130,10 +134,11 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 imgUri = urlBackupEntity.imgUri,
                 favorite = urlBackupEntity.favorite,
                 timeStamp = urlBackupEntity.timeStamp,
-                urlName = urlBackupEntity.urlName
+                urlName = urlBackupEntity.urlName,
+                urlMemo = urlBackupEntity.urlMemo
             )
         }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
-
+        tagFilteredList = urlList
         imgUriList = urlList.filter { it.favorite }.map {
             it.imgUri
         }
@@ -148,11 +153,11 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     }
 
     override fun onBindViewHolder(holder: RvUrlAdapter.MyViewHolder, position: Int) {
-        holder.bind(urlList[position])
+        holder.bind(tagFilteredList[position])
     }
 
     override fun getItemCount(): Int {
-        return urlList.size
+        return tagFilteredList.size
     }
 
     inner class MyViewHolder(binding: ItemUrlListBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -170,9 +175,20 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
         private val autoLogin = pref.getBoolean("auto login", false)
 
+
         fun bind(url: Url) {
+
+            val spannableString = SpannableString(url.urlName.toString())
+            spannableString.setSpan(
+                UnderlineSpan(),
+                0,
+                url.urlName.toString().length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            txUrl.text = spannableString
+
             urlLink = url.url
-            txUrl.text = url.urlName
+//            txUrl.text = url.urlName
             imageKey = url.imageKey
             isFavorite = url.favorite
             imgUri = url.imgUri
@@ -180,9 +196,9 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
             urlName = url.urlName.toString()
             urlMemo = url.urlMemo.toString()
 
-            if (isFavorite){
+            if (isFavorite) {
                 iconFavorite.visibility = View.VISIBLE
-            }else{
+            } else {
                 iconFavorite.visibility = View.GONE
             }
 
