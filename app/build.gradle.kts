@@ -52,6 +52,7 @@ android {
 }
 
 dependencies {
+    implementation("org.jsoup:jsoup:1.17.2")
     implementation ("androidx.appcompat:appcompat:1.6.0-rc01") // 언어 변경
 
     implementation ("com.kakao.sdk:v2-all:2.20.0")// 전체 모듈 설치, 2.11.0 버전부터 지원

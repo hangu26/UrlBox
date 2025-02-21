@@ -4,11 +4,7 @@
     <corners
         android:radius="@dimen/border_url_radius"/>
 
-    <stroke
-        android:width="@dimen/border_url_stroke"
-        android:color="@color/appBar_title_01"/>
-
     <solid
-        android:color="@color/white"/>
+        android:color="@color/color_skeleton"/>
 
 </shape>

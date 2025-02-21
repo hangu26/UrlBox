@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/skeleton_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sk_01"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginStart="@dimen/margin_side_rv_tag"
+            android:layout_marginTop="@dimen/margin_top_rv_tag"
+            android:layout_marginEnd="@dimen/margin_side_rv_tag"
+            android:background="@drawable/border_skeleton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/sk_02"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/height_skeleton_02"
+            android:layout_marginStart="@dimen/margin_side_in_url_page"
+            android:layout_marginTop="@dimen/margin_top_skeleton_02"
+            android:layout_marginEnd="@dimen/margin_side_in_url_page"
+            android:background="@drawable/border_skeleton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sk_01" />
+
+        <LinearLayout
+            android:id="@+id/sk_03"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_top_skeleton_03"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sk_02">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/skeleton_img_01"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_side_frame_layout"
+                android:layout_marginEnd="@dimen/margin_side_frame_layout">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/img_01"
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/width_skeleton_img"
+                    android:layout_marginStart="@dimen/constraint_hand_bottom"
+                    android:background="@color/color_skeleton"
+                    app:layout_constraintEnd_toStartOf="@+id/img_02"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/height_skeleton_tx"
+                    android:layout_marginTop="@dimen/height_skeleton_tx"
+                    android:background="@drawable/border_skeleton"
+                    app:layout_constraintEnd_toEndOf="@+id/img_01"
+                    app:layout_constraintStart_toStartOf="@+id/img_01"
+                    app:layout_constraintTop_toBottomOf="@+id/img_01" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/img_02"
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/width_skeleton_img"
+                    android:layout_marginStart="@dimen/constraint_hand_bottom"
+                    android:layout_marginEnd="@dimen/constraint_hand_bottom"
+                    android:background="@color/color_skeleton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/img_01"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/height_skeleton_tx"
+                    android:layout_marginTop="@dimen/height_skeleton_tx"
+                    android:background="@drawable/border_skeleton"
+                    app:layout_constraintEnd_toEndOf="@+id/img_02"
+                    app:layout_constraintStart_toStartOf="@+id/img_02"
+                    app:layout_constraintTop_toBottomOf="@+id/img_01" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/skeleton_img_02"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_side_frame_layout"
+                android:layout_marginTop="28dp"
+                android:layout_marginEnd="@dimen/margin_side_frame_layout">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/img_05"
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/width_skeleton_img"
+                    android:layout_marginStart="@dimen/constraint_hand_bottom"
+                    android:background="@color/color_skeleton"
+                    app:layout_constraintEnd_toStartOf="@+id/img_06"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/height_skeleton_tx"
+                    android:layout_marginTop="@dimen/height_skeleton_tx"
+                    android:background="@drawable/border_skeleton"
+                    app:layout_constraintEnd_toEndOf="@id/img_05"
+                    app:layout_constraintStart_toStartOf="@id/img_05"
+                    app:layout_constraintTop_toBottomOf="@+id/img_05" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/img_06"
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/width_skeleton_img"
+                    android:layout_marginStart="@dimen/constraint_hand_bottom"
+                    android:layout_marginEnd="@dimen/constraint_hand_bottom"
+                    android:background="@color/color_skeleton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/img_05"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/height_skeleton_tx"
+                    android:layout_marginTop="@dimen/height_skeleton_tx"
+                    android:background="@drawable/border_skeleton"
+                    app:layout_constraintEnd_toEndOf="@id/img_06"
+                    app:layout_constraintStart_toStartOf="@id/img_06"
+                    app:layout_constraintTop_toBottomOf="@+id/img_05" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/skeleton_img_03"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/margin_side_frame_layout"
+                android:layout_marginTop="28dp"
+                android:layout_marginEnd="@dimen/margin_side_frame_layout">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/img_07"
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/width_skeleton_img"
+                    android:layout_marginStart="@dimen/constraint_hand_bottom"
+                    android:background="@color/color_skeleton"
+                    app:layout_constraintEnd_toStartOf="@+id/img_08"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/height_skeleton_tx"
+                    android:layout_marginTop="@dimen/height_skeleton_tx"
+                    android:background="@drawable/border_skeleton"
+                    app:layout_constraintEnd_toEndOf="@+id/img_07"
+                    app:layout_constraintStart_toStartOf="@+id/img_07"
+                    app:layout_constraintTop_toBottomOf="@+id/img_07" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/img_08"
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/width_skeleton_img"
+                    android:layout_marginStart="@dimen/constraint_hand_bottom"
+                    android:layout_marginEnd="@dimen/constraint_hand_bottom"
+                    android:background="@color/color_skeleton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/img_07"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="@dimen/width_skeleton_img"
+                    android:layout_height="@dimen/height_skeleton_tx"
+                    android:layout_marginTop="@dimen/height_skeleton_tx"
+                    android:background="@drawable/border_skeleton"
+                    app:layout_constraintEnd_toEndOf="@+id/img_08"
+                    app:layout_constraintStart_toStartOf="@+id/img_08"
+                    app:layout_constraintTop_toBottomOf="@+id/img_07" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

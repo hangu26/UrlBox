@@ -159,8 +159,8 @@
                     app:layout_constraintStart_toStartOf="@+id/img_url"
                     app:layout_constraintTop_toBottomOf="@+id/img_url" />
 
-                <TextView
-                    android:id="@+id/tx_url_name_info"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/constraint_url_name_info"
                     android:layout_width="0dp"
                     android:layout_height="@dimen/height_edt_url_name"
                     android:layout_marginTop="@dimen/margin_top_edt_url_name"
@@ -172,7 +172,23 @@
                     android:textSize="@dimen/size_tx_url_name"
                     app:layout_constraintEnd_toEndOf="@+id/img_url"
                     app:layout_constraintStart_toStartOf="@+id/img_url"
-                    app:layout_constraintTop_toBottomOf="@+id/tx_url_name" />
+                    app:layout_constraintTop_toBottomOf="@+id/tx_url_name">
+
+                    <TextView
+                        android:id="@+id/tx_url_name_info"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/size_tx_url_name"
+                        android:gravity="center_vertical"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
                 <TextView
                     android:id="@+id/tx_memo"
@@ -184,7 +200,7 @@
                     android:textColor="@color/black"
                     android:textSize="@dimen/size_memo_text"
                     app:layout_constraintStart_toStartOf="@+id/img_url"
-                    app:layout_constraintTop_toBottomOf="@+id/tx_url_name_info" />
+                    app:layout_constraintTop_toBottomOf="@+id/constraint_url_name_info" />
 
                 <TextView
                     android:id="@+id/tx_memo_info"

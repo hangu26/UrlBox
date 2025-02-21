@@ -56,4 +56,10 @@
     <string name="tx_my_page">마이페이지</string>
     <string name="tx_url">링크</string>
     <string name="tx_loading">로딩중..</string>
+    <string name="tx_url_name">URL 이름</string>
+    <string name="tx_enter_url_name">URL 이름을 설정하세요</string>
+    <string name="tx_memo">메모</string>
+    <string name="tx_visit_url">Visit URL</string>
+    <string name="tx_choose_album">앨범에서 선택</string>
+    <string name="tx_back">뒤로가기</string>
 </resources>

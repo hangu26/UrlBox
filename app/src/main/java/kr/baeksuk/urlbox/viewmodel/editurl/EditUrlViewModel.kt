@@ -22,6 +22,13 @@ class EditUrlViewModel(application: Application) : AndroidViewModel(application)
     private val _btnSaveChangesState = MutableLiveData<Boolean>()
     val btnSaveChangesState = _btnSaveChangesState
 
+    private val _btnBackState = MutableLiveData<Boolean>()
+    val btnBackState = _btnBackState
+
+    fun btnBack(){
+        _btnBackState.value = true
+    }
+
     fun btnChangeImg() {
         _btnChangeImgState.value = true
     }
@@ -31,6 +38,7 @@ class EditUrlViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun updateUserUrl(url: String, urlName : String, urlMemo : String, context: Context) {
+
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
@@ -40,6 +48,20 @@ class EditUrlViewModel(application: Application) : AndroidViewModel(application)
             }
 
         }
+    }
+
+    fun updateGuestUrl(url: String, urlName : String, urlMemo : String, context: Context){
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                _repo.updateGuestUrlInfo(url, urlName, urlMemo)
+                Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+
+            }
+
+        }
+
     }
 
 }

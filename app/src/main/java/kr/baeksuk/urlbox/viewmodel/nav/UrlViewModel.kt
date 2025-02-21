@@ -38,8 +38,15 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading = _isLoading
 
+    private val _btnRefreshState = MutableLiveData<Boolean>()
+    val btnRefreshState = _btnRefreshState
+
     fun btnAdd() {
         _btnAddState.value = true
+    }
+
+    fun btnRefresh(){
+        _btnRefreshState.value = true
     }
 
     fun getGuestUrl(): LiveData<List<UrlEntity>> {
@@ -67,7 +74,7 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
             if (_isLoading.value == true) _isLoading.value = false
 
-        }, 4000)
+        }, 3000)
 
         return mutableUrl
 

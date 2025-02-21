@@ -106,39 +106,70 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/web_view_container" />
 
-        <!--
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/btn_save_url"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/btn_save_url_height"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginBottom="@dimen/margin_side_in_capture_page"
-            android:layout_marginEnd="@dimen/margin_side_in_url_page"
-            android:background="@drawable/border_constraint_url"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/btn_capture">
+            android:id="@+id/constraint_tag"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/height_constraint_edt_tag"
+            android:layout_marginTop="@dimen/margin_top_constraint_edt_tag"
+            android:background="@drawable/border_edt_url"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@+id/linear_btn_capture"
+            app:layout_constraintStart_toStartOf="@+id/linear_btn_capture"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
-            <TextView
-                android:id="@+id/tx_url"
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/edt_tag"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/tx_save_url_margin_start"
-                android:layout_marginEnd="@dimen/tx_save_url_margin_start"
+                android:layout_marginStart="@dimen/margin_side_edt_tag"
                 android:background="@null"
-                android:fontFamily="@font/pretendard_light"
-                android:textColorHint="@color/appBar_title_02"
-                android:textSize="@dimen/tx_save_url_size"
+                android:fontFamily="@font/pretendard_medium"
+                android:hint="(선택사항) 태그 직접 입력하기 ex) 음악"
                 android:textColor="@color/black"
+                android:textColorHint="@color/color_hint_edt_tag"
+                android:textSize="@dimen/size_hint_edt_tag"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="@dimen/margin_side_edt_tag"
+                android:onClick="@{() -> viewmodel.btnShowTags()}"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="@dimen/width_icon_down"
+                    android:layout_height="@dimen/height_icon_down"
+                    android:onClick="@{() -> viewmodel.btnShowTags()}"
+                    android:src="@drawable/icon_down"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
--->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_rv_tags"
+            android:visibility="gone"
+            android:padding="14dp"
+            app:layout_constraintEnd_toEndOf="@+id/linear_btn_capture"
+            app:layout_constraintStart_toStartOf="@+id/linear_btn_capture"
+            app:layout_constraintTop_toBottomOf="@+id/constraint_tag"
+            tools:listitem="@layout/item_url_tag" />
 
         <LinearLayout
+            android:id="@+id/linear_btn_capture"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin_side_in_capture_page"
@@ -180,9 +211,9 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/btn_capture_height"
                 android:layout_weight="1"
-                android:visibility="gone"
                 android:background="@drawable/border_skip"
                 android:onClick="@{() -> viewmodel.btnCancel()}"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent">

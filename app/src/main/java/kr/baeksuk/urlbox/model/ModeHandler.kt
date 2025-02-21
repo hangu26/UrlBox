@@ -102,5 +102,8 @@ class GuestModeHandler(private val imageKey: String, private val context: Contex
         intent.putExtra("title", txUrl)
         intent.putExtra("image", imageKey)
         intent.putExtra("isFavorite", isFavorite)
+        intent.putExtra("timeStamp", timeStamp)
+        intent.putExtra("urlName", urlName)
+        intent.putExtra("urlMemo", urlMemo)
     }
 }

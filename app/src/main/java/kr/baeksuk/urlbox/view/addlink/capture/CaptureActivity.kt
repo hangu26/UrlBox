@@ -8,56 +8,86 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Base64
-import android.util.Log
-import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
-import com.canhub.cropper.CropImageView
+import androidx.lifecycle.Observer
+import com.google.android.flexbox.FlexDirection
+import com.google.android.flexbox.FlexWrap
+import com.google.android.flexbox.FlexboxLayoutManager
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityCaptureBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.util.adapter.RvTagInCaptureAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
+import kr.baeksuk.urlbox.util.util.OnTagSelectedListener
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
-import org.koin.android.BuildConfig
 import org.koin.android.ext.android.inject
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.net.URI
 import java.util.UUID
 
-class CaptureActivity : BaseActivity() {
+class CaptureActivity : BaseActivity(), OnTagSelectedListener {
     private lateinit var cBinding: ActivityCaptureBinding
     private val cViewModel: CaptureViewModel by inject()
-    private var startY: Float = 0f
-    private var startHeight: Int = 0
+    private lateinit var adapter: RvTagInCaptureAdapter
     private val backPressedCallback = BackPressedCallback(this)
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cBinding = DataBindingUtil.setContentView(this@CaptureActivity, R.layout.activity_capture)
+        adapter = RvTagInCaptureAdapter(this@CaptureActivity, this@CaptureActivity, this)
         cBinding.apply {
             activity = this@CaptureActivity
             lifecycleOwner = this@CaptureActivity
             viewmodel = cViewModel
+            rvTags.layoutManager = FlexboxLayoutManager(this@CaptureActivity).apply {
+                flexWrap = FlexWrap.WRAP
+                flexDirection = FlexDirection.ROW
+            }
+            rvTags.adapter = adapter // adapter 할당
             webView.webViewClient = WebViewClient()
         }
 
         backPressedCallback.addCallbackActivity(this, AddLinkActivity::class.java)
 
+        initView()
         initWebView()
         observe()
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun initView(){
+
+        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
+
+        if (autoLogin) {
+
+            cViewModel.getUserUrlBackup()
+                .observe(this, Observer<List<UrlBackupEntity>> { url ->
+
+                    adapter.setTagData(url.map { Tag(
+                        it.urlName
+                    ) })
+
+                    adapter.notifyDataSetChanged()
+                })
+
+        }
+
+
+
 
     }
 
@@ -83,6 +113,20 @@ class CaptureActivity : BaseActivity() {
 
         val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
+        val txMemo = resources.getString(R.string.tx_memo)
+
+        vm.btnShowTagsState.observe(this@CaptureActivity) {
+            if (it) {
+
+                cBinding.rvTags.visibility = View.VISIBLE
+
+            } else {
+
+                cBinding.rvTags.visibility = View.GONE
+
+            }
+
+        }
 
         vm.btnCloseState.observe(this@CaptureActivity) {
             if (it) {
@@ -97,6 +141,7 @@ class CaptureActivity : BaseActivity() {
 
                 cBinding.btnCapture.visibility = View.GONE
                 cBinding.btnSave.visibility = View.VISIBLE
+                cBinding.constraintTag.visibility = View.VISIBLE
 
                 cBinding.btnSkip.visibility = View.GONE
                 cBinding.btnCancel.visibility = View.VISIBLE
@@ -154,7 +199,8 @@ class CaptureActivity : BaseActivity() {
                                 imgUri = "",
                                 timeStamp = System.currentTimeMillis(),
                                 urlName = url.toString(),
-                                urlMemo = ""
+                                urlMemo = txMemo,
+                                tag = cBinding.edtTag.text.toString()
                             )
 
                             val outputStream = FileOutputStream(file)
@@ -174,7 +220,8 @@ class CaptureActivity : BaseActivity() {
                             favorite = false,
                             timeStamp = System.currentTimeMillis(),
                             urlName = url.toString(),
-                            urlMemo = ""
+                            urlMemo = txMemo,
+                            tag = cBinding.edtTag.text.toString()
                         )
 
                         if (isEditUrl == true) {
@@ -238,7 +285,9 @@ class CaptureActivity : BaseActivity() {
                         imgUri = "",
                         timeStamp = System.currentTimeMillis(),
                         urlName = url.toString(),
-                        urlMemo = ""
+                        urlMemo = txMemo,
+                        tag = cBinding.edtTag.text.toString()
+
                     )
 
                     if (isEditUrl == true) {
@@ -273,7 +322,9 @@ class CaptureActivity : BaseActivity() {
                         favorite = false,
                         timeStamp = System.currentTimeMillis(),
                         urlName = url.toString(),
-                        urlMemo = ""
+                        urlMemo = txMemo,
+                        tag = cBinding.edtTag.text.toString()
+
                     )
 
                     try {
@@ -302,6 +353,8 @@ class CaptureActivity : BaseActivity() {
                 cBinding.cropImageView.clearImage()
                 cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
                 cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
+                cBinding.constraintTag.visibility = View.GONE
+                cBinding.rvTags.visibility = View.GONE
 
                 cBinding.btnSkip.visibility = View.VISIBLE
                 cBinding.btnCancel.visibility = View.GONE
@@ -346,10 +399,14 @@ class CaptureActivity : BaseActivity() {
         return file // 변환된 File 반환
     }
 
-    fun backToMain(){
+    private fun backToMain() {
         val intent = Intent(this@CaptureActivity, MainActivity::class.java)
         startActivityAnimation(intent, this)
         finishAffinity()
+    }
+
+    override fun onTagSelected(tag: String) {
+        cBinding.edtTag.setText(tag.toString())
     }
 
 }
