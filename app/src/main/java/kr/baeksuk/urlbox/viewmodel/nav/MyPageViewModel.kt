@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
@@ -18,6 +19,7 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
     private val _repo = UserRepository(application)
     private val _urlRepo = UrlRepository(application)
     private val urlBackup = _urlRepo.getUserUrlBackup()
+    private val tagBackup = _urlRepo.getUserTagBackup()
 
     private val _btnEditState = MutableLiveData<Boolean>()
     val btnEditState = _btnEditState
@@ -31,6 +33,9 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
     private val _btnOutState = MutableLiveData<Boolean>()
     val btnOutState = _btnOutState
 
+    private val _btnTagState = MutableLiveData<Boolean>()
+    val btnTagState = _btnTagState
+
     fun getUrlData(lifecycleOwner: LifecycleOwner) : LiveData<Pair<List<Url>, List<String>>>{
         val mutableUrl = MutableLiveData<Pair<List<Url>, List<String>>>()
         _repo.getUrlData().observe(lifecycleOwner) {
@@ -43,8 +48,16 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
         _urlRepo.deleteUserBackup()
     }
 
+    fun deleteUserTagBackup(){
+        _urlRepo.deleteUserTagBackup()
+    }
+
     fun getUrlBackup(): LiveData<List<UrlBackupEntity>> {
         return this.urlBackup
+    }
+
+    fun getUserTagBackup(): LiveData<List<TagBackupEntity>> {
+        return this.tagBackup
     }
 
     fun btnEdit(){
@@ -53,6 +66,10 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
 
     fun btnSavedLink(){
         _btnSavedLinkState.value = true
+    }
+
+    fun btnTag(){
+        _btnTagState.value = true
     }
 
     fun btnFavorite(){

@@ -81,6 +81,8 @@ class LoginActivity : BaseActivity() {
                 )
             }
 
+            Log.e("로그인 시, 데이터 처리", url.toString())
+
             // 2. imgFileList 에 이미지 파일 리스트 저장
             imgFileList = it.map { data ->
                 File(directory, "${data.imageKey}.png")

@@ -69,6 +69,8 @@
     <string name="tx_choose_album">앨범에서 선택</string>
     <string name="tx_back">뒤로가기</string>
     <string name="tx_refresh">새로고침</string>
+    <string name="tx_tag">태그</string>
+    <string name="tx_search_tag">Search tags</string>
 
 
 </resources>

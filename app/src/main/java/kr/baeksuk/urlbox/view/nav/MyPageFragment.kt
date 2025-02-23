@@ -21,6 +21,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentMyPageBinding
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
@@ -28,6 +29,7 @@ import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.view.favorite.FavoritesActivity
 import kr.baeksuk.urlbox.view.login.LoginActivity
 import kr.baeksuk.urlbox.view.savedlink.SavedLinkActivity
+import kr.baeksuk.urlbox.view.tag.TagActivity
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import org.koin.android.ext.android.inject
@@ -85,6 +87,13 @@ class MyPageFragment : Fragment() {
 
                 })
 
+            mViewModel.getUserTagBackup()
+                .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>>{ tag ->
+
+                    mBinding.txTagCount.text = tag.mapNotNull { it.tag }.distinct().size.toString()
+
+                })
+
         } else {
 
             mBinding.txLinkCount.text = InitUrlDataCount.linkCount.toString()
@@ -96,6 +105,16 @@ class MyPageFragment : Fragment() {
     }
 
     private fun observe() = mViewModel.let { vm ->
+
+        vm.btnTagState.observe(viewLifecycleOwner){
+            if (it){
+
+                val intent = Intent(context, TagActivity::class.java)
+                startActivityAnimation.startActivityAnimation(intent, requireContext())
+                activity?.finish()
+
+            }
+        }
 
         vm.btnEditState.observe(viewLifecycleOwner) {
             if (it) {
@@ -137,7 +156,7 @@ class MyPageFragment : Fragment() {
                         credentialManager?.clearCredentialState(ClearCredentialStateRequest())
 
                         vm.deleteUserBackup()
-
+                        vm.deleteUserTagBackup()
                         restartApp(requireContext())
 
                     } catch (e: Exception) {

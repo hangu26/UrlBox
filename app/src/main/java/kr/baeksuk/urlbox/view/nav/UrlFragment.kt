@@ -12,8 +12,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Tag
@@ -22,7 +24,9 @@ import kr.baeksuk.urlbox.util.adapter.RvTagAdapter
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.OnTagFilterSelectedListener
+import kr.baeksuk.urlbox.util.util.OnTagTouchHelperListener
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
+import kr.baeksuk.urlbox.util.util.TagTouchCallback
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
@@ -35,6 +39,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
     private lateinit var adapter: RvUrlAdapter
     private lateinit var tagAdapter: RvTagAdapter
     private val startActivityAnimation = StartActivityAnimation()
+    private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,9 +54,12 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             viewModel = uViewModel
             rvUrl.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
             rvUrl.adapter = adapter // adapter 할당
-            rvTags.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            rvTags.layoutManager =
+                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             rvTags.adapter = tagAdapter
         }
+
+        tagTouchHelper.attachToRecyclerView(uBinding.rvTags)
 
         initView()
         observe()
@@ -65,32 +73,18 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
 
-        val displayMetrics = resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-
-        val params = uBinding.loadingBar.layoutParams as ViewGroup.MarginLayoutParams
-        params.topMargin = (screenWidth / 1.5).toInt()
-        uBinding.loadingBar.layoutParams = params
-
         if (autoLogin) {
 
             uBinding.linearRefresh.visibility = View.VISIBLE
 
-            uViewModel.getUserUrlBackup()
-                .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
+            getUserUrlBackup(uViewModel)
+            getUserTagBackup(uViewModel)
 
-                    adapter.setUserBackupData(url, true)
-                    adapter.notifyDataSetChanged()
-
-                    tagAdapter.setTagData(url.map { Tag(
-                        it.urlName
-                    ) })
-                    tagAdapter.notifyDataSetChanged()
-                })
 
         } else {
 
             uBinding.linearRefresh.visibility = View.GONE
+            uBinding.rvTags.visibility = View.GONE
 
         }
 
@@ -106,30 +100,9 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
         if (autoLogin) {
 
             if (isFirst == 1) {
-                vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
 
-                    val urlDataList: List<Url> = listPair.first
-                    val imgUriList: List<String> = listPair.second
-
-                    val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
-                        UrlBackupEntity(
-                            urlLink = url.url,
-                            imageKey = url.imageKey,
-                            imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
-                            favorite = url.favorite,
-                            timeStamp = url.timeStamp,
-                            urlName = url.urlName,
-                            urlMemo = url.urlMemo
-                        )
-                    }
-
-                    /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
-                    vm.insertUrlBackup(urlBackupEntity)
-
-                    adapter.setLoginData(urlDataList, imgUriList, false)
-                    adapter.notifyDataSetChanged()
-
-                }
+                getUrlData(vm)
+                getTagData(vm)
                 pref.edit().putInt("isFirst", 0).commit()
                 Log.e("모든 데이터 받아오기", "앱 시작 시 데이터 받아오기 성공")
             }
@@ -137,37 +110,16 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             vm.isLoading.observe(viewLifecycleOwner) { isLoading ->
                 uBinding.loadingBarSkeleton.visibility = if (isLoading) View.VISIBLE else View.GONE
                 uBinding.skeletonLayout.visibility = if (isLoading) View.VISIBLE else View.GONE
-                uBinding.mainLayout.visibility = if(isLoading) View.GONE else View.VISIBLE
+                uBinding.mainLayout.visibility = if (isLoading) View.GONE else View.VISIBLE
             }
 
             vm.hasBackupData().observe(viewLifecycleOwner) { hasData ->
                 if (hasData && isFirst != 1) {
                     Log.e("모든 데이터 받아오기", "이미 데이터가 받아와져있음")
                 } else if (isFirst != 1) {
-                    vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
 
-                        val urlDataList: List<Url> = listPair.first
-                        val imgUriList: List<String> = listPair.second
-
-                        val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
-                            UrlBackupEntity(
-                                urlLink = url.url,
-                                imageKey = url.imageKey,
-                                imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
-                                favorite = url.favorite,
-                                timeStamp = url.timeStamp,
-                                urlName = url.urlName,
-                                urlMemo = url.urlMemo
-                            )
-                        }
-
-                        /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
-                        vm.insertUrlBackup(urlBackupEntity)
-
-                        adapter.setLoginData(urlDataList, imgUriList, false)
-                        adapter.notifyDataSetChanged()
-
-                    }
+                    getUrlData(vm)
+                    getTagData(vm)
                     Log.e("모든 데이터 받아오기", "성공")
                 }
             }
@@ -187,10 +139,13 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
                 adapter.setGuestData(url)
                 adapter.notifyDataSetChanged()
 
-                tagAdapter.setTagData(url.map { Tag(
-                    it.urlName
-                ) })
-                
+                tagAdapter.setTagData(url.map {
+                    Tag(
+                        it.tag,
+                        timeStamp = it.timeStamp.toString()
+                    )
+                })
+
                 tagAdapter.notifyDataSetChanged()
             })
 
@@ -207,35 +162,96 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
         vm.btnRefreshState.observe(viewLifecycleOwner) {
             if (it) {
 
-                vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
+                getUrlData(vm)
 
-                    val urlDataList: List<Url> = listPair.first
-                    val imgUriList: List<String> = listPair.second
+                getTagData(vm)
 
-                    val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
-                        UrlBackupEntity(
-                            urlLink = url.url,
-                            imageKey = url.imageKey,
-                            imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
-                            favorite = url.favorite,
-                            timeStamp = url.timeStamp,
-                            urlName = url.urlName,
-                            urlMemo = url.urlMemo
-                        )
-                    }
-
-                    /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
-                    vm.insertUrlBackup(urlBackupEntity)
-
-                    adapter.setLoginData(urlDataList, imgUriList, false)
-                    adapter.notifyDataSetChanged()
-
-                }
                 Log.e("모든 데이터 받아오기", "성공")
 
             }
         }
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun getUserUrlBackup(vm: UrlViewModel) {
+
+        uViewModel.getUserUrlBackup()
+            .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
+
+                adapter.setUserBackupData(url, true)
+                adapter.notifyDataSetChanged()
+
+            })
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun getUserTagBackup(vm: UrlViewModel) {
+
+        vm.getUserTagBackup()
+            .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>> { tag ->
+
+                tagAdapter.setTagBackupData(tag, true)
+                adapter.notifyDataSetChanged()
+
+            })
+
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun getUrlData(vm: UrlViewModel) {
+        vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
+
+            val urlDataList: List<Url> = listPair.first
+            val imgUriList: List<String> = listPair.second
+
+            val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
+                UrlBackupEntity(
+                    urlLink = url.url,
+                    imageKey = url.imageKey,
+                    imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
+                    favorite = url.favorite,
+                    timeStamp = url.timeStamp,
+                    urlName = url.urlName,
+                    urlMemo = url.urlMemo,
+                    tag = url.tag
+                )
+            }
+            Log.e("태그 데이터", urlBackupEntity.toString())
+
+            /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
+            vm.insertUrlBackup(urlBackupEntity)
+
+            adapter.setLoginData(urlDataList, imgUriList, false)
+            adapter.notifyDataSetChanged()
+
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun getTagData(vm: UrlViewModel) {
+        vm.getTagData(viewLifecycleOwner).observe(viewLifecycleOwner) { tag ->
+
+            val tagBackupEntity = tag
+                .map {
+                    TagBackupEntity(
+                        tag = it.tag!!,
+                        timeStamp = it.timeStamp
+                    )
+                }
+
+            vm.insertTagBackup(tagBackupEntity)
+
+            tagAdapter.setTagData(tag.map {
+                Tag(
+                    tag = it.tag,
+                    timeStamp = it.timeStamp
+                )
+            })
+            tagAdapter.notifyDataSetChanged()
+
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")

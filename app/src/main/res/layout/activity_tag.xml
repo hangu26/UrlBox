@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="activity"
+            type="kr.baeksuk.urlbox.view.tag.TagActivity" />
+
+        <variable
+            name="viewmodel"
+            type="kr.baeksuk.urlbox.viewmodel.tag.TagViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@color/white"
+                app:contentInsetStart="0dp">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tx_app_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/pretendard_medium"
+                        android:text="@string/tx_tag"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/tx_save_url_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/img_setting_margin_end"
+                        android:onClick="@{() -> viewmodel.btnClose()}"
+                        android:src="@drawable/close_24px"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.appcompat.widget.Toolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_search"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_save_url_height"
+            android:layout_marginStart="@dimen/margin_side_edit_profile"
+            android:layout_marginTop="@dimen/my_page_constraint_margin_top"
+            android:layout_marginEnd="@dimen/margin_side_edit_profile"
+            android:background="@drawable/border_btn_url"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+
+            <ImageView
+                android:id="@+id/icon_search"
+                android:layout_width="@dimen/size_icon_search"
+                android:layout_height="@dimen/size_icon_search"
+                android:layout_marginStart="@dimen/margin_start_icon_search"
+                android:src="@drawable/icon_search"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/tx_login"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/tx_login"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_start_tx_search"
+                android:layout_marginEnd="@dimen/margin_start_tx_search"
+                android:background="@null"
+                android:fontFamily="@font/pretendard_medium"
+                android:hint="@string/tx_search_tag"
+                android:textColorHint="@color/appBar_title_02"
+                android:textSize="@dimen/tx_save_url_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/icon_search"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_top_rv_tag_in_tag_activity"
+            android:paddingTop="@dimen/padding_top_rv_tag_in_tag_activity"
+            android:paddingBottom="@dimen/padding_bottom_rv_tag_in_tag_activity"
+            app:layout_constraintEnd_toEndOf="@+id/btn_search"
+            app:layout_constraintStart_toStartOf="@+id/btn_search"
+            app:layout_constraintTop_toBottomOf="@+id/btn_search"
+            tools:listitem="@layout/item_tag_in_tag_list"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
