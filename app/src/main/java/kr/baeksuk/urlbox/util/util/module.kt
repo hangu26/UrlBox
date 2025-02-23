@@ -15,6 +15,7 @@ import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import kr.baeksuk.urlbox.viewmodel.savedlink.SavedLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.setting.SettingViewModel
+import kr.baeksuk.urlbox.viewmodel.tag.TagViewModel
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel
@@ -38,5 +39,6 @@ val module = module {
     viewModel { LanguageViewModel(androidApplication()) }
     viewModel { MyFolderViewModel(androidApplication()) }
     viewModel { EditUrlViewModel(androidApplication()) }
+    viewModel { TagViewModel(androidApplication()) }
 
 }

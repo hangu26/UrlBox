@@ -93,7 +93,6 @@ class EditInfoActivity : BaseActivity() {
 
         vm.btnChangeImgState.observe(this@EditInfoActivity) {
 
-
             if (it) {
 
                 if (autoLogin) {

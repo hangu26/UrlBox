@@ -53,6 +53,7 @@ class RvTagInCaptureAdapter(
 
                 tagClickedListener.onTagSelected(txTag.text.toString())
 
+
             }
         }
     }

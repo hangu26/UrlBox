@@ -190,7 +190,7 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/tx_folder_count"
+                            android:id="@+id/tx_tag_count"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_bold"
@@ -206,7 +206,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/pretendard_regular"
-                            android:text="@string/tx_folder"
+                            android:text="@string/tx_tag"
                             android:textColor="@color/appBar_title_02"
                             android:textSize="@dimen/my_page_tx_link_size" />
 
@@ -335,9 +335,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                        android:layout_weight="1">
+                        android:layout_weight="1"
+                        android:onClick="@{() -> viewmodel.btnTag()}">
 
-                        <androidx.constraintlayout.widget.ConstraintLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/constraint_folder"
                             android:layout_width="@dimen/my_page_constraint_background"
                             android:layout_height="@dimen/my_page_constraint_background"
@@ -349,7 +350,7 @@
                             <ImageView
                                 android:layout_width="@dimen/img_my_page_constraint_icon"
                                 android:layout_height="@dimen/img_my_page_constraint_icon"
-                                android:src="@drawable/img_folder"
+                                android:src="@drawable/icon_tag"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toEndOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -372,7 +373,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/pretendard_medium"
-                                android:text="@string/tx_my_folder"
+                                android:text="@string/tx_tag"
                                 android:textColor="@color/tx_black"
                                 android:textSize="@dimen/tx_saved_link_size"
                                 app:layout_constraintStart_toStartOf="parent"

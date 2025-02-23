@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,8 @@ import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
+import kr.baeksuk.urlbox.data.repository.UserRepository
+import kr.baeksuk.urlbox.model.Tag
 import java.io.File
 
 class CaptureViewModel(application: Application) : AndroidViewModel(application) {
@@ -24,6 +27,7 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     private val urlDao: UrlDao = urlDatabase.urlDao()
     private val _repo = UrlRepository(application)
     private val urlBackup = _repo.getUserUrlBackup()
+    private val _userRepo = UserRepository(application)
 
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
@@ -43,10 +47,15 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     private val _btnShowTagsState = MutableLiveData<Boolean>()
     val btnShowTagsState = _btnShowTagsState
 
-    private var isClicked = 0
+    var isClicked = 0
 
-    fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> {
-        return this.urlBackup
+    fun getTagData(lifecycleOwner: LifecycleOwner) : LiveData<List<Tag>>{
+        val mutableTag = MutableLiveData<List<Tag>>()
+        _userRepo.getTagData().observe(lifecycleOwner){
+            mutableTag.value = it
+        }
+
+        return mutableTag
     }
 
     fun btnShowTags() {

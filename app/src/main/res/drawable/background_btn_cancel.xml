@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <solid
+        android:color="@color/dialog_btn_cancel"/>
+
+    <corners
+        android:radius="@dimen/radius_background_btn_cancel"/>
+
+    <size
+        android:width="@dimen/width_background_btn_cancel"
+        android:height="@dimen/height_background_btn_cancel"/>
+
+
+</shape>

@@ -62,4 +62,6 @@
     <string name="tx_visit_url">Visit URL</string>
     <string name="tx_choose_album">Select from album</string>
     <string name="tx_back">Go back</string>
+    <string name="tx_refresh">Refresh</string>
+    <string name="tx_tag">Tags</string>
 </resources>

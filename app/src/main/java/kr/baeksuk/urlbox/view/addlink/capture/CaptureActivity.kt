@@ -67,26 +67,25 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun initView(){
+    private fun initView() {
 
         val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
 
         if (autoLogin) {
 
-            cViewModel.getUserUrlBackup()
-                .observe(this, Observer<List<UrlBackupEntity>> { url ->
+            cViewModel.getTagData(this).observe(this, Observer<List<Tag>> { url ->
 
-                    adapter.setTagData(url.map { Tag(
-                        it.urlName
-                    ) })
-
-                    adapter.notifyDataSetChanged()
+                adapter.setTagData(url.map {
+                    Tag(
+                        it.tag
+                    )
                 })
 
+                adapter.notifyDataSetChanged()
+            })
+
         }
-
-
 
 
     }
@@ -139,10 +138,14 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
         vm.btnCaptureState.observe(this) {
             if (it) {
 
+                if (autoLogin) {
+                    cBinding.constraintTag.visibility = View.VISIBLE
+                } else {
+                    cBinding.constraintTag.visibility = View.GONE
+                }
+
                 cBinding.btnCapture.visibility = View.GONE
                 cBinding.btnSave.visibility = View.VISIBLE
-                cBinding.constraintTag.visibility = View.VISIBLE
-
                 cBinding.btnSkip.visibility = View.GONE
                 cBinding.btnCancel.visibility = View.VISIBLE
 
@@ -407,6 +410,8 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
     override fun onTagSelected(tag: String) {
         cBinding.edtTag.setText(tag.toString())
+        cBinding.rvTags.visibility = View.GONE
+        cViewModel.isClicked = 0
     }
 
 }

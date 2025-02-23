@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemUrlListBinding
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.GuestModeHandler
@@ -40,7 +41,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         tagFilteredList = if (tag == "전체") {
             urlList // "전체"가 선택되면 모든 데이터를 표시
         } else {
-            urlList.filter { it.urlName == tag } // 선택된 태그에 해당하는 데이터만 필터링
+            urlList.filter { it.tag == tag } // 선택된 태그에 해당하는 데이터만 필터링
         }
         notifyDataSetChanged() // RecyclerView 갱신
     }
@@ -55,7 +56,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 favorite = urlEntity.favorite,
                 timeStamp = urlEntity.timeStamp,
                 urlName = urlEntity.urlName,
-                urlMemo = urlEntity.urlMemo
+                urlMemo = urlEntity.urlMemo,
+                tag = urlEntity.tag
             )
         }
         tagFilteredList = urlList
@@ -75,7 +77,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                     favorite = urlBackupEntity.favorite,
                     timeStamp = urlBackupEntity.timeStamp,
                     urlName = urlBackupEntity.urlName,
-                    urlMemo = urlBackupEntity.urlMemo
+                    urlMemo = urlBackupEntity.urlMemo,
+                    tag = urlBackupEntity.tag
                 )
 
             }
@@ -97,7 +100,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                     favorite = url.favorite,
                     timeStamp = url.timeStamp,
                     urlName = url.urlName,
-                    urlMemo = url.urlMemo
+                    urlMemo = url.urlMemo,
+                    tag = url.tag
                 )
             }
 
@@ -118,7 +122,9 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 url = urlEntity.urlLink,
                 imageKey = urlEntity.imageKey,
                 favorite = urlEntity.favorite,
-                timeStamp = urlEntity.timeStamp
+                timeStamp = urlEntity.timeStamp,
+                urlName = urlEntity.urlName,
+                urlMemo = urlEntity.urlMemo
             )
         }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
         tagFilteredList = urlList
@@ -135,7 +141,8 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 favorite = urlBackupEntity.favorite,
                 timeStamp = urlBackupEntity.timeStamp,
                 urlName = urlBackupEntity.urlName,
-                urlMemo = urlBackupEntity.urlMemo
+                urlMemo = urlBackupEntity.urlMemo,
+                tag = urlBackupEntity.tag
             )
         }.filter { it.favorite } // 필터링된 결과를 urlList에 다시 할당
         tagFilteredList = urlList

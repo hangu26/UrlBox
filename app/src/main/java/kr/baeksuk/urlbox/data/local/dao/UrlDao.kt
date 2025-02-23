@@ -3,9 +3,12 @@ package kr.baeksuk.urlbox.data.local.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.model.Tag
 
 @Dao
 interface UrlDao{
@@ -24,6 +27,9 @@ interface UrlDao{
 
     @Query("SELECT * FROM url_backup_history ORDER BY id DESC")
     fun getAllBackup(): LiveData<List<UrlBackupEntity>>
+
+    @Query("SELECT * FROM tag_backup_history ORDER BY id DESC")
+    fun getTagBackup(): LiveData<List<TagBackupEntity>>
 
     @Query("UPDATE url_history SET imageKey = :newImageKey WHERE urlLink = :url")
     suspend fun update(url:String, newImageKey : String)
@@ -52,6 +58,12 @@ interface UrlDao{
     @Query("SELECT * FROM url_backup_history WHERE urlLink IN (:urls)")
     suspend fun getUrlBackupIsExist(urls: List<String>): List<UrlBackupEntity>
 
+    @Query("SELECT * FROM tag_backup_history WHERE tag In (:tag)")
+    suspend fun getTagBackupIsExist(tag: List<String>): List<TagBackupEntity>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE) // 중복 저장 방지
+    suspend fun insertTagBackup(tagBackupEntities: List<TagBackupEntity>) // 리스트 저장 지원
+
     @Query("SELECT * FROM url_history ORDER BY id DESC")
     fun getAll(): LiveData<List<UrlEntity>>
 
@@ -61,8 +73,14 @@ interface UrlDao{
     @Query("DELETE FROM url_backup_history WHERE urlLink = :url")
     suspend fun deleteUserUrl(url: String)
 
+    @Query("DELETE FROM tag_backup_history WHERE tag = :tag")
+    suspend fun deleteTag(tag: String)
+
     @Query("DELETE FROM url_backup_history")
     suspend fun deleteUserBackup()
+
+    @Query("DELETE FROM tag_backup_history")
+    suspend fun deleteUserTagBackup()
 
     @Query("SELECT EXISTS (SELECT 1 FROM url_backup_history LIMIT 1)")
     suspend fun hasBackupData(): Boolean
