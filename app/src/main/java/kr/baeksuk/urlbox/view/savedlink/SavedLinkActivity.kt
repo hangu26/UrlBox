@@ -78,17 +78,12 @@ class SavedLinkActivity : BaseActivity() {
 
         vm.btnCloseState.observe(this@SavedLinkActivity) {
             if (it) {
-                finishToMyPage()
+                finishToMyPage(this)
             }
         }
 
     }
 
-    private fun finishToMyPage() {
-        val intent = Intent(this, MainActivity::class.java)
-            .putExtra("TARGET_FRAGMENT", "MyPage")
-        startActivityAnimation(intent, this@SavedLinkActivity)
-        finish()
-    }
+
 
 }

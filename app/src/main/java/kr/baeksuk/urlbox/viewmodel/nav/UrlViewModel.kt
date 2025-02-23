@@ -16,10 +16,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
+import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
 
 class UrlViewModel(application: Application) : AndroidViewModel(application) {
@@ -28,6 +30,7 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
     private val _repo = UrlRepository(application)
     private val url = _repo.getGuestUrl()
     private val urlBackup = _repo.getUserUrlBackup()
+    private val tagBackup = _repo.getUserTagBackup()
 
     private val urlDatabase = UrlDatabase.getInstance(application)
     private val urlDao: UrlDao = urlDatabase.urlDao()
@@ -45,7 +48,7 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
         _btnAddState.value = true
     }
 
-    fun btnRefresh(){
+    fun btnRefresh() {
         _btnRefreshState.value = true
     }
 
@@ -55,6 +58,10 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> {
         return this.urlBackup
+    }
+
+    fun getUserTagBackup(): LiveData<List<TagBackupEntity>> {
+        return this.tagBackup
     }
 
     fun getUrlData(lifecycleOwner: LifecycleOwner): LiveData<Pair<List<Url>, List<String>>> {
@@ -80,6 +87,15 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun getTagData(lifecycleOwner: LifecycleOwner): LiveData<List<Tag>> {
+        val mutableTag = MutableLiveData<List<Tag>>()
+        _userRepo.getTagData().observe(lifecycleOwner) {
+            mutableTag.value = it.sortedByDescending { it.timeStamp }
+        }
+
+        return mutableTag
+    }
+
     /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
     fun insertUrlBackup(urlBackupEntity: List<UrlBackupEntity>) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -97,6 +113,26 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
     }
+
+    fun insertTagBackup(tagBackupEntity: List<TagBackupEntity>) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val urlTag = tagBackupEntity.map { it.tag }
+
+            // tag가 이미 존재하는지 확인
+            val existingTags = urlDao.getTagBackupIsExist(urlTag)
+
+            val newTags = tagBackupEntity.filter { tagEntity ->
+                !existingTags.any{ it.tag == tagEntity.tag }
+            }
+
+            if (newTags.isNotEmpty()) {
+                // 중복되지 않으면 저장
+                urlDao.insertTagBackup(newTags)
+            }
+        }
+    }
+
 
     fun hasBackupData(): LiveData<Boolean> = liveData {
         val result = _repo.hasBackupData() // suspend 함수 호출

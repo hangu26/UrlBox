@@ -23,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.User
 import java.io.File
@@ -120,6 +121,38 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
     }
      **/
 
+    fun getTagData(): LiveData<List<Tag>> {
+        val userId = pref.getString("userId", "")
+        val databaseReference =
+            FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("Tag")
+
+        val mutableTag = MutableLiveData<List<Tag>>()
+
+        databaseReference.orderByChild("tag")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val tagDataList = mutableListOf<Tag>()
+
+                    snapshot.children.forEach { dataSnapshot ->
+                        val tag = dataSnapshot.child("tag").value.toString() // "tag" 필드의 값만 가져오기
+                        val timeStamp = dataSnapshot.child("timeStamp").value.toString()
+
+                        if (tag !in tagDataList.map { it.tag }) {
+                            tagDataList.add(Tag(tag = tag, timeStamp = timeStamp))
+                        }
+                    }
+
+                    mutableTag.value = tagDataList
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // 오류 처리
+                }
+            })
+
+        return mutableTag
+    }
+
 
     fun getUrlData(): LiveData<Pair<List<Url>, List<String>>> {
         val userId = pref.getString("userId", "")
@@ -147,6 +180,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                     val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
                     val urlName = dataSnapshot.child("urlName").value.toString()
                     val urlMemo = dataSnapshot.child("urlMemo").value.toString()
+                    val tag = dataSnapshot.child("tag").value.toString()
 
                     // Firebase Storage에서 이미지 URL 가져오기
                     val storageReference =
@@ -168,7 +202,18 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
 
                         // UrlEntity 객체를 생성하여 urlDataList에 추가
-                        urlDataList.add(Url(url, imageKey, uri.toString(), favorite, timeStamp, urlName, urlMemo))
+                        urlDataList.add(
+                            Url(
+                                url,
+                                imageKey,
+                                uri.toString(),
+                                favorite,
+                                timeStamp,
+                                urlName,
+                                urlMemo,
+                                tag
+                            )
+                        )
 
                         // 이미지 다운로드 완료 시, 카운트 증가
                         loadedImagesCount++
@@ -225,13 +270,13 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {
 
-                    insertUrlDataInFirebase(urlInUser,urlList, imgFileList, storageRef)
+                    insertUrlDataInFirebase(urlInUser, urlList, imgFileList, storageRef)
 
                 } else {
                     userRef.setValue(user).addOnSuccessListener {
                         Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
 
-                        insertUrlDataInFirebase(urlInUser,urlList, imgFileList, storageRef)
+                        insertUrlDataInFirebase(urlInUser, urlList, imgFileList, storageRef)
 
                     }.addOnFailureListener {
 
@@ -247,7 +292,12 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun insertUrlDataInFirebase(urlInUser : DatabaseReference, urlList : List<Url>, imgFileList: List<File>, storageRef : StorageReference){
+    fun insertUrlDataInFirebase(
+        urlInUser: DatabaseReference,
+        urlList: List<Url>,
+        imgFileList: List<File>,
+        storageRef: StorageReference
+    ) {
         urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.exists()) {

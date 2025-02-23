@@ -62,4 +62,6 @@
     <string name="tx_visit_url">URLに移動</string>
     <string name="tx_choose_album">アルバムから選択</string>
     <string name="tx_back">戻る</string>
+    <string name="tx_refresh">更新</string>
+    <string name="tx_tag">タグ</string>
 </resources>

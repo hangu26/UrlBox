@@ -16,5 +16,6 @@
     <color name="color_skeleton">#F2F4F5</color>
     <color name="color_btn_tag_clicked">#E8D9C9</color>
     <color name="color_hint_edt_tag">#E3DAC9</color>
+    <color name="dialog_btn_cancel">#F1F1F9</color>
 
 </resources>
