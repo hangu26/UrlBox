@@ -1,5 +1,5 @@
 package kr.baeksuk.urlbox.util.util
 
 interface OnTagFilterSelectedListener {
-    fun onTagFiltered(tag : String)
+    fun onTagFiltered(url : List<String>, tag : String)
 }

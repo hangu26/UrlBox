@@ -13,10 +13,10 @@
 
         <ImageView
             android:id="@+id/tx_splash_app_name"
-            android:layout_width="192dp"
-            android:layout_height="153dp"
+            android:layout_width="@dimen/width_app_splash_logo"
+            android:layout_height="@dimen/height_app_splash_logo"
             android:fontFamily="@font/pretendard_black"
-            android:src="@drawable/img_splash_logo"
+            android:src="@drawable/app_splash_main_logo"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -30,6 +30,7 @@
             android:text="@string/tx_splash_tx_02"
             android:textColor="@color/white"
             android:textSize="@dimen/splash_app_detail_size"
+            android:visibility="gone"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -25,6 +25,13 @@ class EditUrlViewModel(application: Application) : AndroidViewModel(application)
     private val _btnBackState = MutableLiveData<Boolean>()
     val btnBackState = _btnBackState
 
+    private val _btnSetTagState = MutableLiveData<Boolean>()
+    val btnSetTagState = _btnSetTagState
+
+    fun btnSetTag(){
+        _btnSetTagState.value = true
+    }
+
     fun btnBack(){
         _btnBackState.value = true
     }

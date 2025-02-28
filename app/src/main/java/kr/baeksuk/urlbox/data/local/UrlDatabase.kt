@@ -4,17 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
+import kr.baeksuk.urlbox.util.util.Converters
+import kr.baeksuk.urlbox.util.util.UrlListInTagConverter
 
 @Database(
     entities = [UrlEntity::class, UrlBackupEntity::class, TagBackupEntity::class], // ✅ 추가
     version = 5 // ✅ 버전 증가
 )
+@TypeConverters(Converters::class)
 abstract class UrlDatabase : RoomDatabase() {
 
     abstract fun urlDao(): UrlDao

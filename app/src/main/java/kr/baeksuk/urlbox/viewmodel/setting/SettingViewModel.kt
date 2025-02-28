@@ -12,12 +12,26 @@ class SettingViewModel(application: Application) : AndroidViewModel(application)
     private val _btnLanguageState = MutableLiveData<Boolean>()
     val btnLanguageState = _btnLanguageState
 
+    private val _btnPrivacyState = MutableLiveData<Boolean>()
+    val btnPrivacyState = _btnPrivacyState
+
+    private val _btnUseTermsState = MutableLiveData<Boolean>()
+    val btnUseTermsState = _btnUseTermsState
+
     fun btnLanguage(){
         _btnLanguageState.value = true
     }
 
     fun btnClose(){
         _btnCloseState.value = true
+    }
+
+    fun btnPrivacy(){
+        _btnPrivacyState.value = true
+    }
+
+    fun btnUseTerms(){
+        _btnUseTermsState.value = true
     }
 
 }

@@ -106,12 +106,24 @@ class MyPageFragment : Fragment() {
 
     private fun observe() = mViewModel.let { vm ->
 
+        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
+
         vm.btnTagState.observe(viewLifecycleOwner){
             if (it){
 
-                val intent = Intent(context, TagActivity::class.java)
-                startActivityAnimation.startActivityAnimation(intent, requireContext())
-                activity?.finish()
+                if (autoLogin){
+
+                    val intent = Intent(context, TagActivity::class.java)
+                    startActivityAnimation.startActivityAnimation(intent, requireContext())
+                    activity?.finish()
+
+                }else{
+
+                    Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
+
+                }
+
 
             }
         }

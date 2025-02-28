@@ -8,6 +8,6 @@ data class Url(
     val timeStamp : Long = 0,
     val urlName : String? = null,
     val urlMemo : String? = null,
-    val tag : String? = null
+    val tag : List<UserTags>? = null
 
 )

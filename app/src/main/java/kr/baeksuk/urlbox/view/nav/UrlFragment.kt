@@ -4,16 +4,23 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
@@ -28,6 +35,7 @@ import kr.baeksuk.urlbox.util.util.OnTagTouchHelperListener
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.util.util.TagTouchCallback
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
+import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
@@ -54,6 +62,11 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             viewModel = uViewModel
             rvUrl.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
             rvUrl.adapter = adapter // adapter 할당
+
+            rvUrl.layoutAnimation =
+                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation)
+            rvUrl.scheduleLayoutAnimation()
+
             rvTags.layoutManager =
                 LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             rvTags.adapter = tagAdapter
@@ -72,13 +85,35 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
+        val vm = uViewModel
 
         if (autoLogin) {
 
             uBinding.linearRefresh.visibility = View.VISIBLE
 
-            getUserUrlBackup(uViewModel)
-            getUserTagBackup(uViewModel)
+            var beforeActivity = activity?.intent?.extras?.getString("activity")
+
+            if (beforeActivity == "CaptureSave") {
+                vm.isLoading.value = true
+                vm.isTagLoading.value = true
+
+                getUserUrlBackup(vm)
+                getUserTagBackup(vm)
+
+                Handler(Looper.getMainLooper()).postDelayed({
+
+                    vm.isTagLoading.value = false
+                    vm.isLoading.value = false
+                    beforeActivity = ""
+
+
+                }, 700)
+
+            }else{
+                getUserUrlBackup(vm)
+                getUserTagBackup(vm)
+            }
+
 
 
         } else {
@@ -96,6 +131,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val isFirst = pref.getInt("isFirst", 0)
         val autoLogin = pref.getBoolean("auto login", false)
+        Log.e("처음인지 확인", isFirst.toString())
 
         if (autoLogin) {
 
@@ -108,18 +144,27 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             }
 
             vm.isLoading.observe(viewLifecycleOwner) { isLoading ->
-                uBinding.loadingBarSkeleton.visibility = if (isLoading) View.VISIBLE else View.GONE
-                uBinding.skeletonLayout.visibility = if (isLoading) View.VISIBLE else View.GONE
-                uBinding.mainLayout.visibility = if (isLoading) View.GONE else View.VISIBLE
+
+                vm.isTagLoading.observe(viewLifecycleOwner) { isTagLoading ->
+                    uBinding.loadingBarSkeleton.visibility =
+                        if (isLoading || isTagLoading) View.VISIBLE else View.GONE
+                    uBinding.skeletonLayout.visibility =
+                        if (isLoading || isTagLoading) View.VISIBLE else View.GONE
+                    uBinding.mainLayout.visibility =
+                        if (isLoading || isTagLoading) View.GONE else View.VISIBLE
+
+                }
+
             }
+
 
             vm.hasBackupData().observe(viewLifecycleOwner) { hasData ->
                 if (hasData && isFirst != 1) {
                     Log.e("모든 데이터 받아오기", "이미 데이터가 받아와져있음")
-                } else if (isFirst != 1) {
+                } else if (isFirst == 1) {
 
                     getUrlData(vm)
-                    getTagData(vm)
+//                    getTagData(vm)
                     Log.e("모든 데이터 받아오기", "성공")
                 }
             }
@@ -142,7 +187,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
                 tagAdapter.setTagData(url.map {
                     Tag(
                         it.tag,
-                        timeStamp = it.timeStamp.toString()
+                        timeStamp = it.timeStamp.toString(),
                     )
                 })
 
@@ -166,6 +211,10 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
                 getTagData(vm)
 
+                getUserUrlBackup(vm)
+
+                getUserTagBackup(vm)
+
                 Log.e("모든 데이터 받아오기", "성공")
 
             }
@@ -176,7 +225,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
     @SuppressLint("NotifyDataSetChanged")
     private fun getUserUrlBackup(vm: UrlViewModel) {
 
-        uViewModel.getUserUrlBackup()
+        vm.getUserUrlBackup()
             .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
 
                 adapter.setUserBackupData(url, true)
@@ -193,7 +242,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>> { tag ->
 
                 tagAdapter.setTagBackupData(tag, true)
-                adapter.notifyDataSetChanged()
+                tagAdapter.notifyDataSetChanged()
 
             })
 
@@ -221,6 +270,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             Log.e("태그 데이터", urlBackupEntity.toString())
 
             /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
+
             vm.insertUrlBackup(urlBackupEntity)
 
             adapter.setLoginData(urlDataList, imgUriList, false)
@@ -237,7 +287,8 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
                 .map {
                     TagBackupEntity(
                         tag = it.tag!!,
-                        timeStamp = it.timeStamp
+                        timeStamp = it.timeStamp,
+                        urlList = it.urlList
                     )
                 }
 
@@ -246,17 +297,20 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             tagAdapter.setTagData(tag.map {
                 Tag(
                     tag = it.tag,
-                    timeStamp = it.timeStamp
+                    timeStamp = it.timeStamp,
+                    urlList = it.urlList
                 )
             })
             tagAdapter.notifyDataSetChanged()
-
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    override fun onTagFiltered(tag: String) {
-        adapter.filterByTag(tag)
+    override fun onTagFiltered(url: List<String>, tag: String) {
+        adapter.filterByTag(url, tag, uBinding.rvUrl)
+        Log.e("태그 선택됨", tag)
         adapter.notifyDataSetChanged()
+        tagAdapter.notifyDataSetChanged()
     }
+
 }

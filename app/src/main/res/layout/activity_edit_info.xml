@@ -165,7 +165,8 @@
                         android:layout_height="@dimen/height_constraint_btn_recapture"
                         android:layout_gravity="end"
                         android:layout_marginTop="@dimen/margin_top_linear_btn_edit_delete"
-                        android:background="@drawable/border_btn_delete">
+                        android:background="@drawable/border_btn_delete"
+                        android:onClick="@{() -> viewmodel.btnSetTag()}">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="wrap_content"
@@ -180,7 +181,7 @@
                                 android:layout_width="@dimen/size_icon_album"
                                 android:layout_height="@dimen/size_icon_album"
                                 android:layout_marginEnd="@dimen/margin_icon_camera"
-                                android:src="@drawable/icon_album"
+                                android:src="@drawable/icon_tag"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toStartOf="@+id/tx_album"
                                 app:layout_constraintStart_toStartOf="parent"
@@ -191,7 +192,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/pretendard_medium"
-                                android:text="@string/tx_choose_album"
+                                android:text="@string/tx_set_tag"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/text_btn_capture"
                                 app:layout_constraintBottom_toBottomOf="parent"

@@ -32,7 +32,7 @@ class RvTagInTagAdapter(
                 tag = tagBackupEntity.tag,
                 timeStamp = tagBackupEntity.timeStamp
             )
-        }.sortedByDescending { it.timeStamp }
+        }.sortedByDescending { it.timeStamp }.distinct()
 
         notifyDataSetChanged()
     }

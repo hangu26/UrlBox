@@ -14,6 +14,8 @@ import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
 import kr.baeksuk.urlbox.view.language.LanguageActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
+import kr.baeksuk.urlbox.view.privacy.PrivacyActivity
+import kr.baeksuk.urlbox.view.useterms.UseTermsActivity
 import kr.baeksuk.urlbox.viewmodel.setting.SettingViewModel
 import org.koin.android.ext.android.inject
 import java.util.Locale
@@ -57,6 +59,26 @@ class SettingActivity : BaseActivity() {
 
 
                 val intent = Intent(this@SettingActivity, LanguageActivity::class.java)
+                startActivityAnimation(intent, this@SettingActivity)
+                finish()
+
+            }
+        }
+
+        vm.btnPrivacyState.observe(this@SettingActivity){
+            if (it){
+
+                val intent = Intent(this@SettingActivity, PrivacyActivity::class.java)
+                startActivityAnimation(intent, this@SettingActivity)
+                finish()
+
+            }
+        }
+
+        vm.btnUseTermsState.observe(this@SettingActivity){
+            if (it){
+
+                val intent = Intent(this@SettingActivity, UseTermsActivity::class.java)
                 startActivityAnimation(intent, this@SettingActivity)
                 finish()
 
