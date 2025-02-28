@@ -133,8 +133,8 @@
                 app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/size_btn_down"
+                android:layout_height="@dimen/size_btn_down"
                 android:layout_marginEnd="@dimen/margin_side_edt_tag"
                 android:onClick="@{() -> viewmodel.btnShowTags()}"
                 app:layout_constraintBottom_toBottomOf="parent"

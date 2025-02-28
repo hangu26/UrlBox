@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "kr.baeksuk.urlBox"
-        minSdk = 30
+        minSdk = 28
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("org.jsoup:jsoup:1.17.2")
     implementation ("androidx.appcompat:appcompat:1.6.0-rc01") // 언어 변경
 

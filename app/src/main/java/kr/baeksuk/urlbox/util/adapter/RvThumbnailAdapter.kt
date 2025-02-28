@@ -142,6 +142,7 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
             thumbnail.transitionName = "imageTran_$itemPosition"
 
             thumbnail.setOnClickListener {
+                Log.e("데이터 있는지 확인", imgUriList.toString())
 
                 val options = ActivityOptions.makeSceneTransitionAnimation(
                     activity,

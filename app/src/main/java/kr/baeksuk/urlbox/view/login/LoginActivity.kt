@@ -29,6 +29,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.UrlData
@@ -41,7 +42,7 @@ class LoginActivity : BaseActivity() {
     private val backPressedCallback = BackPressedCallback(this)
     private lateinit var auth: FirebaseAuth
     private var isUpload = false
-    private var url = listOf<Url>()
+    private var url = listOf<UrlToLogin>()
     private var imgFileList = listOf<File>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,13 +72,13 @@ class LoginActivity : BaseActivity() {
 
             // 1. url 리스트 저장
             url = it.map { data ->
-                Url(
+                UrlToLogin(
                     url = data.urlLink,
                     imageKey = data.imageKey,
                     favorite = data.favorite,
                     timeStamp = data.timeStamp,
                     urlName = data.urlName,
-                    urlMemo = data.urlMemo
+                    urlMemo = data.urlMemo,
                 )
             }
 

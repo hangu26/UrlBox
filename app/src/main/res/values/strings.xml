@@ -51,7 +51,8 @@
     <string name="tx_feedback">피드백</string>
     <string name="tx_feedback_detail">개발자에게 피드백 보내기</string>
     <string name="tx_terms">개인정보처리방침</string>
-    <string name="tx_terms_detail">서비스 이용약관 및 개인정보처리방침</string>
+    <string name="tx_terms_detail">개인정보처리방침</string>
+    <string name="tx_use_terms_detail">서비스 이용약관</string>
     <string name="tx_version">앱 버전</string>
     <string name="tx_version_detail">1.0.0</string>
     <string name="tx_language_setting">언어 선택</string>
@@ -71,6 +72,14 @@
     <string name="tx_refresh">새로고침</string>
     <string name="tx_tag">태그</string>
     <string name="tx_search_tag">Search tags</string>
+    <string name="tx_set_tag">태그 설정하기</string>
+    <string name="tx_setting_tag">태그 설정</string>
+    <string name="tx_current_tag">현재 태그</string>
+    <string name="tx_edt_tag_detail">(선택사항) 태그 직접 입력하기 ex) 음악</string>
+    <string name="tx_edt_tag_detail_02">태그 직접 입력하기 ex) 음악</string>
+    <string name="tx_privacy_policy">개인정보 처리 방침</string>
+    <string name="tx_use_of_terms">이용약관</string>
+    <string name="ad_mob_app_id">***REMOVED***</string>
 
 
 </resources>

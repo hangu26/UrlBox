@@ -23,6 +23,7 @@ import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.model.UserTags
 
 class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -40,6 +41,9 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading = _isLoading
+
+    private val _isTagLoading = MutableLiveData<Boolean>()
+    val isTagLoading = _isTagLoading
 
     private val _btnRefreshState = MutableLiveData<Boolean>()
     val btnRefreshState = _btnRefreshState
@@ -71,9 +75,9 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
         _userRepo.getUrlData().observe(lifecycleOwner) {
 
-            _isLoading.value = false
-
             mutableUrl.value = it
+
+            _isLoading.value = false
 
         }
 
@@ -81,7 +85,7 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
             if (_isLoading.value == true) _isLoading.value = false
 
-        }, 3000)
+        }, 5000)
 
         return mutableUrl
 
@@ -89,9 +93,21 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getTagData(lifecycleOwner: LifecycleOwner): LiveData<List<Tag>> {
         val mutableTag = MutableLiveData<List<Tag>>()
+
+        isTagLoading.value = true
+
         _userRepo.getTagData().observe(lifecycleOwner) {
-            mutableTag.value = it.sortedByDescending { it.timeStamp }
+
+            mutableTag.value = it.sortedByDescending { it.timeStamp }.distinct()
+            isTagLoading.value = false
+
         }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+
+            if (isTagLoading.value == true) isTagLoading.value = false
+
+        }, 5000)
 
         return mutableTag
     }
@@ -114,24 +130,67 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+    fun insertTagBackup(tagBackupEntity: List<TagBackupEntity>) {
+    viewModelScope.launch(Dispatchers.IO) {
+
+    val urlTagList  = tagBackupEntity.map { it.tag }
+
+    // tag가 이미 존재하는지 확인
+    val existingTags = urlDao.getTagBackupIsExist(urlTagList)
+
+    val newTags = tagBackupEntity.filter { tagEntity ->
+    !existingTags.any{ it.tag == tagEntity.tag }
+    }
+
+    if (newTags.isNotEmpty()) {
+    // 중복되지 않으면 저장
+
+    urlDao.insertTagBackup(newTags)
+
+    }
+    }
+    }
+     **/
+
     fun insertTagBackup(tagBackupEntity: List<TagBackupEntity>) {
         viewModelScope.launch(Dispatchers.IO) {
+            // 1️⃣ 저장하려는 태그 리스트 가져오기
+            val urlTagList = tagBackupEntity.map { it.tag }
 
-            val urlTag = tagBackupEntity.map { it.tag }
+            // 2️⃣ 이미 존재하는 태그 가져오기 (DB에서 조회)
+            val existingTags = urlDao.getTagBackupByTags(urlTagList).associateBy { it.tag }
 
-            // tag가 이미 존재하는지 확인
-            val existingTags = urlDao.getTagBackupIsExist(urlTag)
+            // 3️⃣ 새로운 태그 & 업데이트할 태그 분리
+            val newTags = mutableListOf<TagBackupEntity>()
+            val tagsToUpdate = mutableListOf<TagBackupEntity>()
 
-            val newTags = tagBackupEntity.filter { tagEntity ->
-                !existingTags.any{ it.tag == tagEntity.tag }
+            for (tagEntity in tagBackupEntity) {
+                val existingTag = existingTags[tagEntity.tag]
+
+                if (existingTag != null) {
+                    // 🔥 기존 태그의 urlList를 받아온 데이터로 덮어쓰기
+                    val updatedTagEntity = existingTag.copy(urlList = tagEntity.urlList)
+                    tagsToUpdate.add(updatedTagEntity)
+                } else {
+                    // 🔥 없는 태그 → 새로 추가
+                    newTags.add(tagEntity)
+                }
             }
 
+            // 4️⃣ 새로운 태그 삽입
             if (newTags.isNotEmpty()) {
-                // 중복되지 않으면 저장
                 urlDao.insertTagBackup(newTags)
+            }
+
+            // 5️⃣ 기존 태그는 받아온 데이터로 덮어쓰기
+            if (tagsToUpdate.isNotEmpty()) {
+                urlDao.updateUrlInTags(tagsToUpdate)
             }
         }
     }
+
+
 
 
     fun hasBackupData(): LiveData<Boolean> = liveData {

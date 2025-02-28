@@ -16,6 +16,16 @@
         android:background="@drawable/border_url_tag"
         >
 
+        <ImageView
+        android:id="@+id/icon_tag"
+        android:layout_width="@dimen/size_icon_tag"
+        android:layout_height="@dimen/size_icon_tag"
+        android:layout_marginStart="@dimen/margin_start_icon_tag_in_tag"
+        android:src="@drawable/icon_tag"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tx_tag"
             android:layout_width="wrap_content"
@@ -27,12 +37,12 @@
             android:textSize="@dimen/tx_confirm_url_size"
             android:textColor="@color/black"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/icon_tag"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:layout_marginTop="@dimen/margin_vertical_tx_tag_in_btn"
             android:layout_marginBottom="@dimen/margin_vertical_tx_tag_in_btn"
-            android:layout_marginStart="@dimen/margin_side_tx_tag_in_btn"
+            android:layout_marginStart="@dimen/margin_start_tx_tag_in_tag"
             android:layout_marginEnd="@dimen/margin_side_tx_tag_in_btn"
             />
 

@@ -31,6 +31,7 @@ class UrlDetailActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         uBinding =
             DataBindingUtil.setContentView(this@UrlDetailActivity, R.layout.activity_url_detail)
+
         uBinding.apply {
             activity = this@UrlDetailActivity
             viewmodel = uViewModel

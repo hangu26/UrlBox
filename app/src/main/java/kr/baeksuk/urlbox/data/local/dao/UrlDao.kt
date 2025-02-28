@@ -5,10 +5,12 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.Update
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
-import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.model.UserTags
 
 @Dao
 interface UrlDao{
@@ -61,6 +63,10 @@ interface UrlDao{
     @Query("SELECT * FROM tag_backup_history WHERE tag In (:tag)")
     suspend fun getTagBackupIsExist(tag: List<String>): List<TagBackupEntity>
 
+    @Query("SELECT * FROM tag_backup_history WHERE tag IN (:tags)")
+    suspend fun getTagBackupByTags(tags: List<String>): List<TagBackupEntity>
+
+
     @Insert(onConflict = OnConflictStrategy.IGNORE) // 중복 저장 방지
     suspend fun insertTagBackup(tagBackupEntities: List<TagBackupEntity>) // 리스트 저장 지원
 
@@ -84,5 +90,21 @@ interface UrlDao{
 
     @Query("SELECT EXISTS (SELECT 1 FROM url_backup_history LIMIT 1)")
     suspend fun hasBackupData(): Boolean
+
+    @Query("SELECT * FROM url_backup_history WHERE urlLink = :urlTitle LIMIT 1")
+    suspend fun getUrlBackupByTitle(urlTitle: String): UrlBackupEntity?
+
+    @Query("UPDATE url_backup_history SET tag = :tags WHERE urlLink = :urlTitle")
+    suspend fun updateUserTags(tags: List<UserTags>, urlTitle: String)
+
+    @Query("SELECT * FROM tag_backup_history WHERE tag = :tag LIMIT 1")
+    suspend fun getTagBackupByTitle(tag: String): TagBackupEntity?
+
+    @Query("UPDATE tag_backup_history SET urlList = :urls WHERE tag = :tag")
+    suspend fun updateUserUrlInTags(urls: String, tag: String)
+
+    @Update
+    suspend fun updateUrlInTags(tagBackupEntities: List<TagBackupEntity>)
+
 
 }

@@ -43,17 +43,31 @@
             app:layout_constraintStart_toEndOf="@+id/icon_tag"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/icon_close"
-            android:layout_width="@dimen/size_btn_close_in_set_tag"
-            android:layout_height="@dimen/size_btn_close_in_set_tag"
-            android:layout_marginStart="@dimen/margin_side_btn_close_in_set_tag"
-            android:layout_marginEnd="@dimen/margin_side_btn_close_in_set_tag"
-            android:src="@drawable/close_24px"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tx_tag"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/size_btn_close_in_set_tag"
+                android:layout_height="@dimen/size_btn_close_in_set_tag"
+                android:layout_marginStart="@dimen/margin_side_btn_close_in_set_tag"
+                android:layout_marginTop="@dimen/margin_vertical_btn_close_in_set_tag"
+                android:layout_marginBottom="@dimen/margin_vertical_btn_close_in_set_tag"
+                android:layout_marginEnd="@dimen/margin_side_btn_close_in_set_tag"
+                android:src="@drawable/close_24px"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
