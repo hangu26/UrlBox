@@ -25,7 +25,9 @@ import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
+import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
 import java.io.FileOutputStream
 
@@ -137,8 +139,20 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                         val tag = dataSnapshot.child("tag").value.toString() // "tag" 필드의 값만 가져오기
                         val timeStamp = dataSnapshot.child("timeStamp").value.toString()
 
+                        // URL 리스트 가져오기
+                        val urlList = mutableListOf<String>()
+                        dataSnapshot.child("url").children.forEach { urlSnapshot ->
+                            urlSnapshot.child("url").value?.toString()?.let { urlList.add(it) }
+                        }
+
                         if (tag !in tagDataList.map { it.tag }) {
-                            tagDataList.add(Tag(tag = tag, timeStamp = timeStamp))
+                            tagDataList.add(
+                                Tag(
+                                    tag = tag,
+                                    timeStamp = timeStamp,
+                                    urlList = urlList
+                                )
+                            )
                         }
                     }
 
@@ -164,7 +178,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
         // Firebase Storage 참조 가져오기
         val storage = FirebaseStorage.getInstance()
 
-        databaseReference.addValueEventListener(object : ValueEventListener {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val urlDataList = mutableListOf<Url>()
                 val imageUrls = mutableListOf<String>()
@@ -180,7 +194,16 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                     val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
                     val urlName = dataSnapshot.child("urlName").value.toString()
                     val urlMemo = dataSnapshot.child("urlMemo").value.toString()
-                    val tag = dataSnapshot.child("tag").value.toString()
+//                    val tag = dataSnapshot.child("tags").value
+
+                    // 🔹 tags 가져오기
+                    val tagList = mutableListOf<UserTags>()
+                    val tagsSnapshot = dataSnapshot.child("tags")
+                    for (tagSnapshot in tagsSnapshot.children) {
+                        val tagValue = tagSnapshot.child("tag").value.toString()
+                        tagList.add(UserTags(tag = tagValue, timeStamp = timeStamp.toString().toLong()))
+                    }
+
 
                     // Firebase Storage에서 이미지 URL 가져오기
                     val storageReference =
@@ -211,7 +234,8 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                                 timeStamp,
                                 urlName,
                                 urlMemo,
-                                tag
+//                                tag
+                                tagList
                             )
                         )
 
@@ -261,7 +285,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun insertAllData(user: User, urlList: List<Url>, imgFileList: List<File>) {
+    fun insertAllData(user: User, urlList: List<UrlToLogin>, imgFileList: List<File>) {
         val userRef: DatabaseReference = database.child("User").child(user.userId)
         val urlInUser: DatabaseReference = userRef.child("url")
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${user.userId}/")
@@ -294,7 +318,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
     fun insertUrlDataInFirebase(
         urlInUser: DatabaseReference,
-        urlList: List<Url>,
+        urlList: List<UrlToLogin>,
         imgFileList: List<File>,
         storageRef: StorageReference
     ) {
@@ -303,7 +327,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                 if (snapshot.exists()) {
                     // 기존 URL 데이터 가져오기
                     val existingUrls =
-                        snapshot.children.mapNotNull { it.getValue(Url::class.java) }
+                        snapshot.children.mapNotNull { it.getValue(UrlToLogin::class.java) }
 
                     // 새로운 URL 중 기존 데이터와 중복되지 않은 URL만 필터링
                     val newUrls = urlList.filter { newUrl ->

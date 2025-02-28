@@ -3,16 +3,21 @@ package kr.baeksuk.urlbox.util.adapter
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityOptions
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemUrlListBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -22,7 +27,9 @@ import kr.baeksuk.urlbox.model.GuestModeHandler
 import kr.baeksuk.urlbox.model.LoggedInModeHandler
 import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.model.UserTags
 import kr.baeksuk.urlbox.util.util.ImgUriListData
+import kr.baeksuk.urlbox.util.util.UrlDiffCallback
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
 
 class RvUrlAdapter(ctx: Context, act: Activity) :
@@ -36,14 +43,35 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     private var isBackup = false
 
     // 필터링된 리스트만 갱신
+    /**
     @SuppressLint("NotifyDataSetChanged")
-    fun filterByTag(tag: String) {
-        tagFilteredList = if (tag == "전체") {
-            urlList // "전체"가 선택되면 모든 데이터를 표시
+    fun filterByTag(tagUrl: List<String>, tag : String) {
+
+    tagFilteredList = if (tag == "전체") {
+    urlList // "전체"가 선택되면 모든 데이터를 표시
+    } else {
+    urlList.filter { it.url in tagUrl } // 선택된 태그에 해당하는 데이터만 필터링
+    }
+
+
+    notifyDataSetChanged() // RecyclerView 갱신
+    }
+     **/
+
+    fun filterByTag(tagUrl: List<String>, tag: String, recyclerview : RecyclerView) {
+        val newList = if (tag == "전체") {
+            urlList
         } else {
-            urlList.filter { it.tag == tag } // 선택된 태그에 해당하는 데이터만 필터링
+            urlList.filter { it.url in tagUrl }
         }
-        notifyDataSetChanged() // RecyclerView 갱신
+
+        val diffCallback = UrlDiffCallback(tagFilteredList, newList)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        tagFilteredList = newList
+        diffResult.dispatchUpdatesTo(this) // 애니메이션 적용
+
+        recyclerview.scheduleLayoutAnimation() // 추가된 코드 (레이아웃 애니메이션 실행)
     }
 
 
@@ -57,7 +85,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 timeStamp = urlEntity.timeStamp,
                 urlName = urlEntity.urlName,
                 urlMemo = urlEntity.urlMemo,
-                tag = urlEntity.tag
+                tag = listOf(UserTags(tag = urlEntity.tag, timeStamp = urlEntity.timeStamp))
             )
         }
         tagFilteredList = urlList
@@ -68,7 +96,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     @SuppressLint("NotifyDataSetChanged")
     fun setUserBackupData(url: List<UrlBackupEntity>, isLoginBackup: Boolean) {
         isBackup = isLoginBackup
-        urlList = url.sortedByDescending { it.timeStamp }
+        val newUrlList = url.sortedByDescending { it.timeStamp }
             .map { urlBackupEntity ->
                 Url(
                     url = urlBackupEntity.urlLink,
@@ -80,12 +108,16 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                     urlMemo = urlBackupEntity.urlMemo,
                     tag = urlBackupEntity.tag
                 )
-
             }
-        tagFilteredList = urlList
-        notifyDataSetChanged()
 
+        // 데이터가 변경되었을 때만 notifyDataSetChanged() 호출
+        if (newUrlList != urlList) {
+            urlList = newUrlList
+            tagFilteredList = newUrlList
+            notifyDataSetChanged()
+        }
     }
+
 
     @SuppressLint("NotifyDataSetChanged")
     fun setLoginData(urlDataList: List<Url>, imgUriList: List<String>, isLoginBackup: Boolean) {
@@ -258,6 +290,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         }
 
         init {
+            Log.e("태그 링크 데이터1",tagFilteredList.toString())
 
             imgView.setOnClickListener {
 
@@ -289,6 +322,19 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 )
 
                 context.startActivity(intent, options.toBundle())
+            }
+
+            imgView.setOnLongClickListener {
+
+                val clipboard: ClipboardManager =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("label", urlLink)
+
+                clipboard.setPrimaryClip(clip)
+
+                Toast.makeText(context, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show()
+
+                return@setOnLongClickListener true
             }
 
             txUrl.setOnClickListener {

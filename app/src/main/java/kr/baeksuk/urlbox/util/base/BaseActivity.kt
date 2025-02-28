@@ -35,6 +35,14 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    fun backToMain(activity: Context) {
+        val intent = Intent(activity, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivityAnimation(intent, activity)
+        finish()
+
+    }
+
     fun finishToMyPage(activity: Context) {
         val intent = Intent(this, MainActivity::class.java)
             .putExtra("TARGET_FRAGMENT", "MyPage")

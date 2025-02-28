@@ -48,7 +48,16 @@
     <string name="tx_feedback">フィードバック</string>
     <string name="tx_feedback_detail">開発者にフィードバックを送る</string>
     <string name="tx_terms">プライバシーポリシー</string>
-    <string name="tx_terms_detail">利用規約とプライバシーポリシー</string>
+    <string name="tx_search_tag">タグ検索</string>
+    <string name="tx_set_tag">タグ設定</string>
+    <string name="tx_setting_tag">タグ設定</string>
+    <string name="tx_current_tag">現在のタグ</string>
+    <string name="tx_edt_tag_detail">（任意）タグを直接入力する 例) 音楽</string>
+    <string name="tx_edt_tag_detail_02">タグを直接入力する 例) 音楽</string>
+    <string name="tx_privacy_policy">プライバシーポリシー</string>
+    <string name="tx_use_of_terms">利用規約</string>
+    <string name="tx_use_terms_detail">サービス利用規約</string>
+    <string name="tx_terms_detail">個人情報の取り扱いについて</string>
     <string name="tx_version">アプリバージョン</string>
     <string name="tx_version_detail">1.0.0</string>
     <string name="tx_language_setting">言語選択</string>

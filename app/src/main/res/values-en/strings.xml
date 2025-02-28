@@ -48,7 +48,6 @@
     <string name="tx_feedback">Feedback</string>
     <string name="tx_feedback_detail">Send Feedback to Developer</string>
     <string name="tx_terms">Privacy Policy</string>
-    <string name="tx_terms_detail">Terms of Service and Privacy Policy</string>
     <string name="tx_version">App Version</string>
     <string name="tx_version_detail">1.0.0</string>
     <string name="tx_language_setting">Language Selection</string>
@@ -64,4 +63,14 @@
     <string name="tx_back">Go back</string>
     <string name="tx_refresh">Refresh</string>
     <string name="tx_tag">Tags</string>
+    <string name="tx_search_tag">Search tags</string>
+    <string name="tx_set_tag">Set Tag</string>
+    <string name="tx_setting_tag">Tag Settings</string>
+    <string name="tx_current_tag">Current Tag</string>
+    <string name="tx_edt_tag_detail">(Optional) Enter Tag Manually ex) Music</string>
+    <string name="tx_edt_tag_detail_02">Enter Tag Manually ex) Music</string>
+    <string name="tx_privacy_policy">Privacy Policy</string>
+    <string name="tx_use_of_terms">Terms of Service</string>
+    <string name="tx_use_terms_detail">Service Terms of Use</string>
+    <string name="tx_terms_detail">Privacy Policy</string>
 </resources>

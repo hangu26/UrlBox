@@ -34,7 +34,7 @@ class RvTagAdapter(
         // "전체"로 고정된 Tag 생성
         tagList = listOf(fixedTag) + tagDataList  // 첫 번째 아이템은 "전체"로 추가하고 나머지 데이터 추가
 
-        tagList.sortedByDescending { it.timeStamp }
+        tagList.sortedByDescending { it.timeStamp }.distinct()
 
         notifyDataSetChanged()
     }
@@ -50,9 +50,10 @@ class RvTagAdapter(
         tagList = listOf(fixedTag) + tag.map {
             Tag(
                 tag = it.tag,
-                timeStamp = it.timeStamp
+                timeStamp = it.timeStamp,
+                urlList = it.urlList
             )
-        }.sortedByDescending { it.timeStamp }
+        }.sortedByDescending { it.timeStamp }.distinct()
 
         notifyDataSetChanged()
 
@@ -96,7 +97,17 @@ class RvTagAdapter(
                 notifyItemChanged(selectedPosition)
 
                 // 선택된 태그 필터링 실행
-                filterListener.onTagFiltered(tag.tag.toString())
+//                filterListener.onTagFiltered(tag.tag.toString())
+
+                if (position == 0) {
+                    // "전체" 버튼 클릭 시 "전체" 텍스트를 강제로 전달
+                    filterListener.onTagFiltered(emptyList(), "전체")
+                } else {
+                    // 선택된 태그의 URL 리스트 전달
+                    tagList[selectedPosition].urlList?.let { urlList ->
+                        filterListener.onTagFiltered(urlList, tag.tag.toString())
+                    }
+                }
             }
         }
     }

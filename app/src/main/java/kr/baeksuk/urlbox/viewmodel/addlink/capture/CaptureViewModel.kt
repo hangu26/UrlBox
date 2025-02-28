@@ -102,13 +102,14 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         urlBackupEntity: UrlBackupEntity,
         url: String,
         context: Context,
-        file: File
+        file: File,
+        tag : String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getBackupUrlIsExist(url)
             withContext(Dispatchers.Main) {
                 if (existingUrl == null) {
-                    _repo.insertBackup(urlBackupEntity, file)
+                    _repo.insertBackup(urlBackupEntity, file, tag)
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()

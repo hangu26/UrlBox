@@ -78,8 +78,8 @@
                 android:layout_marginStart="@dimen/margin_side_in_url_page"
                 android:layout_marginTop="@dimen/margin_top_tx_saved_link"
                 android:fontFamily="@font/pretendard_semibold"
-                android:text="@string/tx_saved_url_list"
                 android:textColor="@color/tx_black"
+                android:text="@string/tx_saved_url_list"
                 android:textSize="@dimen/tx_saved_url_list"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rv_tags" />

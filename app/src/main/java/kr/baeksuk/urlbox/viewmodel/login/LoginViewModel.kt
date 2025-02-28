@@ -13,6 +13,7 @@ import kr.baeksuk.urlbox.data.repository.KakaoLoginRepository
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import java.io.File
 
@@ -80,7 +81,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun insertAllData(userId: User, url: List<Url>, imgFileList : List<File>){
+    fun insertAllData(userId: User, url: List<UrlToLogin>, imgFileList : List<File>){
         viewModelScope.launch {
             _repo.insertAllData(userId, url , imgFileList)
             _insertComplete.postValue(true) // 완료되었음을 알림

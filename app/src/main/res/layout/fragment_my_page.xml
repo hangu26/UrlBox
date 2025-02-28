@@ -133,7 +133,6 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-
                 <LinearLayout
                     android:id="@+id/linear_box"
                     android:layout_width="0dp"

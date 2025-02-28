@@ -1,6 +1,7 @@
 package kr.baeksuk.urlbox.view.addlink.capture
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -8,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebViewClient
@@ -23,6 +25,7 @@ import kr.baeksuk.urlBox.databinding.ActivityCaptureBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.model.UserTags
 import kr.baeksuk.urlbox.util.adapter.RvTagInCaptureAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
@@ -58,7 +61,17 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
             webView.webViewClient = WebViewClient()
         }
 
-        backPressedCallback.addCallbackActivity(this, AddLinkActivity::class.java)
+        val edit = intent.extras?.getBoolean("edit")
+
+        if (edit == true){
+
+            backPressedCallback.finishActivity(this)
+
+        }else{
+
+            backPressedCallback.addCallbackActivity(this, AddLinkActivity::class.java)
+
+        }
 
         initView()
         initWebView()
@@ -129,9 +142,19 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
         vm.btnCloseState.observe(this@CaptureActivity) {
             if (it) {
-                val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-                startActivityAnimation(intent, this@CaptureActivity)
-                finish()
+                val edit = intent.extras?.getBoolean("edit")
+
+                if (edit == true){
+
+                    finish()
+
+                }else{
+
+                    val intent = Intent(this@CaptureActivity, AddLinkActivity::class.java)
+                    startActivityAnimation(intent, this@CaptureActivity)
+                    finish()
+
+                }
             }
         }
 
@@ -191,7 +214,11 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
                             vm.updateBackupUrl(urlBackupEntity, this, file)
 
-                            backToMain()
+                            val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+                            intent.putExtra("activity","CaptureSave")
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivityAnimation(intent,this@CaptureActivity)
+                            finish()
 
                         } else {
 
@@ -203,7 +230,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                                 timeStamp = System.currentTimeMillis(),
                                 urlName = url.toString(),
                                 urlMemo = txMemo,
-                                tag = cBinding.edtTag.text.toString()
+                                tag = listOf(UserTags(tag = cBinding.edtTag.text.toString(), timeStamp = System.currentTimeMillis()))
                             )
 
                             val outputStream = FileOutputStream(file)
@@ -211,9 +238,13 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                             outputStream.flush()
                             outputStream.close()
 
-                            vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file)
+                            vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file, cBinding.edtTag.text.toString())
 
-                            backToMain()
+                            val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+                            intent.putExtra("activity","CaptureSave")
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivityAnimation(intent,this@CaptureActivity)
+                            finish()
                         }
 
                     } else {
@@ -230,12 +261,12 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                         if (isEditUrl == true) {
                             vm.updateUrl(urlEntity, url.toString(), this)
 
-                            backToMain()
+                            backToMain(this@CaptureActivity)
 
                         } else {
                             vm.insertUrl(urlEntity, url.toString(), this)
 
-                            backToMain()
+                            backToMain(this@CaptureActivity)
 
                         }
 
@@ -289,7 +320,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                         timeStamp = System.currentTimeMillis(),
                         urlName = url.toString(),
                         urlMemo = txMemo,
-                        tag = cBinding.edtTag.text.toString()
+                        tag = listOf(UserTags(tag = cBinding.edtTag.text.toString(), timeStamp = System.currentTimeMillis()))
 
                     )
 
@@ -302,7 +333,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
                         vm.updateBackupUrl(urlBackupEntity, this, file)
 
-                        backToMain()
+                        backToMain(this@CaptureActivity)
 
                     } else {
 
@@ -311,9 +342,9 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                         outputStream.flush()
                         outputStream.close()
 
-                        vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file)
+                        vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file, cBinding.edtTag.text.toString())
 
-                        backToMain()
+                        backToMain(this@CaptureActivity)
 
                     }
 
@@ -343,7 +374,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
                     vm.insertUrl(urlEntity, url.toString(), this)
 
-                    backToMain()
+                    backToMain(this@CaptureActivity)
 
                 }
 
@@ -402,16 +433,23 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
         return file // 변환된 File 반환
     }
 
-    private fun backToMain() {
-        val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-        startActivityAnimation(intent, this)
-        finishAffinity()
-    }
-
     override fun onTagSelected(tag: String) {
         cBinding.edtTag.setText(tag.toString())
         cBinding.rvTags.visibility = View.GONE
         cViewModel.isClicked = 0
+    }
+
+    override fun finish() {
+        super.finish()
+
+        if (Build.VERSION.SDK_INT >= 34) {
+            overrideActivityTransition(
+                Activity.OVERRIDE_TRANSITION_CLOSE, R.anim.slide_in_left, R.anim.slide_out_right
+            )
+        } else {
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
+        }
+
     }
 
 }
