@@ -37,6 +37,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _insertComplete = MutableLiveData<Boolean>()
     val insertComplete: LiveData<Boolean> = _insertComplete
 
+    private val _loadingBar = MutableLiveData<Boolean>()
+    val loadingBar : LiveData<Boolean> = _loadingBar
+
     private val _isDataSyncEnabled = MutableLiveData(false)
     val isDataSyncEnabled = _isDataSyncEnabled
 
@@ -53,7 +56,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         _userData.value = user
     }
 
+    fun setLoadingBar(isLoad : Boolean){
+        _loadingBar.value = isLoad
+    }
+
     fun kakaoLogin(context: Context) {
+        _loadingBar.value = true
         _kakaoRepo.kakaoLogin(context,this@LoginViewModel) { success ->
             _kakaoLoginState.postValue(success)
         }
@@ -77,6 +85,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             // Room DB 또는 Repository의 suspend 함수 실행
             _repo.insertUserId(userId)
+            _loadingBar.postValue(false)
             _insertComplete.postValue(true) // 완료되었음을 알림
         }
     }
@@ -84,6 +93,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     fun insertAllData(userId: User, url: List<UrlToLogin>, imgFileList : List<File>){
         viewModelScope.launch {
             _repo.insertAllData(userId, url , imgFileList)
+            _loadingBar.postValue(false)
             _insertComplete.postValue(true) // 완료되었음을 알림
         }
     }

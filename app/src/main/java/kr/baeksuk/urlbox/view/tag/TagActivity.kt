@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
+import com.google.android.gms.ads.AdRequest
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityTagBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -44,7 +45,7 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
             }
             rvTags.adapter = adapter
         }
-
+        requestAd()
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
         observe()
@@ -90,6 +91,18 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
     override suspend fun onDeleteTag(tag : String) {
         Toast.makeText(this,tag,Toast.LENGTH_SHORT).show()
         tViewModel.deleteTag(tag)
+    }
+
+    private fun requestAd(){
+
+        val adRequest = AdRequest.Builder().build() // 광고 요청 생성
+        tBinding.adView.loadAd(adRequest) // 광고 로드
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        tBinding.adView.destroy()
     }
 
 }

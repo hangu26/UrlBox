@@ -142,6 +142,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                 it.imgUri
             }
         tagFilteredList = urlList
+
         ImgUriListData.imgUriListData = imgUriList
 
         notifyDataSetChanged()
