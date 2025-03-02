@@ -13,7 +13,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 1
+        versionCode = 4
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+    implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
+    implementation("com.google.android.gms:play-services-ads:23.4.0")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("org.jsoup:jsoup:1.17.2")

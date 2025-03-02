@@ -15,6 +15,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -42,6 +45,10 @@ class MyPageFragment : Fragment() {
     private val credentialManager = activity?.let { CredentialManager.create(it) }
     private lateinit var auth: FirebaseAuth
 
+    companion object {
+        private var adView: AdView? = null  // 광고 뷰를 재사용
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -53,6 +60,7 @@ class MyPageFragment : Fragment() {
         }
         auth = Firebase.auth
 
+        setupAdView()
         initView()
         observe()
         return mBinding.root
@@ -66,8 +74,6 @@ class MyPageFragment : Fragment() {
         val userEmail = pref.getString("userEmail", "")
         val userName = pref.getString("userName", "")
         val userProfile = pref.getString("userProfile", "")
-
-
 
         if (autoLogin) {
 
@@ -88,7 +94,7 @@ class MyPageFragment : Fragment() {
                 })
 
             mViewModel.getUserTagBackup()
-                .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>>{ tag ->
+                .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>> { tag ->
 
                     mBinding.txTagCount.text = tag.mapNotNull { it.tag }.distinct().size.toString()
 
@@ -109,16 +115,16 @@ class MyPageFragment : Fragment() {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
 
-        vm.btnTagState.observe(viewLifecycleOwner){
-            if (it){
+        vm.btnTagState.observe(viewLifecycleOwner) {
+            if (it) {
 
-                if (autoLogin){
+                if (autoLogin) {
 
                     val intent = Intent(context, TagActivity::class.java)
                     startActivityAnimation.startActivityAnimation(intent, requireContext())
                     activity?.finish()
 
-                }else{
+                } else {
 
                     Toast.makeText(context, "로그인이 필요한 기능입니다.", Toast.LENGTH_SHORT).show()
 
@@ -181,6 +187,21 @@ class MyPageFragment : Fragment() {
 
     }
 
+    private fun setupAdView() {
+        if (adView == null) {  // 기존 광고 뷰가 없으면 새로 생성
+            adView = AdView(requireContext()).apply {
+//                adUnitId = "ca-app-pub-6498037779961709/3334253119" // 이건 프로덕션때 사용해야할 실제 id
+                adUnitId = "ca-app-pub-3940256099942544/9214589741" // 테스트 id
+
+                setAdSize(AdSize.LARGE_BANNER)
+                loadAd(AdRequest.Builder().build())
+            }
+        } else {
+            (adView?.parent as? ViewGroup)?.removeView(adView) // 기존 광고가 있으면 부모에서 제거 후 재사용
+        }
+        mBinding.adContainer.addView(adView) // 프래그먼트에 광고 추가
+    }
+
     private fun restartApp(context: Context) {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
 
@@ -194,6 +215,11 @@ class MyPageFragment : Fragment() {
             context.startActivity(intent)
             Runtime.getRuntime().exit(0)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        adView?.destroy()
     }
 
 }
