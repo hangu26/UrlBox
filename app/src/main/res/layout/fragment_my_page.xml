@@ -133,6 +133,26 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <!-- 테스트 용 -> app:adUnitId="ca-app-pub-3940256099942544/9214589741"-->
+
+                <Space
+                    android:id="@+id/margin_top_ad"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/margin_top_ad_view"
+                    app:layout_constraintTop_toBottomOf="@+id/constraint_id"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
+
+
+                <FrameLayout
+                    android:id="@+id/adContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@id/margin_top_ad"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/linear_box"/>
+
                 <LinearLayout
                     android:id="@+id/linear_box"
                     android:layout_width="0dp"
@@ -141,7 +161,7 @@
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/constraint_id">
+                    app:layout_constraintTop_toBottomOf="@+id/adContainer">
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -252,7 +272,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/my_page_linear_margin_top"
+                    android:layout_marginTop="@dimen/my_page_linear_margin_top_02"
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

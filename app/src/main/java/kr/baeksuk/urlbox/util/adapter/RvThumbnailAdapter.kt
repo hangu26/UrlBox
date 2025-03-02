@@ -19,6 +19,7 @@ import kr.baeksuk.urlbox.model.GuestModeHandler
 import kr.baeksuk.urlbox.model.LoggedInModeHandler
 import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.ImgUriListData
 import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
 import java.io.File
@@ -116,23 +117,6 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
 
             modeHandler.loadImage(url.imgUri, thumbnail, context, isBackup)
 
-            /**
-            val directory = context.filesDir // UrlFragment에서 context 사용
-            val filePath = "$directory/$imageKey.png"
-            val file = File(filePath)
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-
-            if (file.exists()) {
-
-                thumbnail.setImageBitmap(bitmap)
-
-            } else {
-                // 기본 이미지 설정 (이미지가 없는 경우)
-                Log.d("파일 없음", "없음")
-            }
-
-            **/
-
         }
 
         init {
@@ -152,6 +136,8 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
                 intent.putExtra("title", txUrl)
                 intent.putExtra("image", imageKey)
                 intent.putExtra("isFavorite", isFavorite)
+
+                ImgUriListData.imgUriListData = imgUriList
 
                 UrlData.urlList = thumbnailList
                 UrlData.selectedPosition = layoutPosition

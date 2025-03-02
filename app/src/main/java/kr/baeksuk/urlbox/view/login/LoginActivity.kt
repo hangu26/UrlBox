@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.credentials.CredentialManager
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.credentials.CustomCredential
 import androidx.databinding.DataBindingUtil
@@ -28,6 +29,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
@@ -105,6 +107,7 @@ class LoginActivity : BaseActivity() {
         vm.btnGoogleState.observe(this@LoginActivity) {
 
             if (it) {
+                vm.setLoadingBar(true)
                 signGoogle()
             }
         }
@@ -120,6 +123,14 @@ class LoginActivity : BaseActivity() {
         }
         }
          **/
+
+        vm.loadingBar.observe(this@LoginActivity){
+            if (it){
+                lBinding.loadingBarSkeleton.visibility = View.VISIBLE
+            }else{
+                lBinding.loadingBarSkeleton.visibility = View.GONE
+            }
+        }
 
         vm.kakaoLoginState.observe(this@LoginActivity) { isSuccess ->
 
@@ -194,7 +205,9 @@ class LoginActivity : BaseActivity() {
                 handleSignIn(result)
             } catch (e: GetCredentialException) {
                 Log.e("SignIn", "Error getting credentials", e)
-                handleFailure(e)
+                withContext(Dispatchers.Main) {
+                    handleFailure(e)
+                }
             }
         }
     }
@@ -261,9 +274,13 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun handleFailure(e: GetCredentialException) {
-
-        Log.e("SignIn", "Credential error: ${e.localizedMessage}", e)
-        // 오류에 따라 사용자에게 알리거나 추가 처리를 할 수 있습니다.
+        // 오류 메시지를 통해 사용자가 취소했는지 확인
+        if (e.localizedMessage?.contains("cancelled") == true) {
+            lViewModel.setLoadingBar(false)
+        } else {
+            lViewModel.setLoadingBar(false)
+            Log.e("SignIn", "Credential error: ${e.localizedMessage}", e)
+        }
     }
 
     private fun uploadData(isUpload: Boolean, user : User) {

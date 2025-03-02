@@ -70,6 +70,7 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
             ViewPagerPosition.thumbnail = thumbnail
 
             val imgUriList = ImgUriListData.imgUriListData
+            Log.e("이미지 uri 리스트", imgUriList.toString())
 
             val modeHandler: ModeHandler = if (autoLogin) {
                 LoggedInModeHandler(imgUriList!!, layoutPosition)
@@ -80,6 +81,8 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
 
             /** 인터페이스를 통해 로그인 모드와 게스트 모드 로직 분리 구현 **/
             modeHandler.loadImage(url.imgUri, thumbnail, context, true)
+
+
         }
 
         fun updateTransitionName(newPosition: Int) {

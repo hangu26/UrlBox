@@ -125,6 +125,18 @@
             app:layout_constraintTop_toBottomOf="@+id/btn_search"
             tools:listitem="@layout/item_tag_in_tag_list"/>
 
+        <!-- 프로덕션때 실제 광고id로 변경해야함 ca-app-pub-6498037779961709/2287365954(실제 아이디) -->
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/ad_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:adSize="FULL_BANNER"
+            app:adUnitId="ca-app-pub-3940256099942544/9214589741"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

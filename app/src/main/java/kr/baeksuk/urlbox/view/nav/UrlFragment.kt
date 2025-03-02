@@ -17,6 +17,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -91,7 +94,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
             uBinding.linearRefresh.visibility = View.VISIBLE
 
-            var beforeActivity = activity?.intent?.extras?.getString("activity")
+            val beforeActivity = activity?.intent?.extras?.getString("activity")
 
             if (beforeActivity == "CaptureSave") {
                 vm.isLoading.value = true
@@ -104,7 +107,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
                     vm.isTagLoading.value = false
                     vm.isLoading.value = false
-                    beforeActivity = ""
+                    activity?.intent?.putExtra("activity", "")
 
 
                 }, 700)
@@ -267,7 +270,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
                     tag = url.tag
                 )
             }
-            Log.e("태그 데이터", urlBackupEntity.toString())
+            Log.e("uri 리스트 데이터", imgUriList.toString())
 
             /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
 
