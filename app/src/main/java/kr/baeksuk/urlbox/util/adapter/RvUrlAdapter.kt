@@ -135,7 +135,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
                     urlMemo = url.urlMemo,
                     tag = url.tag
                 )
-            }
+            }.distinct()
 
         this.imgUriList = urlDataList.sortedByDescending { it.timeStamp }
             .map {

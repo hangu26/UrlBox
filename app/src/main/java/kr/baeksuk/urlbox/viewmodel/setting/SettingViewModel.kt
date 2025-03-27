@@ -18,6 +18,9 @@ class SettingViewModel(application: Application) : AndroidViewModel(application)
     private val _btnUseTermsState = MutableLiveData<Boolean>()
     val btnUseTermsState = _btnUseTermsState
 
+    private val _btnReviewState = MutableLiveData<Boolean>()
+    val btnReviewState = _btnReviewState
+
     fun btnLanguage(){
         _btnLanguageState.value = true
     }
@@ -32,6 +35,10 @@ class SettingViewModel(application: Application) : AndroidViewModel(application)
 
     fun btnUseTerms(){
         _btnUseTermsState.value = true
+    }
+
+    fun btnReview(){
+        _btnReviewState.value = true
     }
 
 }

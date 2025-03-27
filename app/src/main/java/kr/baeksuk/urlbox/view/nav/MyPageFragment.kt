@@ -18,9 +18,12 @@ import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.kakao.sdk.user.UserApiClient
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentMyPageBinding
@@ -169,6 +172,8 @@ class MyPageFragment : Fragment() {
 
                 auth.signOut()
 
+                kakaoLogout()
+
                 lifecycleScope.launch {
                     try {
                         credentialManager?.clearCredentialState(ClearCredentialStateRequest())
@@ -185,6 +190,17 @@ class MyPageFragment : Fragment() {
             }
         }
 
+    }
+
+    // 카카오 로그아웃 처리
+    private fun kakaoLogout() {
+        UserApiClient.instance.logout { error ->
+            if (error != null) {
+                Log.e("카카오 로그아웃", "카카오 로그아웃 실패", error)
+            } else {
+                Log.i("카카오 로그아웃", "카카오 로그아웃 성공")
+            }
+        }
     }
 
     private fun setupAdView() {
