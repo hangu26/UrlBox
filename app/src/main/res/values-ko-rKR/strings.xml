@@ -73,4 +73,5 @@
     <string name="tx_back">뒤로가기</string>
     <string name="tx_refresh">새로고침</string>
     <string name="tx_tag">태그</string>
+    <string name="tx_write_review">리뷰 작성</string>
 </resources>

@@ -288,6 +288,44 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_top_in_setting_constraint"
+                android:onClick="@{() -> viewmodel.btnReview()}">
+
+                <ImageView
+                    android:id="@+id/img_review"
+                    android:layout_width="@dimen/width_height_icon_setting_btn"
+                    android:layout_height="@dimen/width_height_icon_setting_btn"
+                    android:src="@drawable/img_review_constraint"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tx_review"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_start_between_tx_in_setting"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:text="@string/tx_write_review"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/tx_btn_in_setting_01"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/img_review"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:layout_width="@dimen/size_btn_go_in_setting"
+                    android:layout_height="@dimen/size_btn_go_in_setting"
+                    android:src="@drawable/icon_btn_go_in_setting"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin_top_in_setting_constraint">
 
                 <ImageView

@@ -52,6 +52,8 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.android.play:review-ktx:2.0.2")
+
     implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
     implementation("com.google.android.gms:play-services-ads:23.4.0")
 

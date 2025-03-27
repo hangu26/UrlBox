@@ -80,6 +80,7 @@
     <string name="tx_privacy_policy">개인정보 처리 방침</string>
     <string name="tx_use_of_terms">이용약관</string>
     <string name="ad_mob_app_id">ca-app-pub-6498037779961709~5606087450</string>
+    <string name="tx_write_review">리뷰 작성</string>
 
 
 </resources>
