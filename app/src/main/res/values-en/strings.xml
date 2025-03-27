@@ -73,4 +73,5 @@
     <string name="tx_use_of_terms">Terms of Service</string>
     <string name="tx_use_terms_detail">Service Terms of Use</string>
     <string name="tx_terms_detail">Privacy Policy</string>
+    <string name="tx_write_review">Write a review</string>
 </resources>

@@ -5,9 +5,13 @@ import android.content.Intent
 import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
 import androidx.databinding.DataBindingUtil
+import com.google.android.play.core.review.ReviewException
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.android.play.core.review.model.ReviewErrorCode
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivitySettingBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
@@ -85,7 +89,33 @@ class SettingActivity : BaseActivity() {
             }
         }
 
+        vm.btnReviewState.observe(this@SettingActivity){
+            if (it){
+
+                showInAppReviewPopup()
+
+            }
+        }
+
     }
 
+    /** 구글 플레이 리뷰 함수 **/
+    private fun showInAppReviewPopup(){
+        val manager = ReviewManagerFactory.create(this)
+        val request = manager.requestReviewFlow()
+        request.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val reviewInfo = task.result
+                val flow = manager.launchReviewFlow(this, reviewInfo)
+                flow.addOnCompleteListener { _ ->
+                    Log.i("reviewResult" ,"$reviewInfo")
+                }
+            } else {
+                // There was some problem, log or handle the error code.
+                @ReviewErrorCode val reviewErrorCode = (task.exception as ReviewException).errorCode
+                Log.e("reviewError", "$reviewErrorCode")
+            }
+        }
+    }
 
 }
