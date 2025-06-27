@@ -1,8 +1,14 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-kapt")
     id("com.google.gms.google-services")
+}
+
+val localProperties = Properties().apply {
+    load(rootProject.file("local.properties").inputStream())
 }
 
 android {
@@ -17,6 +23,23 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField(
+            "String",
+            "default_web_client_id",
+            "\"${localProperties["default_web_client_id"]}\""
+        )
+
+        buildConfigField(
+            "String",
+            "kakao_native_app_key",
+            "\"${localProperties["kakao_native_app_key"]}\""
+        )
+
+        manifestPlaceholders["kakao_app_key"] = localProperties["kakao_app_key"] as Any
+
+        manifestPlaceholders["ad_mob_app_id"] = localProperties["ad_mob_app_id"] as Any
+
     }
 
     buildTypes {
@@ -30,6 +53,7 @@ android {
     }
 
     buildFeatures{
+        buildConfig = true
         dataBinding = true
         viewBinding = true
     }
