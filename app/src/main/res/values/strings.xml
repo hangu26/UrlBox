@@ -39,10 +39,7 @@
     <string name="tx_save_through_login">UrlBox를 통해 \n링크를 저장해보세요</string>
     <string name="tx_google_login">Google 로그인</string>
     <string name="tx_login_kakao">카카오 로그인</string>
-    <string name="default_web_client_id" translatable="false">645387379425-4h8t119sj2u29j86obook9lnrc520203.apps.googleusercontent.com</string>
     <string name="tx_backup_to_account">계정에 데이터 동기화</string>
-    <string name="kakao_native_app_key" translatable="false">dd8e8958e1ec731849c96b1b5275ba5f</string>
-    <string name="kakao_app_key" translatable="false">kakaodd8e8958e1ec731849c96b1b5275ba5f</string>
     <string name="tx_setting_info">설정 및 정보</string>
     <string name="tx_set_lauguage">언어 설정</string>
     <string name="tx_set_language_detail">앱 표시 언어 설정</string>
@@ -79,7 +76,6 @@
     <string name="tx_edt_tag_detail_02">태그 직접 입력하기 ex) 음악</string>
     <string name="tx_privacy_policy">개인정보 처리 방침</string>
     <string name="tx_use_of_terms">이용약관</string>
-    <string name="ad_mob_app_id">ca-app-pub-6498037779961709~5606087450</string>
     <string name="tx_write_review">리뷰 작성</string>
 
 
