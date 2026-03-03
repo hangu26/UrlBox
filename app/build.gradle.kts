@@ -76,6 +76,10 @@ android {
 }
 
 dependencies {
+
+    /** 로티 애니메이션 **/
+    implementation ("com.airbnb.android:lottie:6.0.0")
+    
     implementation ("com.google.android.play:review-ktx:2.0.2")
 
     implementation("com.google.firebase:firebase-functions-ktx:20.1.0")

@@ -78,7 +78,20 @@
     <dimen name="tx_save_through_login_size">25sp</dimen>
     <dimen name="tx_google_login_size">16sp</dimen>
     <dimen name="border_google_login_height">48dp</dimen>
-    <dimen name="border_google_login_margin_side">57dp</dimen>
+    <dimen name="margin_top_tx_login_main">11dp</dimen>
+    <dimen name="margin_top_chk_login">30dp</dimen>
+    <dimen name="size_tx_login_detail">14sp</dimen>
+    <dimen name="margin_top_constraint_google">30dp</dimen>
+    <dimen name="size_tx_checkbox_synchronization">12sp</dimen>
+    <dimen name="margin_top_space_or">30dp</dimen>
+    <dimen name="size_tx_or">12sp</dimen>
+    <dimen name="space_tx_or">11dp</dimen>
+    <dimen name="size_tx_guest_continue">13sp</dimen>
+    <dimen name="margin_top_tx_guest_continue">30dp</dimen>
+    <dimen name="margin_top_ll_login">50dp</dimen>
+    <dimen name="margin_side_chk_sync">30dp</dimen>
+
+    <dimen name="border_google_login_margin_side">30dp</dimen>
     <dimen name="border_google_login_margin_top">34dp</dimen>
     <dimen name="img_google_margin_start">14dp</dimen>
     <dimen name="border_radius_google">3dp</dimen>

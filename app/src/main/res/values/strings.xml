@@ -36,10 +36,10 @@
     <string name="tx_logout">로그아웃</string>
     <string name="tx_use_guest_mode">게스트로 이용하기</string>
     <string name="tx_login">로그인</string>
-    <string name="tx_save_through_login">UrlBox를 통해 \n링크를 저장해보세요</string>
+    <string name="tx_save_through_login">링크를 보관하고 \n공유하세요</string>
     <string name="tx_google_login">Google 로그인</string>
     <string name="tx_login_kakao">카카오 로그인</string>
-    <string name="tx_backup_to_account">계정에 데이터 동기화</string>
+    <string name="tx_backup_to_account">계정에 데이터를 동기화하고 모든 기기에서 접근할 수 있도록 허용합니다</string>
     <string name="tx_setting_info">설정 및 정보</string>
     <string name="tx_set_lauguage">언어 설정</string>
     <string name="tx_set_language_detail">앱 표시 언어 설정</string>
@@ -78,6 +78,9 @@
     <string name="tx_use_of_terms">이용약관</string>
     <string name="tx_write_review">리뷰 작성</string>
     <string name="tx_add">추가</string>
+    <string name="tx_login_detail">로그인하여 모든 기기에서 \n링크를 동기화하세요</string>
+    <string name="tx_or">또는</string>
+    <string name="tx_guest_continue">게스트로 계속하기</string>
 
 
 </resources>

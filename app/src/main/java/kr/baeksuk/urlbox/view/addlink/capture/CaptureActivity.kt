@@ -70,7 +70,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
         if (edit == true) {
             backPressedCallback.finishActivity(this)
         } else {
-            backPressedCallback.addCallbackActivity(this, AddLinkActivity::class.java)
+            backPressedCallback.addCallbackActivity(this, MainActivity::class.java)
         }
 
         initView()

@@ -19,5 +19,9 @@
     <color name="dialog_btn_cancel">#F1F1F9</color>
     <color name="gradient_cl_add_link_01">#EDE7DB</color>
     <color name="gradient_cl_add_link_02">#F5F0E5</color>
+    <color name="color_tx_login_detail">#8B8B8B</color>
+    <color name="color_tx_checkbox_synchronization">#8B8B8B</color>
+    <color name="color_ll_space_or">#E5E5E5</color>
+    <color name="color_tx_or">#BFBFBF</color>
 
 </resources>
