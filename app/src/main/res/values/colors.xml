@@ -17,5 +17,7 @@
     <color name="color_btn_tag_clicked">#E8D9C9</color>
     <color name="color_hint_edt_tag">#E3DAC9</color>
     <color name="dialog_btn_cancel">#F1F1F9</color>
+    <color name="gradient_cl_add_link_01">#EDE7DB</color>
+    <color name="gradient_cl_add_link_02">#F5F0E5</color>
 
 </resources>

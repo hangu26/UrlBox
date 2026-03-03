@@ -49,6 +49,21 @@
             android:name="kr.baeksuk.urlbox.view.setting.SettingActivity"
             android:exported="false" /> <!-- 카카오 로그인, 인가코드를 받기 위한 액티비티 -->
         <activity
+            android:name="kr.baeksuk.urlbox.util.base.ShareReceiverActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/*" /> <!-- 텍스트 공유용 -->
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" /> <!-- 이미지 공유용 -->
+            </intent-filter>
+        </activity>
+        <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">
             <intent-filter>

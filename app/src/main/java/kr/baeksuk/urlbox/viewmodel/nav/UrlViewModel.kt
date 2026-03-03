@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
@@ -47,6 +48,9 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _btnRefreshState = MutableLiveData<Boolean>()
     val btnRefreshState = _btnRefreshState
+
+    private val _urlInputDoneState = MutableLiveData<Boolean>()
+    val urlInputDoneState = _urlInputDoneState
 
     fun btnAdd() {
         _btnAddState.value = true
@@ -190,8 +194,16 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
-
+    /** EditText의 onEditorActionListener는 키보드 액션 이벤트를 처리할 때 반드시 Boolean 값을 반환해야 한다.  **/
+    fun onUrlInputDone(actionId : Int) : Boolean{
+        return if (actionId == EditorInfo.IME_ACTION_DONE){
+            _urlInputDoneState.value = true
+            true
+        }else{
+            _urlInputDoneState.value = false
+            false
+        }
+    }
 
     fun hasBackupData(): LiveData<Boolean> = liveData {
         val result = _repo.hasBackupData() // suspend 함수 호출

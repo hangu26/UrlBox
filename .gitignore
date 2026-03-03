@@ -59,3 +59,4 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+/app/google-services.json

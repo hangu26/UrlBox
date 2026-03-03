@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <corners android:radius="@dimen/border_cl_add_link" />
+
+    <stroke
+        android:width="@dimen/border_box_stroke_width"
+        android:color="@color/appBar_title_01" />
+
+    <gradient
+        android:angle="270"
+        android:endColor="@color/gradient_cl_add_link_02"
+        android:startColor="@color/gradient_cl_add_link_01" />
+
+</shape>

@@ -1,6 +1,7 @@
 package kr.baeksuk.urlbox.view.nav
 
 import android.annotation.SuppressLint
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -12,6 +13,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -32,18 +35,21 @@ import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvTagAdapter
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
+import kr.baeksuk.urlbox.util.base.BaseFragment
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.OnTagFilterSelectedListener
 import kr.baeksuk.urlbox.util.util.OnTagTouchHelperListener
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.util.util.TagTouchCallback
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
+import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
 
-class UrlFragment : Fragment(), OnTagFilterSelectedListener {
+class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
+    OnTagFilterSelectedListener {
 
     private lateinit var uBinding: FragmentUrlBinding
     private val uViewModel: UrlViewModel by inject()
@@ -52,12 +58,10 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
     private val startActivityAnimation = StartActivityAnimation()
     private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    @SuppressLint("NotifyDataSetChanged")
+    override fun initView() {
 
-        uBinding = FragmentUrlBinding.inflate(inflater, container, false)
+        uBinding = binding
         adapter = RvUrlAdapter(requireContext(), requireActivity()) // adapter 초기화
         tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this)
 
@@ -77,14 +81,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
         tagTouchHelper.attachToRecyclerView(uBinding.rvTags)
 
-        initView()
         observe()
-        return uBinding.root
-
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun initView() {
 
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
@@ -112,11 +109,10 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
                 }, 700)
 
-            }else{
+            } else {
                 getUserUrlBackup(vm)
                 getUserTagBackup(vm)
             }
-
 
 
         } else {
@@ -125,6 +121,7 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             uBinding.rvTags.visibility = View.GONE
 
         }
+
 
     }
 
@@ -201,9 +198,20 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
         vm.btnAddState.observe(viewLifecycleOwner) {
             if (it) {
-                val intent = Intent(requireContext(), AddLinkActivity::class.java)
-                startActivityAnimation.startActivityAnimation(intent, requireContext())
-                requireActivity().finish()
+
+                val url = uBinding.edtUrl.text.toString()
+
+                if (url.isBlank()) {
+                    Toast.makeText(requireContext(), "URL을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    return@observe
+                } else {
+                    val intent = Intent(requireActivity(), CaptureActivity::class.java)
+                    intent.putExtra("url", uBinding.edtUrl.text.toString())
+
+                    startActivityAnimation(intent, requireContext())
+                }
+
+
             }
         }
 
@@ -220,6 +228,16 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
 
                 Log.e("모든 데이터 받아오기", "성공")
 
+            }
+        }
+
+        vm.urlInputDoneState.observe(viewLifecycleOwner) {
+            if (it) {
+                val intent = Intent(requireActivity(), CaptureActivity::class.java)
+                intent.putExtra("url", uBinding.edtUrl.text.toString())
+
+                startActivityAnimation(intent, requireContext())
+                activity?.finish()
             }
         }
 
