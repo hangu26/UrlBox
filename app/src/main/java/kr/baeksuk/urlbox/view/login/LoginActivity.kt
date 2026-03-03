@@ -112,6 +112,18 @@ class LoginActivity : BaseActivity() {
             }
         }
 
+        vm.btnGuestState.observe(this@LoginActivity) {
+
+            if (it) {
+
+                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                startActivityAnimation(intent, this@LoginActivity)
+                finish()
+
+            }
+
+        }
+
         /**
         vm.googleLoginState.observe(this@LoginActivity) { isSuccess ->
 
