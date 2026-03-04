@@ -119,7 +119,25 @@ class RvTagAdapter(
         Collections.swap(updatedList, from, to)
         tagList = updatedList
 
+        // 1. 선택 위치(selectedPosition) 정보 갱신
+        val oldSelectedPosition = selectedPosition
+        if (selectedPosition == from) {
+            selectedPosition = to
+        } else if (from < to && selectedPosition > from && selectedPosition <= to) {
+            selectedPosition--
+        } else if (from > to && selectedPosition < from && selectedPosition >= to) {
+            selectedPosition++
+        }
+
         notifyItemMoved(from, to)
+        notifyItemChanged(from)
+        notifyItemChanged(to)
+
+        // 만약 이동 중에 선택된 아이템의 하이라이트가 깨진다면 아래 코드도 추가
+        if (oldSelectedPosition != selectedPosition) {
+            notifyItemChanged(oldSelectedPosition)
+            notifyItemChanged(selectedPosition)
+        }
     }
 
 
