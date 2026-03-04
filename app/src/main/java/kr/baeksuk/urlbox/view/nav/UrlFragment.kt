@@ -60,126 +60,110 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
     @SuppressLint("NotifyDataSetChanged")
     override fun initView() {
-
         uBinding = binding
-        adapter = RvUrlAdapter(requireContext(), requireActivity()) // adapter 초기화
+        adapter = RvUrlAdapter(requireContext(), requireActivity())
         tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this)
 
-        uBinding.apply {
-            viewModel = uViewModel
-            rvUrl.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-            rvUrl.adapter = adapter // adapter 할당
+        uBinding.viewModel = uViewModel
 
-            rvUrl.layoutAnimation =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation)
-            rvUrl.scheduleLayoutAnimation()
+        setupRecyclerViews()
+        observeLoading()
+        observeViewModel()
+        loginHandler()
+    }
 
-            rvTags.layoutManager =
-                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            rvTags.adapter = tagAdapter
+    /** 리사이클러뷰 연결 **/
+    private fun setupRecyclerViews() {
+        uBinding.rvUrl.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = this@UrlFragment.adapter
+            layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation)
+            scheduleLayoutAnimation()
+        }
+
+        uBinding.rvTags.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = tagAdapter
         }
 
         tagTouchHelper.attachToRecyclerView(uBinding.rvTags)
+    }
 
-        observe()
+    /** 로딩 상태 observe **/
+    private fun observeLoading() {
+        uViewModel.isLoading.observe(viewLifecycleOwner) { updateLoadingState() }
+        uViewModel.isTagLoading.observe(viewLifecycleOwner) { updateLoadingState() }
+    }
 
+    private fun updateLoadingState() {
+        val show = uViewModel.isLoading.value == true || uViewModel.isTagLoading.value == true
+        uBinding.loadingBarSkeleton.visibility = if (show) View.VISIBLE else View.GONE
+        uBinding.skeletonLayout.visibility = if (show) View.VISIBLE else View.GONE
+        uBinding.mainLayout.visibility = if (show) View.GONE else View.VISIBLE
+    }
+
+    /** 로그인 여부에 따른 데이터 처리 **/
+    @SuppressLint("NotifyDataSetChanged")
+    private fun loginHandler() {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
         val autoLogin = pref.getBoolean("auto login", false)
-        val vm = uViewModel
+        val isFirst = pref.getInt("isFirst", 0)
+        val beforeActivity = activity?.intent?.extras?.getString("activity") ?: ""
 
         if (autoLogin) {
-
             uBinding.linearRefresh.visibility = View.VISIBLE
 
-            val beforeActivity = activity?.intent?.extras?.getString("activity")
-
+            // Capture 저장 후 돌아온 경우
             if (beforeActivity == "CaptureSave") {
-                vm.isLoading.value = true
-                vm.isTagLoading.value = true
+                uViewModel.isLoading.value = true
+                uViewModel.isTagLoading.value = true
 
-                getUserUrlBackup(vm)
-                getUserTagBackup(vm)
+                getUserUrlBackup(uViewModel)
+                getUserTagBackup(uViewModel)
+                getUrlData(uViewModel)
+                getTagData(uViewModel)
 
                 Handler(Looper.getMainLooper()).postDelayed({
-
-                    vm.isTagLoading.value = false
-                    vm.isLoading.value = false
+                    uViewModel.isLoading.value = false
+                    uViewModel.isTagLoading.value = false
                     activity?.intent?.putExtra("activity", "")
-
-
                 }, 700)
-
-            } else {
-                getUserUrlBackup(vm)
-                getUserTagBackup(vm)
             }
+            // 앱 처음 로그인했을 때
+            else if (isFirst == 1) {
+                uViewModel.isLoading.value = true
+                uViewModel.isTagLoading.value = true
 
+                getUserUrlBackup(uViewModel)
+                getUserTagBackup(uViewModel)
+                getUrlData(uViewModel)
+                getTagData(uViewModel)
 
-        } else {
+                pref.edit().putInt("isFirst", 0).apply() // 처음 로그인 완료 처리
 
+                Handler(Looper.getMainLooper()).postDelayed({
+                    uViewModel.isLoading.value = false
+                    uViewModel.isTagLoading.value = false
+                }, 700)
+            }
+            // 그 외 (이미 데이터 있음) → 로딩 없음
+            else {
+                getUserUrlBackup(uViewModel)
+                getUserTagBackup(uViewModel)
+            }
+        }
+        // 게스트 모드
+        else {
             uBinding.linearRefresh.visibility = View.GONE
             uBinding.rvTags.visibility = View.GONE
 
-        }
-
-
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun observe() = uViewModel.let { vm ->
-
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
-        val isFirst = pref.getInt("isFirst", 0)
-        val autoLogin = pref.getBoolean("auto login", false)
-        Log.e("처음인지 확인", isFirst.toString())
-
-        if (autoLogin) {
-
-            if (isFirst == 1) {
-
-                getUrlData(vm)
-                getTagData(vm)
-                pref.edit().putInt("isFirst", 0).commit()
-                Log.e("모든 데이터 받아오기", "앱 시작 시 데이터 받아오기 성공")
-            }
-
-            vm.isLoading.observe(viewLifecycleOwner) { isLoading ->
-
-                vm.isTagLoading.observe(viewLifecycleOwner) { isTagLoading ->
-                    uBinding.loadingBarSkeleton.visibility =
-                        if (isLoading || isTagLoading) View.VISIBLE else View.GONE
-                    uBinding.skeletonLayout.visibility =
-                        if (isLoading || isTagLoading) View.VISIBLE else View.GONE
-                    uBinding.mainLayout.visibility =
-                        if (isLoading || isTagLoading) View.GONE else View.VISIBLE
-
-                }
-
-            }
-
-
-            vm.hasBackupData().observe(viewLifecycleOwner) { hasData ->
-                if (hasData && isFirst != 1) {
-                    Log.e("모든 데이터 받아오기", "이미 데이터가 받아와져있음")
-                } else if (isFirst == 1) {
-
-                    getUrlData(vm)
-//                    getTagData(vm)
-                    Log.e("모든 데이터 받아오기", "성공")
-                }
-            }
-
-
-        } else {
-
-            vm.getGuestUrl().observe(viewLifecycleOwner, Observer<List<UrlEntity>> { url ->
-
+            uViewModel.getGuestUrl().observe(viewLifecycleOwner) { url ->
                 val urlDataViewModel =
                     ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
                 urlDataViewModel.sendUrlCount(url)
 
                 InitUrlDataCount.linkCount = url.size
-                InitUrlDataCount.favorite = url.filter { it.favorite }.size
+                InitUrlDataCount.favorite = url.count { it.favorite }
 
                 adapter.setGuestData(url)
                 adapter.notifyDataSetChanged()
@@ -187,100 +171,80 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 tagAdapter.setTagData(url.map {
                     Tag(
                         it.tag,
-                        timeStamp = it.timeStamp.toString(),
+                        timeStamp = it.timeStamp.toString()
                     )
                 })
-
                 tagAdapter.notifyDataSetChanged()
-            })
-
+            }
         }
+    }
 
-        vm.btnAddState.observe(viewLifecycleOwner) {
+    /** ViewModel 상태 observe **/
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeViewModel() {
+        uViewModel.btnAddState.observe(viewLifecycleOwner) {
             if (it) {
-
                 val url = uBinding.edtUrl.text.toString()
-
                 if (url.isBlank()) {
                     Toast.makeText(requireContext(), "URL을 입력해주세요.", Toast.LENGTH_SHORT).show()
                     return@observe
                 } else {
                     val intent = Intent(requireActivity(), CaptureActivity::class.java)
-                    intent.putExtra("url", uBinding.edtUrl.text.toString())
-
+                    intent.putExtra("url", url)
                     startActivityAnimation(intent, requireContext())
                 }
-
-
             }
         }
 
-        vm.btnRefreshState.observe(viewLifecycleOwner) {
+        uViewModel.btnRefreshState.observe(viewLifecycleOwner) {
             if (it) {
-
-                getUrlData(vm)
-
-                getTagData(vm)
-
-                getUserUrlBackup(vm)
-
-                getUserTagBackup(vm)
-
+                getUrlData(uViewModel)
+                getTagData(uViewModel)
+                getUserUrlBackup(uViewModel)
+                getUserTagBackup(uViewModel)
                 Log.e("모든 데이터 받아오기", "성공")
-
             }
         }
 
-        vm.urlInputDoneState.observe(viewLifecycleOwner) {
+        uViewModel.urlInputDoneState.observe(viewLifecycleOwner) {
             if (it) {
                 val intent = Intent(requireActivity(), CaptureActivity::class.java)
                 intent.putExtra("url", uBinding.edtUrl.text.toString())
-
                 startActivityAnimation(intent, requireContext())
                 activity?.finish()
             }
         }
-
     }
 
+    /** 백업 데이터 가져오기 **/
     @SuppressLint("NotifyDataSetChanged")
     private fun getUserUrlBackup(vm: UrlViewModel) {
-
-        vm.getUserUrlBackup()
-            .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
-
-                adapter.setUserBackupData(url, true)
-                adapter.notifyDataSetChanged()
-
-            })
-
+        vm.getUserUrlBackup().observe(viewLifecycleOwner) { url ->
+            adapter.setUserBackupData(url, true)
+            adapter.notifyDataSetChanged()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun getUserTagBackup(vm: UrlViewModel) {
-
-        vm.getUserTagBackup()
-            .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>> { tag ->
-
-                tagAdapter.setTagBackupData(tag, true)
-                tagAdapter.notifyDataSetChanged()
-
-            })
-
+        vm.getUserTagBackup().observe(viewLifecycleOwner) { tag ->
+            tagAdapter.setTagBackupData(tag, true)
+            tagAdapter.notifyDataSetChanged()
+        }
     }
 
+    /** Firebase 데이터 가져오기 **/
     @SuppressLint("NotifyDataSetChanged")
     private fun getUrlData(vm: UrlViewModel) {
         vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
-
-            val urlDataList: List<Url> = listPair.first
-            val imgUriList: List<String> = listPair.second
+            val urlDataList = listPair.first
+            val imgUriList = listPair.second
 
             val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
                 UrlBackupEntity(
                     urlLink = url.url,
                     imageKey = url.imageKey,
-                    imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
+                    imgUri = imgUri,
                     favorite = url.favorite,
                     timeStamp = url.timeStamp,
                     urlName = url.urlName,
@@ -288,30 +252,24 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                     tag = url.tag
                 )
             }
-            Log.e("uri 리스트 데이터", imgUriList.toString())
-
-            /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
 
             vm.insertUrlBackup(urlBackupEntity)
 
             adapter.setLoginData(urlDataList, imgUriList, false)
             adapter.notifyDataSetChanged()
-
         }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun getTagData(vm: UrlViewModel) {
         vm.getTagData(viewLifecycleOwner).observe(viewLifecycleOwner) { tag ->
-
-            val tagBackupEntity = tag
-                .map {
-                    TagBackupEntity(
-                        tag = it.tag!!,
-                        timeStamp = it.timeStamp,
-                        urlList = it.urlList
-                    )
-                }
+            val tagBackupEntity = tag.map {
+                TagBackupEntity(
+                    tag = it.tag!!,
+                    timeStamp = it.timeStamp,
+                    urlList = it.urlList
+                )
+            }
 
             vm.insertTagBackup(tagBackupEntity)
 
@@ -326,6 +284,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         }
     }
 
+    /** 태그 필터링 **/
     @SuppressLint("NotifyDataSetChanged")
     override fun onTagFiltered(url: List<String>, tag: String) {
         adapter.filterByTag(url, tag, uBinding.rvUrl)
@@ -333,5 +292,4 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         adapter.notifyDataSetChanged()
         tagAdapter.notifyDataSetChanged()
     }
-
 }

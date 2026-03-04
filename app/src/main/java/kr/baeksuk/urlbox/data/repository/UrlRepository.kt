@@ -851,50 +851,63 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    /** 룸에 저장된 백업 데이터와 파이어베이스에 존재하는 데이터 두개 모두 삭제 **/
+    /** 전체 태그 삭제 시, 게시물에 따른 태그들 삭제 함수(TagActivity)
+     * 룸에 저장된 백업 데이터와 파이어베이스에 존재하는 데이터 두개 모두 삭제 **/
 
     fun deleteUserTag(tag: String) {
-        val userId = pref.getString("userId", "")
+        val userId = pref.getString("userId", "") ?: return
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
 
                 urlDao.deleteTag(tag)
+                val rootRef = FirebaseDatabase.getInstance().reference.child("User").child(userId)
+                val tagRef = rootRef.child("Tag")
+                val urlMainRef = rootRef.child("url")
 
-                databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
-                        .child("Tag")
+                tagRef.orderByChild("tag").equalTo(tag).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        for (tagSnapshot in snapshot.children) {
+                            val linkedUrlsNode = tagSnapshot.child("url")
 
-                databaseReference.orderByChild("tag").equalTo(tag)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
+                            linkedUrlsNode.children.forEach { urlChild ->
 
-                                for (child in snapshot.children) {
+                                val realUrlString = urlChild.child("url").getValue(String::class.java)
 
-                                    child.ref.removeValue().addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            Log.i("deleteTag", "success delete tag")
-                                        } else {
-                                            Log.e("deleteTag", "fail delete tag")
-                                        }
-                                    }
+                                if (realUrlString != null) {
+                                    deleteUserUrlTag(tag, realUrlString)
 
+                                    urlMainRef.orderByChild("url").equalTo(realUrlString)
+                                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                                            override fun onDataChange(imgSnapshot: DataSnapshot) {
+                                                imgSnapshot.children.forEach { matchingImg ->
+
+                                                    val tagsNode = matchingImg.child("tags")
+                                                    tagsNode.children.forEach { bTag ->
+                                                        if (bTag.child("tag").value == tag) {
+                                                            bTag.ref.removeValue().addOnSuccessListener {
+                                                                Log.i("deleteTag", "B태그 삭제 완료: ${matchingImg.key}")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            override fun onCancelled(error: DatabaseError) {}
+                                        })
                                 }
+                            }
 
+                            tagSnapshot.ref.removeValue().addOnSuccessListener {
+                                Log.i("deleteTag", "A태그(수탉) 삭제 성공")
                             }
                         }
-
-                        override fun onCancelled(error: DatabaseError) {
-
-                        }
-                    })
-
-            } catch (e: java.lang.Exception) {
-
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            } catch (e: Exception) {
+                Log.e("deleteTag", e.toString())
             }
         }
-
     }
 
     fun deleteUserData(url: String, imageKey: String) {

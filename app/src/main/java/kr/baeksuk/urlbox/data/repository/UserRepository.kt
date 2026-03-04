@@ -19,8 +19,15 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.tasks.await
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.model.Tag
@@ -30,6 +37,7 @@ import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
 import java.io.FileOutputStream
+import kotlin.coroutines.resumeWithException
 
 class UserRepository(application: Application) : AndroidViewModel(application) {
 
@@ -201,7 +209,12 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                     val tagsSnapshot = dataSnapshot.child("tags")
                     for (tagSnapshot in tagsSnapshot.children) {
                         val tagValue = tagSnapshot.child("tag").value.toString()
-                        tagList.add(UserTags(tag = tagValue, timeStamp = timeStamp.toString().toLong()))
+                        tagList.add(
+                            UserTags(
+                                tag = tagValue,
+                                timeStamp = timeStamp.toString().toLong()
+                            )
+                        )
                     }
 
 
@@ -262,118 +275,79 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun insertUserId(user: User) {
-        val userRef: DatabaseReference = database.child("User").child(user.userId)
+    suspend fun insertUserIdSuspend(user: User) {
+        val userRef = database.child("User").child(user.userId)
 
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // 로그인 했을 때 db에 존재하는 아이디라면
-                } else {
-                    userRef.setValue(user).addOnSuccessListener {
-                        Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
-                    }.addOnFailureListener {
-                        Log.d("유저 아이디 저장", "유저 아이디 저장 실패")
-                    }
-                }
-            }
+        // get().await()를 사용하여 snapshot을 바로 가져옵니다.
+        val snapshot = userRef.get().await()
 
-            override fun onCancelled(error: DatabaseError) {
-                // 예외 처리 필요
-            }
-        })
-
+        if (!snapshot.exists()) {
+            userRef.setValue(user).await()
+        }
     }
 
-    fun insertAllData(user: User, urlList: List<UrlToLogin>, imgFileList: List<File>) {
-        val userRef: DatabaseReference = database.child("User").child(user.userId)
-        val urlInUser: DatabaseReference = userRef.child("url")
+    /**
+     * 2. 전체 데이터 저장 (유저 정보 + URL 리스트 + 이미지 파일)
+     */
+    suspend fun insertAllDataSuspend(
+        user: User,
+        urlList: List<UrlToLogin>,
+        imgFileList: List<File>
+    ) = coroutineScope {
+        val userRef = database.child("User").child(user.userId)
+        val urlInUser = userRef.child("url")
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${user.userId}/")
 
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
+        // 유저 존재 여부 확인 및 생성
+        val snapshot = userRef.get().await()
+        if (!snapshot.exists()) {
+            userRef.setValue(user).await()
+        }
 
-                    insertUrlDataInFirebase(urlInUser, urlList, imgFileList, storageRef)
-
-                } else {
-                    userRef.setValue(user).addOnSuccessListener {
-                        Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
-
-                        insertUrlDataInFirebase(urlInUser, urlList, imgFileList, storageRef)
-
-                    }.addOnFailureListener {
-
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // 예외 처리 필요
-            }
-        })
-
-
+        // URL 및 이미지 업로드 실행 (병렬 처리)
+        insertUrlDataInFirebaseSuspend(urlInUser, urlList, imgFileList, storageRef)
     }
 
-    fun insertUrlDataInFirebase(
+    /**
+     * 3. URL 데이터 및 이미지 업로드 핵심 로직 (성능 최적화 버전)
+     */
+    private suspend fun insertUrlDataInFirebaseSuspend(
         urlInUser: DatabaseReference,
         urlList: List<UrlToLogin>,
         imgFileList: List<File>,
         storageRef: StorageReference
-    ) {
-        urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // 기존 URL 데이터 가져오기
-                    val existingUrls =
-                        snapshot.children.mapNotNull { it.getValue(UrlToLogin::class.java) }
+    ) = coroutineScope {
 
-                    // 새로운 URL 중 기존 데이터와 중복되지 않은 URL만 필터링
-                    val newUrls = urlList.filter { newUrl ->
-                        existingUrls.none { it.url == newUrl.url } // ✅ URL이 겹치면 추가 안 함 (favorite 값 무시)
-                    }
+        // [STEP 1] 기존 URL 목록 한 번에 가져오기
+        val existingUrlsSnapshot = urlInUser.get().await()
+        val existingUrls =
+            existingUrlsSnapshot.children.mapNotNull { it.getValue(UrlToLogin::class.java) }
 
-                    if (newUrls.isNotEmpty()) {
-                        newUrls.forEach { newUrl ->
-                            urlInUser.child("img" + newUrl.timeStamp)
-                                .setValue(newUrl)
-                        }
-                        Log.d("URL 데이터 저장", "새로운 URL 데이터 저장 완료")
-                    } else {
-                        Log.e("URL 데이터 저장", "모든 URL이 중복되어 저장하지 않음")
-                    }
-                } else {
-                    // 기존 데이터가 없을 때는 바로 삽입
-                    urlList.forEach { newUrl ->
-                        urlInUser.child(newUrl.imageKey).setValue(newUrl)
-                    }
+        // 중복되지 않은 새 데이터만 필터링
+        val newUrls = urlList.filter { newUrl -> existingUrls.none { it.url == newUrl.url } }
+
+        // [STEP 2] DB 업데이트 - updateChildren을 사용하여 여러 개를 한 번의 네트워크 요청으로 처리
+        val dbTask = async {
+            if (newUrls.isNotEmpty()) {
+                val updateMap = mutableMapOf<String, Any>()
+                newUrls.forEach { newUrl ->
+                    updateMap["img${newUrl.timeStamp}"] = newUrl
                 }
-
-                // 🔥 이미지 파일 리스트를 Firebase Storage에 업로드
-                imgFileList.forEach { file ->
-                    if (file.exists()) {
-                        val fileUri = Uri.fromFile(file) // File을 Uri로 변환
-                        val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
-
-                        fileRef.putFile(fileUri).addOnSuccessListener {
-                            Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                        }.addOnFailureListener {
-                            Log.e("Storage Upload", "파일 업로드 실패: ${file.name}, 오류: ${it.message}")
-                        }
-                    } else {
-                        Log.e("Storage Upload", "파일이 존재하지 않음: ${file.absolutePath}")
-                    }
-                }
-
+                urlInUser.updateChildren(updateMap).await()
             }
+        }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase Error", "데이터 읽기 실패: ${error.message}")
+        // [STEP 3] Storage 업로드 - 모든 파일을 동시에 업로드 시작 (병렬 처리)
+        val storageTasks = imgFileList.filter { it.exists() }.map { file ->
+            async {
+                val fileUri = Uri.fromFile(file)
+                storageRef.child(file.name).putFile(fileUri).await()
             }
-        })
+        }
 
+        // [STEP 4] 모든 작업(DB + Storage)이 끝날 때까지 대기
+        dbTask.await()
+        storageTasks.awaitAll()
     }
-
 
 }

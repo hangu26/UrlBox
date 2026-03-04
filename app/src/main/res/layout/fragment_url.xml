@@ -215,6 +215,7 @@
                 android:layout_marginEnd="@dimen/margin_side_frame_layout"
                 android:paddingBottom="@dimen/frame_recyclerview_padding_bottom"
                 android:visibility="visible"
+                android:layout_marginTop="@dimen/margin_top_frame_urls"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

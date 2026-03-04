@@ -38,6 +38,7 @@
             android:exported="false" />
         <activity
             android:name="kr.baeksuk.urlbox.view.editurl.EditInfoActivity"
+            android:windowSoftInputMode="adjustResize|stateHidden"
             android:exported="false" />
         <activity
             android:name="kr.baeksuk.urlbox.view.myfolder.MyFolderActivity"

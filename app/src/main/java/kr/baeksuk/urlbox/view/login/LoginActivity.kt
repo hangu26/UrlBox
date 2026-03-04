@@ -104,14 +104,6 @@ class LoginActivity : BaseActivity() {
 
         }
 
-        vm.btnGoogleState.observe(this@LoginActivity) {
-
-            if (it) {
-                vm.setLoadingBar(true)
-                signGoogle()
-            }
-        }
-
         vm.btnGuestState.observe(this@LoginActivity) {
 
             if (it) {
@@ -136,12 +128,12 @@ class LoginActivity : BaseActivity() {
         }
          **/
 
-        vm.loadingBar.observe(this@LoginActivity){
-            if (it){
-                lBinding.loadingBarSkeleton.visibility = View.VISIBLE
-            }else{
-                lBinding.loadingBarSkeleton.visibility = View.GONE
-            }
+        vm.loadingBar.observe(this) { show ->
+            lBinding.loadingBarSkeleton.visibility = if (show) View.VISIBLE else View.GONE
+        }
+
+        vm.loginSelectLoading.observe(this@LoginActivity) { show ->
+            lBinding.loadingBarLottie.visibility = if (show) View.VISIBLE else View.GONE
         }
 
         vm.kakaoLoginState.observe(this@LoginActivity) { isSuccess ->
@@ -174,19 +166,29 @@ class LoginActivity : BaseActivity() {
 
         }
 
-        vm.insertComplete.observe(this@LoginActivity) {
+        vm.btnGoogleState.observe(this@LoginActivity) {
+
             if (it) {
+                vm.setLoadingBar(true)
+                signGoogle()
+            }
+        }
 
-                val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                startActivityAnimation(intent, this@LoginActivity)
+        vm.insertComplete.observe(this) { complete ->
+            if (complete) {
+                // 데이터 모두 동기화 완료 → MainActivity로 이동
+                val intent = Intent(this, MainActivity::class.java)
+                startActivityAnimation(intent, this)
                 finish()
-
             }
         }
 
         vm.isDataSyncEnabled.observe(this@LoginActivity) {
 
             isUpload = it
+
+            val message = if (isUpload) "계정에 동기화 중입니다.." else "로그인 중입니다"
+            lBinding.txIsUploading.text = message
 
         }
 
@@ -214,6 +216,11 @@ class LoginActivity : BaseActivity() {
                     context = this@LoginActivity,
                 )
                 Log.d("SignIn", "Credentials received")
+
+                withContext(Dispatchers.Main) {
+                    lViewModel.changeLoadingBar()
+                }
+
                 handleSignIn(result)
             } catch (e: GetCredentialException) {
                 Log.e("SignIn", "Error getting credentials", e)
@@ -295,16 +302,11 @@ class LoginActivity : BaseActivity() {
         }
     }
 
-    private fun uploadData(isUpload: Boolean, user : User) {
-
+    private fun uploadData(isUpload: Boolean, user: User) {
         if (isUpload) {
-
-            lViewModel.insertAllData(userId = user, url = url, imgFileList = imgFileList)
-
+            lViewModel.insertAllData(user, url, imgFileList)
         } else {
-
-            lViewModel.insertUserId(userId = user)
-
+            lViewModel.insertUserId(user)
         }
 
         getSharedPreferences("User", Context.MODE_PRIVATE).edit()

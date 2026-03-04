@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.PixelCopy
 import android.view.View
 import android.webkit.WebViewClient
@@ -302,7 +303,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                 bitmap,
                 { result ->
                     if (result == PixelCopy.SUCCESS) {
-                        val file = File(cacheDir, "captured_image.png")
+                        val file = File(cacheDir, "captured_image.jpg")
                         saveBitmapToFile(bitmap, file)
                         val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
                         callback(uri)
@@ -320,10 +321,28 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
     // 중복 코드 정리를 위한 파일 저장 헬퍼 함수
     private fun saveBitmapToFile(bitmap: Bitmap, file: File) {
-        val outputStream = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        outputStream.flush()
-        outputStream.close()
+        var outputStream: FileOutputStream? = null
+        try {
+
+            val resizedBitmap = if (bitmap.width > 1080) {
+                val aspectRatio = bitmap.height.toDouble() / bitmap.width.toDouble()
+                Bitmap.createScaledBitmap(bitmap, 1080, (1080 * aspectRatio).toInt(), true)
+            } else {
+                bitmap
+            }
+
+            outputStream = FileOutputStream(file)
+
+            // 2. 압축 포맷 변경: PNG -> JPEG (압축률이 훨씬 좋음)
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
+
+            outputStream.flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("CaptureActivity", "이미지 압축 및 저장 실패: ${e.message}")
+        } finally {
+            outputStream?.close()
+        }
     }
 
     private fun navigateToMain() {

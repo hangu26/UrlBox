@@ -84,8 +84,9 @@
                 android:layout_height="148dp"
                 android:layout_gravity="center"
                 app:lottie_autoPlay="true"
+                app:lottie_loop="true"
                 app:lottie_fileName="anim_login.json"
-                app:lottie_loop="true" />
+                />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -339,6 +340,54 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loading_bar_lottie"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- 배경을 위한 레이아웃 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.5"
+                android:background="@android:color/black" />
+
+            <!-- 로딩바 -->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/anim_lottie_upload"
+                android:layout_width="@dimen/size_anim_lottie_upload"
+                android:layout_height="@dimen/size_anim_lottie_upload"
+                app:lottie_fileName="anim_upload.json"
+                android:layout_gravity="center"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/tx_is_uploading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tx_syncing"
+                android:textColor="@color/white"
+                android:textSize="@dimen/size_tx_syncing"
+                android:fontFamily="@font/pretendard_bold"
+                app:layout_constraintTop_toBottomOf="@+id/anim_lottie_upload"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
