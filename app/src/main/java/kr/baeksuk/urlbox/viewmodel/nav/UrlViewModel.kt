@@ -134,28 +134,19 @@ class UrlViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /**
-    fun insertTagBackup(tagBackupEntity: List<TagBackupEntity>) {
-    viewModelScope.launch(Dispatchers.IO) {
-
-    val urlTagList  = tagBackupEntity.map { it.tag }
-
-    // tag가 이미 존재하는지 확인
-    val existingTags = urlDao.getTagBackupIsExist(urlTagList)
-
-    val newTags = tagBackupEntity.filter { tagEntity ->
-    !existingTags.any{ it.tag == tagEntity.tag }
+    fun refreshUrlBackup(urlBackupEntity: List<UrlBackupEntity>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            urlDao.deleteAllUrlBackup()
+            urlDao.insertUrlBackup(urlBackupEntity)
+        }
     }
 
-    if (newTags.isNotEmpty()) {
-    // 중복되지 않으면 저장
-
-    urlDao.insertTagBackup(newTags)
-
+    fun refreshTagBackup(tagBackupEntity: List<TagBackupEntity>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            urlDao.deleteAllTagBackup()
+            urlDao.insertTagBackup(tagBackupEntity)
+        }
     }
-    }
-    }
-     **/
 
     fun insertTagBackup(tagBackupEntity: List<TagBackupEntity>) {
         viewModelScope.launch(Dispatchers.IO) {

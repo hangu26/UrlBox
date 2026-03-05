@@ -27,7 +27,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
 
-        viewModel.state.observe(this) { state ->
+        networkStatusViewModel.state.observe(this) { state ->
             when (state) {
                 MyState.Error -> networkDialog()
                 MyState.Fetched -> networkDialog()
@@ -78,7 +78,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    private val viewModel: NetworkStatusViewModel by lazy {
+    private val networkStatusViewModel: NetworkStatusViewModel by lazy {
         ViewModelProvider(
             this,
             object : ViewModelProvider.Factory {

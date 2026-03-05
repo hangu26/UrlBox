@@ -10,8 +10,10 @@ import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
+import com.google.android.material.tabs.TabLayoutMediator
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
+import kr.baeksuk.urlbox.util.adapter.UrlDetailAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.editurl.EditInfoActivity
@@ -26,17 +28,29 @@ class UrlDetailActivity : BaseActivity() {
     private val uViewModel: UrlDetailViewModel by inject()
     private var favoriteClicked = false
     private var visitUrl = ""
+    private lateinit var adapter: UrlDetailAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         uBinding =
             DataBindingUtil.setContentView(this@UrlDetailActivity, R.layout.activity_url_detail)
 
+
+        val urlName = intent.extras?.getString("urlName", "").toString()
+        val urlMemo = intent.extras?.getString("urlMemo", "").toString()
+        val url = intent.extras?.getString("title", "").toString()
+
         uBinding.apply {
             activity = this@UrlDetailActivity
             viewmodel = uViewModel
             lifecycleOwner = this@UrlDetailActivity
+            adapter = UrlDetailAdapter(this@UrlDetailActivity, urlName, urlMemo, url)
+            viewPager.adapter = adapter
         }
+
+        TabLayoutMediator(uBinding.tabLayout, uBinding.viewPager) { tab, position ->
+            tab.text = if (position == 0) "Info" else "Memo"
+        }.attach()
 
         initView()
         observe()
@@ -50,8 +64,6 @@ class UrlDetailActivity : BaseActivity() {
         val url = intent.extras?.getString("title")
         val favoriteState = intent.extras?.getBoolean("isFavorite")
         val imgUri = intent.extras?.getString("imgUri", "")
-        val urlName = intent.extras?.getString("urlName", "")
-        val urlMemo = intent.extras?.getString("urlMemo", "")
 
         visitUrl = url!!
 
@@ -60,9 +72,6 @@ class UrlDetailActivity : BaseActivity() {
             Glide.with(this@UrlDetailActivity)
                 .load(imgUri)
                 .into(uBinding.imgUrl)
-
-            uBinding.txUrlNameInfo.text = urlName.toString()
-            uBinding.txMemoInfo.text = urlMemo.toString()
 
         } else {
 
@@ -78,9 +87,6 @@ class UrlDetailActivity : BaseActivity() {
             } else {
                 Log.e("사진 파일", "파일이 존재하지 않습니다.")
             }
-
-            uBinding.txUrlNameInfo.text = urlName.toString()
-            uBinding.txMemoInfo.text = urlMemo.toString()
 
         }
 
@@ -107,7 +113,6 @@ class UrlDetailActivity : BaseActivity() {
 
                 val intent = Intent(this@UrlDetailActivity, EditInfoActivity::class.java)
                 intent.putExtra("title", url)
-                intent.putExtra("memo", uBinding.txMemoInfo.text.toString())
                 intent.putExtra("imgUri", imgUri)
                 intent.putExtra("image", imageKey)
                 intent.putExtra("urlName", urlName)

@@ -70,4 +70,8 @@ class SetTagViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun btnAddTag(){
+        _urlInputDoneState.value = true
+    }
+
 }

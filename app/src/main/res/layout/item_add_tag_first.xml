@@ -17,11 +17,12 @@
 
         <ImageView
             android:id="@+id/icon_tag"
-            android:layout_width="@dimen/size_icon_tag"
-            android:layout_height="@dimen/size_icon_tag"
+            android:layout_width="@dimen/size_ic_plus"
+            android:layout_height="@dimen/size_ic_plus"
             android:layout_marginStart="@dimen/margin_start_icon_tag_in_tag"
-            android:src="@drawable/ic_tag"
+            android:src="@drawable/ic_plus"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tx_tag"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,39 +36,14 @@
             android:layout_marginBottom="@dimen/margin_vertical_tx_tag_in_btn"
             android:fontFamily="@font/pretendard_semibold"
             android:gravity="center"
-            android:text="nice"
+            android:text="@string/tx_add_tag"
             android:textColor="@color/color_stroke_url_tag"
             android:textSize="@dimen/tx_confirm_url_size"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/icon_close"
             app:layout_constraintStart_toEndOf="@+id/icon_tag"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/icon_close"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tx_tag"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="@dimen/size_btn_close_in_set_tag"
-                android:layout_height="@dimen/size_btn_close_in_set_tag"
-                android:layout_marginStart="@dimen/margin_side_btn_close_in_set_tag"
-                android:layout_marginTop="@dimen/margin_vertical_btn_close_in_set_tag"
-                android:layout_marginBottom="@dimen/margin_vertical_btn_close_in_set_tag"
-                android:layout_marginEnd="@dimen/margin_side_btn_close_in_set_tag"
-                android:src="@drawable/close_24px"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="@dimen/margin_end_tx_add_tag"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

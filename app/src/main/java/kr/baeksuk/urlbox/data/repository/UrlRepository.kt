@@ -78,21 +78,23 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 }
             }
 
+
             if (tagBackupEntity != null) {
                 val urlListInTag = tagBackupEntity.urlList?.toMutableList() ?: mutableListOf()
-
                 if (urlListInTag.none { it == urlTitle }) {
-                    // URL 추가
                     urlListInTag.add(urlTitle)
 
-                    if (urlTitle.isNotEmpty()) {
-                        // List<String>을 Gson을 사용해서 String으로 변환
-                        val urlListAsString = Gson().toJson(urlListInTag)
-
-                        // 변환된 String을 사용하여 데이터베이스 업데이트
-                        urlDao.updateUserUrlInTags(urlListAsString, tag)
-                    }
+                    // DAO가 String만 받으므로 Gson으로 변환
+                    val urlListAsString = Gson().toJson(urlListInTag)
+                    urlDao.updateUserUrlInTags(urlListAsString, tag)
                 }
+            } else {
+                val newTagBackup = TagBackupEntity(
+                    tag = tag,
+                    urlList = listOf(urlTitle)
+                )
+                // insert는 List<TagBackupEntity>여야 하므로 리스트로 감싸서 호출
+                urlDao.insertTagBackup(listOf(newTagBackup))
             }
 
         }
@@ -185,87 +187,58 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     }
 
     private fun deleteUserTagInFirebase(tag: String, urlTitle: String) {
-
-        val userId = pref.getString("userId", "")
-
-        val userTagRef: DatabaseReference = database.child("User").child(userId!!).child("url")
-
+        val userId = pref.getString("userId", "") ?: return
+        val userTagRef: DatabaseReference = database.child("User").child(userId).child("url")
         val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
 
+        // 1. [Tag] 노드에서 해당 태그를 찾고 그 안의 URL 삭제
         tagRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (tagSnapshot in snapshot.children) {  // Tag 내부 순회
-                    val urlsSnapshot = tagSnapshot.child("url")  // 해당 태그의 url 리스트
+                for (tagSnapshot in snapshot.children) {
+                    // 핵심 수정: 현재 순회 중인 태그의 이름이 내가 삭제하려는 tag(A)와 같은지 확인
+                    val currentTagName = tagSnapshot.child("tag").getValue(String::class.java)
 
-                    for (urlChild in urlsSnapshot.children) {  // url 내부 순회
-                        val urlValue =
-                            urlChild.child("url").getValue(String::class.java) ?: continue
+                    if (currentTagName == tag) { // 클릭한 태그 이름과 일치할 때만 진입
+                        val urlsSnapshot = tagSnapshot.child("url")
+                        for (urlChild in urlsSnapshot.children) {
+                            val urlValue = urlChild.child("url").getValue(String::class.java) ?: continue
 
-                        if (urlValue == urlTitle) {  // urlTitle과 일치하면 삭제
-                            urlChild.ref.removeValue().addOnSuccessListener {
-                                    Log.d("삭제 완료", "해당 URL이 삭제되었습니다: $urlValue")
-                                }.addOnFailureListener {
-                                    Log.e("삭제 실패", "삭제 중 오류 발생", it)
+                            if (urlValue == urlTitle) {
+                                urlChild.ref.removeValue().addOnSuccessListener {
+                                    Log.d("삭제완료", "태그[$tag] 내에서 URL 삭제됨: $urlValue")
                                 }
+                            }
                         }
                     }
                 }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase Error", "데이터 불러오기 실패", error.toException())
-            }
+            override fun onCancelled(error: DatabaseError) {}
         })
 
-
+        // 2. [url] 노드에서 해당 URL을 찾고 그 안의 태그 리스트 중 해당 태그 삭제
         userTagRef.orderByChild("url").equalTo(urlTitle)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    for (child in snapshot.children) {
+                        val urlKey = child.key ?: continue
 
-                    if (snapshot.exists()) {
-
-                        for (child in snapshot.children) {
-
-                            val key = child.key
-
-                            userTagRef.child(key!!).child("tags").orderByChild("tag").equalTo(tag)
-                                .addListenerForSingleValueEvent(object : ValueEventListener {
-                                    override fun onDataChange(snapshot: DataSnapshot) {
-
-                                        if (snapshot.exists()) {
-
-                                            for (data in snapshot.children) {
-
-                                                val refKey = data.key
-
-                                                if (refKey != null) {
-                                                    userTagRef.child(key).child("tags")
-                                                        .child(refKey).removeValue()
-                                                }
-
-                                            }
-
+                        // 해당 URL 내의 tags 리스트 중 이름이 tag(A)인 것만 삭제
+                        child.child("tags").ref.orderByChild("tag").equalTo(tag)
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onDataChange(tagInUrlSnapshot: DataSnapshot) {
+                                    for (data in tagInUrlSnapshot.children) {
+                                        data.ref.removeValue().addOnSuccessListener {
+                                            Log.d("삭제완료", "URL 내의 태그 리스트에서 [$tag] 삭제됨")
                                         }
-
                                     }
-
-                                    override fun onCancelled(error: DatabaseError) {
-
-                                    }
-                                })
-
-                        }
-
+                                }
+                                override fun onCancelled(error: DatabaseError) {}
+                            })
                     }
-
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-
-                }
+                override fun onCancelled(error: DatabaseError) {}
             })
     }
-
 
     fun insert(urlEntity: UrlEntity) {
         viewModelScope.launch(Dispatchers.IO) {

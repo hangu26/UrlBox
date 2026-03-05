@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 5
+        versionCode = 6
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -124,7 +124,7 @@ dependencies {
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 
-    implementation ("io.insert-koin:koin-android:3.1.6")
+    implementation ("io.insert-koin:koin-android:3.5.0")
 
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")

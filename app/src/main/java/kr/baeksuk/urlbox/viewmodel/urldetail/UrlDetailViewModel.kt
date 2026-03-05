@@ -35,6 +35,10 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
         _btnEditState.value = true
     }
 
+    fun btnToLink(){
+        _btnLoadUrl.value = true
+    }
+
     fun btnLoadUrl() {
         _btnLoadUrl.value = true
     }

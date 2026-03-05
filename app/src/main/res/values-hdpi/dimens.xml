@@ -45,6 +45,12 @@
     <dimen name="url_detail_text_margin_side">27dp</dimen>
     <dimen name="url_detail_text_margin_top">25dp</dimen>
     <dimen name="url_detail_img_margin">15dp</dimen>
+    <dimen name="margin_side_img_url_detail">21dp</dimen>
+    <dimen name="margin_start_tx_url_name">5dp</dimen>
+    <dimen name="margin_start_tx_link">10dp</dimen>
+    <dimen name="size_ic_link">40dp</dimen>
+
+    <dimen name="corner_tab_indicator">50dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
     <dimen name="my_page_constraint_margin_top">17dp</dimen>
     <dimen name="my_page_img_margin_top">17dp</dimen>
@@ -137,6 +143,14 @@
     <dimen name="margin_top_memo_text">10dp</dimen>
     <dimen name="margin_top_linear_btn_edit_delete">20dp</dimen>
     <dimen name="padding_start_edt_url_name">15dp</dimen>
+    <dimen name="margin_side_cl_add_tag_dialog">10dp</dimen>
+    <dimen name="size_ic_add_tag">27dp</dimen>
+    <dimen name="margin_tx_tag_in_dialog">9dp</dimen>
+    <dimen name="margin_vertical_tx_tag_in_dialog">6dp</dimen>
+    <dimen name="height_cl_add_tag_dialog">55dp</dimen>
+    <dimen name="space_height_tag_in_dialog">13dp</dimen>
+    <dimen name="min_height_cl_my_tags">55dp</dimen>
+
     <dimen name="padding_start_edt_memo">15dp</dimen>
     <dimen name="height_edt_memo">90dp</dimen>
     <dimen name="padding_bottom_scrollview_my_page">50dp</dimen>
@@ -148,6 +162,11 @@
     <dimen name="margin_icon_camera">10dp</dimen>
     <dimen name="padding_top_tx_memo">10dp</dimen>
     <dimen name="size_tx_url_name">14sp</dimen>
+    <dimen name="size_tx_url_name_title">11sp</dimen>
+    <dimen name="margin_bottom_ll_visit_delete">50dp</dimen>
+    <dimen name="margin_top_tap_info_memo">18dp</dimen>
+    <dimen name="margin_side_tx_url_name_info">9dp</dimen>
+
     <dimen name="size_icon_refresh">12dp</dimen>
     <dimen name="height_skeleton_02">17dp</dimen>
     <dimen name="margin_top_skeleton_02">16dp</dimen>
@@ -190,8 +209,17 @@
     <dimen name="margin_top_rv_tag_in_tag_activity">12dp</dimen>
     <dimen name="padding_top_rv_tag_in_tag_activity">12dp</dimen>
     <dimen name="padding_bottom_rv_tag_in_tag_activity">12dp</dimen>
-    <dimen name="size_icon_tag">21dp</dimen>
+    <dimen name="size_icon_tag">16dp</dimen>
+    <dimen name="size_ic_plus">10dp</dimen>
+    <dimen name="stroke_width_url_tag">1dp</dimen>
     <dimen name="margin_start_icon_tag_in_tag">8dp</dimen>
+    <dimen name="margin_end_tx_add_tag">24dp</dimen>
+    <dimen name="radius_border_dialog_add_tag">28dp</dimen>
+    <dimen name="margin_ll_add_tag">24dp</dimen>
+    <dimen name="tx_add_tag_dialog">20sp</dimen>
+    <dimen name="size_ic_close">36dp</dimen>
+    <dimen name="padding_top_rv_current_tags_dialog">10dp</dimen>
+
     <dimen name="margin_start_tx_tag_in_tag">8dp</dimen>
     <dimen name="margin_end_tx_tag_in_tag">8dp</dimen>
     <dimen name="dialog_width">314dp</dimen>

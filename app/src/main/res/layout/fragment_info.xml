@@ -1,0 +1,209 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel" />
+
+        <variable
+            name="fragment"
+            type="kr.baeksuk.urlbox.view.urldetail.fragment.InfoFragment" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_frag_info"
+        android:paddingBottom="30dp">
+
+        <FrameLayout
+            android:id="@+id/fl_dot_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_dot"
+            app:layout_constraintBottom_toBottomOf="@+id/tx_url_name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tx_url_name" />
+
+        <TextView
+            android:id="@+id/tx_url_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_start_tx_url_name"
+            android:layout_marginTop="@dimen/margin_top_url_name"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_url_name"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/size_tx_url_name_title"
+            app:layout_constraintStart_toEndOf="@+id/fl_dot_01"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_url_name_info"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/height_edt_url_name"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginTop="@dimen/margin_top_edt_url_name"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_btn_link"
+            android:paddingStart="@dimen/padding_start_edt_url_name"
+            android:paddingEnd="@dimen/padding_start_edt_url_name"
+            android:elevation="2dp"
+            android:translationZ="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tx_url_name">
+
+            <EditText
+                android:id="@+id/tx_url_name_info"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:fontFamily="@font/pretendard_semibold"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_tx_url_name"
+                android:imeOptions="actionDone"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/margin_side_tx_url_name_info"
+                android:layout_marginBottom="@dimen/margin_side_tx_url_name_info"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <FrameLayout
+            android:id="@+id/fl_dot_02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_dot"
+            app:layout_constraintBottom_toBottomOf="@+id/tx_memo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tx_memo" />
+
+        <TextView
+            android:id="@+id/tx_memo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_start_tx_url_name"
+            android:layout_marginTop="@dimen/margin_top_memo_text"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_link_english"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/size_tx_url_name_title"
+            app:layout_constraintStart_toEndOf="@+id/fl_dot_02"
+            app:layout_constraintTop_toBottomOf="@+id/cl_url_name_info" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_link"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/height_edt_url_name"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginTop="@dimen/margin_top_edt_url_name"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_btn_link"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center|start"
+            android:paddingStart="@dimen/padding_start_edt_url_name"
+            android:paddingEnd="@dimen/padding_start_edt_url_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tx_memo">
+
+            <ImageView
+                android:id="@+id/ic_link"
+                android:layout_width="@dimen/size_ic_link"
+                android:layout_height="@dimen/size_ic_link"
+                android:src="@drawable/icon_link"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tx_link"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="@dimen/margin_start_tx_link"
+                android:ellipsize="end"
+                android:fontFamily="@font/pretendard_semibold"
+                android:gravity="center_vertical"
+                android:maxLines="1"
+                android:textColor="@color/black"
+                android:textSize="@dimen/size_tx_url_name"
+                app:layout_constraintBottom_toBottomOf="@+id/ic_link"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ic_link"
+                app:layout_constraintTop_toTopOf="@+id/ic_link" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        <FrameLayout
+            android:id="@+id/fl_dot_03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_dot"
+            app:layout_constraintBottom_toBottomOf="@+id/tx_tags"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tx_tags" />
+
+        <TextView
+            android:id="@+id/tx_tags"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_start_tx_url_name"
+            android:layout_marginTop="@dimen/margin_top_memo_text"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_tags"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/size_tx_url_name_title"
+            app:layout_constraintStart_toEndOf="@+id/fl_dot_03"
+            app:layout_constraintTop_toBottomOf="@+id/cl_link" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_tags"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginTop="@dimen/margin_top_edt_url_name"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_btn_link"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center|start"
+            android:paddingStart="@dimen/padding_start_edt_url_name"
+            android:paddingEnd="@dimen/padding_start_edt_url_name"
+            android:textColor="@color/black"
+            android:textSize="@dimen/size_tx_url_name"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tx_tags">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_current_tags"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:listitem="@layout/item_tag_in_set_tag_list"
+                app:layout_constraintStart_toStartOf="parent"
+                android:paddingTop="10dp"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

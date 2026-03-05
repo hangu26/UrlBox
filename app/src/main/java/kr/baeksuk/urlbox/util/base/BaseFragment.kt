@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
@@ -47,6 +48,19 @@ abstract class BaseFragment<T : ViewDataBinding>(@LayoutRes val layoutRes: Int) 
         } else {
             context.startActivity(intent)
             activity?.finish()
+        }
+    }
+
+    fun setTouchAnimation(view: View, event: MotionEvent?) {
+        event?.let {
+            when (it.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.animate().scaleX(0.97f).scaleY(0.97f).translationZ(5f).setDuration(100).start()
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    view.animate().scaleX(1f).scaleY(1f).translationZ(20f).setDuration(100).start()
+                }
+            }
         }
     }
 

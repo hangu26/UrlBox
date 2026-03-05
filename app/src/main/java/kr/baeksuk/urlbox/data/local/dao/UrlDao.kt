@@ -21,6 +21,12 @@ interface UrlDao{
     @Insert
     suspend fun insertBackup(urlBackupEntity: UrlBackupEntity)
 
+    @Query("DELETE FROM url_backup_history")
+    suspend fun deleteAllUrlBackup()
+
+    @Query("DELETE FROM tag_backup_history")
+    suspend fun deleteAllTagBackup()
+
     @Insert
     suspend fun insertUrlBackup(urlBackupEntity: List<UrlBackupEntity>)
 

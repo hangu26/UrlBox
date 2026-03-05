@@ -6,15 +6,18 @@ import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
+import kr.baeksuk.urlBox.databinding.ItemAddTagFirstBinding
 import kr.baeksuk.urlBox.databinding.ItemTagInSetTagListBinding
 import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.util.util.AddTagDialogFragment
 import kr.baeksuk.urlbox.util.util.OnTagDeleteSelectedListener
-import kr.baeksuk.urlbox.util.util.OnTagSelectedListener
 
 class RvCurrentTagAdapter(
     ctx: Context,
-    act: Activity,
+    private val fragmentManager: FragmentManager,
     private val onTagDeleteSelectedListener: OnTagDeleteSelectedListener
 ) : RecyclerView.Adapter<RvCurrentTagAdapter.MyViewHolder>() {
 
@@ -23,39 +26,66 @@ class RvCurrentTagAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setTagData(tagDataList: List<Tag>) {
-
         tagList = tagDataList.distinct().filter { it.tag!!.isNotEmpty() }
-
         notifyDataSetChanged()
     }
 
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvCurrentTagAdapter.MyViewHolder {
-        val binding = ItemTagInSetTagListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val inflater = LayoutInflater.from(parent.context)
+
+        val binding = if (viewType == 0) {
+            ItemAddTagFirstBinding.inflate(inflater, parent, false)
+        } else {
+            ItemTagInSetTagListBinding.inflate(inflater, parent, false)
+        }
+
         return MyViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RvCurrentTagAdapter.MyViewHolder, position: Int) {
-        holder.bind(tagList[position])
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
+        if (position == 0) {
+            holder.bindFirst()
+        } else {
+            holder.bind(tagList[position - 1])
+        }
     }
 
-    override fun getItemCount(): Int = tagList.size
+    override fun getItemCount(): Int = tagList.size + 1
 
-    inner class MyViewHolder(private val binding: ItemTagInSetTagListBinding) :
+    override fun getItemViewType(position: Int): Int {
+        return if (position == 0) 0 else 1
+    }
+
+    inner class MyViewHolder(private val binding: ViewBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private val txTag = binding.txTag
+        /** 태그 추가 버튼 **/
+        fun bindFirst() {
+            if (binding is ItemAddTagFirstBinding) {
 
-        fun bind(tag: Tag) {
+                binding.txTag.text = "태그 추가"
 
-            txTag.text = tag.tag
+                binding.btnTag.setOnClickListener {
 
-            binding.iconClose.setOnClickListener {
+                    val dlg = AddTagDialogFragment()
+                    dlg.show(fragmentManager, "AddTagDialog")
 
-                onTagDeleteSelectedListener.onTagDeleteClicked(txTag.text.toString())
-
+                }
             }
         }
 
+        fun bind(tag: Tag) {
+            if (binding is ItemTagInSetTagListBinding) {
+
+                binding.txTag.text = tag.tag
+
+                binding.iconClose.setOnClickListener {
+                    onTagDeleteSelectedListener.onTagDeleteClicked(tag.tag!!)
+                    Log.e("확인용", "${tag.tag}")
+                }
+            }
+        }
     }
 }

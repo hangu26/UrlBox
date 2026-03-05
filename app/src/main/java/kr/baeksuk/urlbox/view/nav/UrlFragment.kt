@@ -55,7 +55,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     private val uViewModel: UrlViewModel by inject()
     private lateinit var adapter: RvUrlAdapter
     private lateinit var tagAdapter: RvTagAdapter
-    private val startActivityAnimation = StartActivityAnimation()
     private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -198,10 +197,11 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         uViewModel.btnRefreshState.observe(viewLifecycleOwner) {
             if (it) {
-                getUrlData(uViewModel)
+//                getUrlData(uViewModel)
                 getTagData(uViewModel)
-                getUserUrlBackup(uViewModel)
-                getUserTagBackup(uViewModel)
+                refreshUrlData(uViewModel)
+//                getUserUrlBackup(uViewModel)
+//                getUserTagBackup(uViewModel)
                 Log.e("모든 데이터 받아오기", "성공")
             }
         }
@@ -231,6 +231,55 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             tagAdapter.setTagBackupData(tag, true)
             tagAdapter.notifyDataSetChanged()
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun refreshUrlData(vm: UrlViewModel) {
+        vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
+            val urlDataList = listPair.first
+            val imgUriList = listPair.second
+
+            val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
+                UrlBackupEntity(
+                    urlLink = url.url,
+                    imageKey = url.imageKey,
+                    imgUri = imgUri,
+                    favorite = url.favorite,
+                    timeStamp = url.timeStamp,
+                    urlName = url.urlName,
+                    urlMemo = url.urlMemo,
+                    tag = url.tag
+                )
+            }
+
+            vm.refreshUrlBackup(urlBackupEntity)
+
+            adapter.setLoginData(urlDataList, imgUriList, false)
+            adapter.notifyDataSetChanged()
+        }
+
+        /**
+        vm.getTagData(viewLifecycleOwner).observe(viewLifecycleOwner) { tag ->
+        val tagBackupEntity = tag.map {
+        TagBackupEntity(
+        tag = it.tag!!,
+        timeStamp = it.timeStamp,
+        urlList = it.urlList
+        )
+        }
+
+        vm.refreshTagBackup(tagBackupEntity)
+
+        tagAdapter.setTagData(tag.map {
+        Tag(
+        tag = it.tag,
+        timeStamp = it.timeStamp,
+        urlList = it.urlList
+        )
+        })
+        tagAdapter.notifyDataSetChanged()
+        }
+         **/
     }
 
     /** Firebase 데이터 가져오기 **/

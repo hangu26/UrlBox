@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/appBar_title_02"/>
+    <corners android:radius="@dimen/corner_tab_indicator"/>
+</shape>
