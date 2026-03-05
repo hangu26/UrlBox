@@ -15,16 +15,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/icon_tag"
-            android:layout_width="@dimen/size_icon_tag"
-            android:layout_height="@dimen/size_icon_tag"
-            android:layout_marginStart="@dimen/margin_start_icon_tag_in_tag"
-            android:src="@drawable/icon_tag"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
         <TextView
             android:id="@+id/tx_tag"
             android:layout_width="wrap_content"
@@ -37,11 +27,11 @@
             android:fontFamily="@font/pretendard_semibold"
             android:gravity="center"
             android:text="nice"
-            android:textColor="@color/black"
+            android:textColor="@color/color_tx_tags"
             android:textSize="@dimen/tx_confirm_url_size"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/icon_tag"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="appBar_title_01">#F5F0E5</color>
     <color name="color_url_tag">#FAFAF8</color>
+    <color name="color_tx_tags">#C9A86A</color>
 
     <color name="appBar_title_02">#A1824A</color>
     <color name="color_stroke_url_tag">#C9A86A</color>

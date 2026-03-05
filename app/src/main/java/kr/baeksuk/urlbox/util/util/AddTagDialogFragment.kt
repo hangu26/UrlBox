@@ -1,8 +1,10 @@
 package kr.baeksuk.urlbox.util.util
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
@@ -52,11 +54,14 @@ class AddTagDialogFragment : DialogFragment() {
         return binding.root
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         /** adapter 초기화 **/
-        userTagAdapter = AllTagsAdapter()
+        userTagAdapter = AllTagsAdapter { selectedTagName ->
+            sendTag(selectedTagName)
+        }
 
         binding.rvCurrentTags.layoutManager =
             FlexboxLayoutManager(requireContext()).apply {
@@ -77,6 +82,7 @@ class AddTagDialogFragment : DialogFragment() {
             if (tag.isNotBlank()) {
                 sendTag(tag)
             }
+
         }
 
         binding.edtTag.setOnEditorActionListener { _, actionId, event ->
@@ -108,7 +114,8 @@ class AddTagDialogFragment : DialogFragment() {
                 Tag(
                     it.tag
                 )
-            })})
+            })
+        })
     }
 
     private fun sendTag(tag: String) {

@@ -186,7 +186,7 @@
     <dimen name="margin_top_tx_saved_link">11dp</dimen>
     <dimen name="margin_start_tx_refresh">4dp</dimen>
     <dimen name="margin_vertical_tx_tag_in_btn">8dp</dimen>
-    <dimen name="margin_side_tx_tag_in_btn">15dp</dimen>
+    <dimen name="margin_side_tx_tag_in_btn">8dp</dimen>
     <dimen name="margin_side_cl_add_link">15dp</dimen>
 
     <dimen name="padding_end_item_tag">10dp</dimen>
@@ -218,6 +218,7 @@
     <dimen name="margin_ll_add_tag">24dp</dimen>
     <dimen name="tx_add_tag_dialog">20sp</dimen>
     <dimen name="size_ic_close">36dp</dimen>
+    <dimen name="padding_top_rv_current_tags_dialog">10dp</dimen>
 
     <dimen name="margin_start_tx_tag_in_tag">8dp</dimen>
     <dimen name="margin_end_tx_tag_in_tag">8dp</dimen>

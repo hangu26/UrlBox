@@ -9,6 +9,7 @@ import kr.baeksuk.urlBox.databinding.ItemTagInTagListBinding
 import kr.baeksuk.urlbox.model.Tag
 
 class AllTagsAdapter(
+    private val onTagClickListener: (String) -> Unit
 ) : RecyclerView.Adapter<AllTagsAdapter.MyViewHolder>() {
 
     private var tagList = listOf<Tag>()
@@ -43,7 +44,9 @@ class AllTagsAdapter(
             binding.txTag.text = tag.tag
 
             binding.btnTag.setOnClickListener {
-
+                tag.tag?.let { tagName ->
+                    onTagClickListener(tagName)
+                }
             }
 
         }
