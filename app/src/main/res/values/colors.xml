@@ -2,13 +2,19 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="color_tx_delete">#FF3B30</color>
     <color name="appBar_title_01">#F5F0E5</color>
     <color name="color_url_tag">#FAFAF8</color>
     <color name="color_tx_tags">#C9A86A</color>
+    <color name="color_btn_skip">#282727</color>
 
     <color name="appBar_title_02">#A1824A</color>
     <color name="color_stroke_url_tag">#C9A86A</color>
     <color name="background_frag_info">#F9FAFB</color>
+    <color name="gradient_start_border_change_pic">#C9A86A</color>
+    <color name="gradient_end_border_change_pic">#A1824A</color>
+    <color name="color_cl_btn_capture">#0A0805</color>
+
 
     <color name="appBar_title_03">#D6C4B1</color>
     <color name="bottom_border">#E8E8E8</color>

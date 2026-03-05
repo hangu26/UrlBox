@@ -87,6 +87,7 @@
     <string name="tx_add_tag">태그 추가</string>
     <string name="tx_my_tags">내 태그</string>
     <string name="tx_input_tag">태그를 입력하세요</string>
+    <string name="tx_change_pic">사진 변경</string>
 
 
 </resources>

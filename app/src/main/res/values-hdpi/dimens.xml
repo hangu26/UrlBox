@@ -35,10 +35,10 @@
     <dimen name="frame_recyclerview_padding_bottom">21dp</dimen>
     <dimen name="border_url_stroke">1dp</dimen>
     <dimen name="edt_url_margin_top">11dp</dimen>
-    <dimen name="margin_side_in_capture_page">34dp</dimen>
-    <dimen name="btn_capture_margin_bottom">57dp</dimen>
+    <dimen name="margin_side_in_capture_page">19dp</dimen>
+    <dimen name="btn_capture_margin_bottom">31dp</dimen>
     <dimen name="btn_capture_height">58dp</dimen>
-    <dimen name="btn_capture_corner">28dp</dimen>
+    <dimen name="btn_capture_corner">14dp</dimen>
     <dimen name="text_btn_capture">18sp</dimen>
     <dimen name="url_detail_image_margin_top">33dp</dimen>
     <dimen name="url_detail_text_size">18sp</dimen>
@@ -49,6 +49,12 @@
     <dimen name="margin_start_tx_url_name">5dp</dimen>
     <dimen name="margin_start_tx_link">10dp</dimen>
     <dimen name="size_ic_link">40dp</dimen>
+    <dimen name="size_tx_tag_in_capture">13sp</dimen>
+    <dimen name="size_ic_plus_capture">15dp</dimen>
+    <dimen name="size_tx_add_tag_in_capture">12sp</dimen>
+    <dimen name="margin_top_rv_tags">14dp</dimen>
+    <dimen name="margin_top_ll_btn_capture">14dp</dimen>
+    <dimen name="padding_top_cl_btn_capture">30dp</dimen>
 
     <dimen name="corner_tab_indicator">50dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
@@ -188,6 +194,10 @@
     <dimen name="margin_vertical_tx_tag_in_btn">8dp</dimen>
     <dimen name="margin_side_tx_tag_in_btn">8dp</dimen>
     <dimen name="margin_side_cl_add_link">15dp</dimen>
+    <dimen name="height_btn_in_url_detail_activity">48dp</dimen>
+    <dimen name="space_in_url_detail_activity">10dp</dimen>
+    <dimen name="margin_bottom_btn_delete">10dp</dimen>
+    <dimen name="margin_vertical_linear_change_delete">17dp</dimen>
 
     <dimen name="padding_end_item_tag">10dp</dimen>
     <dimen name="size_btn_add_url">61dp</dimen>

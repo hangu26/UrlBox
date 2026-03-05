@@ -5,6 +5,6 @@
         android:radius="@dimen/btn_capture_corner"/>
 
     <solid
-        android:color="@color/appBar_title_01"/>
+        android:color="@color/color_btn_skip"/>
 
 </shape>

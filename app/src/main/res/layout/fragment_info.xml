@@ -17,8 +17,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background_frag_info"
-        android:paddingBottom="30dp">
+        android:background="@color/background_frag_info">
 
         <FrameLayout
             android:id="@+id/fl_dot_01"

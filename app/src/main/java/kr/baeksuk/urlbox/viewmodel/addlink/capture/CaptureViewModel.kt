@@ -47,6 +47,9 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     private val _btnShowTagsState = MutableLiveData<Boolean>()
     val btnShowTagsState = _btnShowTagsState
 
+    private val _btnAddTagsStage = MutableLiveData<Boolean>()
+    val btnAddTagsStage = _btnAddTagsStage
+
     var isClicked = 0
 
     fun getTagData(lifecycleOwner: LifecycleOwner) : LiveData<List<Tag>>{
@@ -81,6 +84,10 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     fun btnCancel() {
         _btnCancelState.value = true
+    }
+
+    fun btnAddTags(){
+        _btnAddTagsStage.value = false
     }
 
     fun insertUrl(urlEntity: UrlEntity, url: String, context: Context) {
