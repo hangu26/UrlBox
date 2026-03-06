@@ -18,6 +18,7 @@ import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
 
 class CaptureViewModel(application: Application) : AndroidViewModel(application) {
@@ -123,6 +124,27 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
                 }
             }
 
+        }
+    }
+
+    /** 태그 복수 저장 가능 함수 **/
+    fun insertBackupUrlMultipleTags(
+        urlBackupEntity: UrlBackupEntity,
+        url: String,
+        context: Context,
+        file: File,
+        tags: List<UserTags>
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val existingUrl = urlDao.getBackupUrlIsExist(url)
+            withContext(Dispatchers.Main) {
+                if (existingUrl == null) {
+                    _repo.insertBackupMultipleTags(urlBackupEntity, file, tags)
+                    Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

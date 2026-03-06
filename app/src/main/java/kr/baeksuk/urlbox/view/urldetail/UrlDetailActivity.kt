@@ -16,6 +16,7 @@ import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
 import kr.baeksuk.urlbox.util.adapter.UrlDetailAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
+import kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity
 import kr.baeksuk.urlbox.view.editurl.EditInfoActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
@@ -139,19 +140,19 @@ class UrlDetailActivity : BaseActivity() {
 
                 if (autoLogin) {
 
-                    val intent = Intent(this@UrlDetailActivity, CaptureActivity::class.java)
+                    val intent = Intent(this@UrlDetailActivity, ReCaptureActivity::class.java)
                     intent.putExtra("url", url)
                     intent.putExtra("edit", true)
                     startActivityAnimation(intent, this)
-                    finish()
+//                    finish()
 
                 } else {
 
-                    val intent = Intent(this@UrlDetailActivity, CaptureActivity::class.java)
+                    val intent = Intent(this@UrlDetailActivity, ReCaptureActivity::class.java)
                     intent.putExtra("url", url)
                     intent.putExtra("edit", true)
                     startActivityAnimation(intent, this)
-                    finish()
+//                    finish()
 
                 }
 

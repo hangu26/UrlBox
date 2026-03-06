@@ -7,53 +7,50 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemTagInCaptureListBinding
+import kr.baeksuk.urlBox.databinding.ItemTagInSetTagListBinding
 import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.util.util.OnTagDeleteSelectedListener
 import kr.baeksuk.urlbox.util.util.OnTagSelectedListener
 
 class RvTagInCaptureAdapter(
-    ctx: Context,
-    act: Activity,
-    private val tagClickedListener: OnTagSelectedListener
+    private val onTagDeleteSelectedListener: OnTagDeleteSelectedListener
 ) : RecyclerView.Adapter<RvTagInCaptureAdapter.MyViewHolder>() {
 
     private var tagList = listOf<Tag>()
-    private val context = ctx
-    private var selectedPosition: Int = RecyclerView.NO_POSITION // 현재 선택된 버튼 위치 저장
 
     @SuppressLint("NotifyDataSetChanged")
     fun setTagData(tagDataList: List<Tag>) {
-
-        tagList = tagDataList
-
+        this.tagList = tagDataList.distinct().filter { it.tag?.isNotEmpty() == true }
         notifyDataSetChanged()
     }
 
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvTagInCaptureAdapter.MyViewHolder {
-        val binding = ItemTagInCaptureListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        // ViewBinding 활용
+        val binding = ItemTagInSetTagListBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
         return MyViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RvTagInCaptureAdapter.MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.bind(tagList[position])
     }
 
     override fun getItemCount(): Int = tagList.size
 
-    inner class MyViewHolder(private val binding: ItemTagInCaptureListBinding) :
+    inner class MyViewHolder(private val binding: ItemTagInSetTagListBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-            private val txTag = binding.txTag
-
         fun bind(tag: Tag) {
+            binding.txTag.text = tag.tag
 
-            txTag.text = tag.tag
-
-            binding.btnTag.setOnClickListener {
-
-                tagClickedListener.onTagSelected(txTag.text.toString())
-
-
+            // 클릭 시 리스너 호출
+            binding.iconClose.setOnClickListener {
+                tag.tag?.let { tagName ->
+                    onTagDeleteSelectedListener.onTagDeleteClicked(tagName)
+                }
             }
         }
     }

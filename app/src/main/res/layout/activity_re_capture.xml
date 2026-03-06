@@ -7,7 +7,7 @@
 
         <variable
             name="activity"
-            type="kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity" />
+            type="kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity" />
 
         <variable
             name="viewmodel"

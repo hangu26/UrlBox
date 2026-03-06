@@ -55,6 +55,7 @@
     <dimen name="margin_top_rv_tags">14dp</dimen>
     <dimen name="margin_top_ll_btn_capture">14dp</dimen>
     <dimen name="padding_top_cl_btn_capture">30dp</dimen>
+    <dimen name="min_height_rv_tags">45dp</dimen>
 
     <dimen name="corner_tab_indicator">50dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>

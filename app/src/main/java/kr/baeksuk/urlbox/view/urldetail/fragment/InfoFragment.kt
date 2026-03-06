@@ -1,11 +1,13 @@
 package kr.baeksuk.urlbox.view.urldetail.fragment
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -77,6 +79,15 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
                 }
 
             rvCurrentTags.adapter = currentTagAdapter
+        }
+
+        val pref = context?.getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref?.getBoolean("auto login", false) ?: false
+
+        if (!autoLogin){
+            binding.clTags.visibility = View.GONE
+            binding.flDot03.visibility = View.INVISIBLE
+            binding.txTags.visibility = View.INVISIBLE
         }
 
         observeTag()

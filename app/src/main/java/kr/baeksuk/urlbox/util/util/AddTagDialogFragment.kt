@@ -108,6 +108,7 @@ class AddTagDialogFragment : DialogFragment() {
 
     private fun observeTags() {
 
+        /** 전체 태그 가져오기 **/
         sViewModel.getTagData().observe(this, Observer<List<TagBackupEntity>> { tag ->
 
             userTagAdapter.setTagData(tag.map {

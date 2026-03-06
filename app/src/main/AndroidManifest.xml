@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
         android:name="kr.baeksuk.urlbox.util.base.MyApplication"
@@ -20,6 +20,10 @@
         android:theme="@style/Theme.LinkBox"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name="kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity"
+            android:exported="false" />
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${ad_mob_app_id}" />
@@ -38,8 +42,8 @@
             android:exported="false" />
         <activity
             android:name="kr.baeksuk.urlbox.view.editurl.EditInfoActivity"
-            android:windowSoftInputMode="adjustResize|stateHidden"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name="kr.baeksuk.urlbox.view.myfolder.MyFolderActivity"
             android:exported="false" />
@@ -54,13 +58,16 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/*" /> <!-- 텍스트 공유용 -->
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" /> <!-- 이미지 공유용 -->
             </intent-filter>
         </activity>

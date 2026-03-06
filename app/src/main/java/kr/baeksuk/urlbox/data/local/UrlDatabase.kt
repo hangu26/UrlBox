@@ -8,6 +8,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -15,8 +16,8 @@ import kr.baeksuk.urlbox.util.util.Converters
 import kr.baeksuk.urlbox.util.util.UrlListInTagConverter
 
 @Database(
-    entities = [UrlEntity::class, UrlBackupEntity::class, TagBackupEntity::class], // ✅ 추가
-    version = 5 // ✅ 버전 증가
+    entities = [UrlEntity::class, UrlBackupEntity::class, TagBackupEntity::class, PreparationTag::class], // ✅ PreparationTag 추가
+    version = 7 // ✅ 버전 증가
 )
 @TypeConverters(Converters::class)
 abstract class UrlDatabase : RoomDatabase() {
@@ -33,7 +34,7 @@ abstract class UrlDatabase : RoomDatabase() {
                     context.applicationContext,
                     UrlDatabase::class.java, "urlbox_database"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_4_5) // ✅ 마이그레이션 추가
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_4_5, MIGRATION_5_6,MIGRATION_6_7) // ✅ 마이그레이션 추가
                     .build()
                 INSTANCE = instance
                 instance
@@ -80,6 +81,44 @@ abstract class UrlDatabase : RoomDatabase() {
                         tag TEXT NOT NULL
                     )
                 """)
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+            CREATE TABLE IF NOT EXISTS tag_prepare_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                tag TEXT NOT NULL,
+                timeStamp INTEGER NOT NULL,
+                urlList TEXT NOT NULL DEFAULT '[]'
+            )
+        """.trimIndent())
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // 기존 테이블 이름 변경
+                database.execSQL("ALTER TABLE tag_prepare_history RENAME TO tag_prepare_history_old")
+
+                // 새로운 구조 테이블 생성
+                database.execSQL("""
+            CREATE TABLE tag_prepare_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                tag TEXT NOT NULL,
+                timeStamp INTEGER NOT NULL
+            )
+        """.trimIndent())
+
+                // 기존 데이터 복사
+                database.execSQL("""
+            INSERT INTO tag_prepare_history (id, tag, timeStamp)
+            SELECT id, tag, timeStamp FROM tag_prepare_history_old
+        """.trimIndent())
+
+                // 임시 테이블 삭제
+                database.execSQL("DROP TABLE tag_prepare_history_old")
             }
         }
     }

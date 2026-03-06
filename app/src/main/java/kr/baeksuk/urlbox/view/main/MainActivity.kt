@@ -35,6 +35,10 @@ class MainActivity : BaseActivity() {
             activity = this@MainActivity
         }
 
+        val bundle = Bundle()
+        bundle.putString("activity", "CaptureSave")
+        supportFragmentManager.setFragmentResult("fromCapture", bundle)
+
         lifecycleScope.launchWhenStarted {
             AppEvent.onNavigation.collect {
                 mViewModel.changeMenu(NavigationMenu.THUMBNAIL)

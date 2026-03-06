@@ -26,6 +26,7 @@ import com.google.android.gms.ads.AdView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -65,10 +66,30 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         uBinding.viewModel = uViewModel
 
+        initDataView()
         setupRecyclerViews()
         observeLoading()
         observeViewModel()
         loginHandler()
+    }
+
+    private fun initDataView() {
+
+        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
+        val isFirstLaunch = pref?.getBoolean("isFirstLaunch", true) ?: false
+
+        if (isFirstLaunch) {
+
+            if (autoLogin){
+
+            }
+
+        }else{
+
+
+        }
+
     }
 
     /** 리사이클러뷰 연결 **/
@@ -119,14 +140,15 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
                 getUserUrlBackup(uViewModel)
                 getUserTagBackup(uViewModel)
-                getUrlData(uViewModel)
-                getTagData(uViewModel)
+//                getUrlData(uViewModel)
+//                getTagData(uViewModel)
 
                 Handler(Looper.getMainLooper()).postDelayed({
                     uViewModel.isLoading.value = false
                     uViewModel.isTagLoading.value = false
                     activity?.intent?.putExtra("activity", "")
                 }, 700)
+                Log.e("Capture 저장 후 돌아옴", "데이터 새로고침")
             }
             // 앱 처음 로그인했을 때
             else if (isFirst == 1) {
@@ -228,6 +250,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     @SuppressLint("NotifyDataSetChanged")
     private fun getUserTagBackup(vm: UrlViewModel) {
         vm.getUserTagBackup().observe(viewLifecycleOwner) { tag ->
+            Log.e("백업 태그 데이터", tag.toString())
             tagAdapter.setTagBackupData(tag, true)
             tagAdapter.notifyDataSetChanged()
         }
@@ -258,28 +281,26 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             adapter.notifyDataSetChanged()
         }
 
-        /**
         vm.getTagData(viewLifecycleOwner).observe(viewLifecycleOwner) { tag ->
-        val tagBackupEntity = tag.map {
-        TagBackupEntity(
-        tag = it.tag!!,
-        timeStamp = it.timeStamp,
-        urlList = it.urlList
-        )
-        }
+            val tagBackupEntity = tag.map {
+                TagBackupEntity(
+                    tag = it.tag!!,
+                    timeStamp = it.timeStamp,
+                    urlList = it.urlList
+                )
+            }
 
-        vm.refreshTagBackup(tagBackupEntity)
+            vm.refreshTagBackup(tagBackupEntity)
 
-        tagAdapter.setTagData(tag.map {
-        Tag(
-        tag = it.tag,
-        timeStamp = it.timeStamp,
-        urlList = it.urlList
-        )
-        })
-        tagAdapter.notifyDataSetChanged()
+            tagAdapter.setTagData(tag.map {
+                Tag(
+                    tag = it.tag,
+                    timeStamp = it.timeStamp,
+                    urlList = it.urlList
+                )
+            })
+            tagAdapter.notifyDataSetChanged()
         }
-         **/
     }
 
     /** Firebase 데이터 가져오기 **/

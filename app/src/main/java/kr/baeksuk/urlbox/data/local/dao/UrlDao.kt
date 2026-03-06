@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -112,5 +113,18 @@ interface UrlDao{
     @Update
     suspend fun updateUrlInTags(tagBackupEntities: List<TagBackupEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPreparationTag(prepTag: PreparationTag)
+
+    // 기존 전체 삭제
+    @Query("DELETE FROM tag_prepare_history")
+    suspend fun clearPreparationTags()
+
+    // 특정 태그만 삭제
+    @Query("DELETE FROM tag_prepare_history WHERE tag = :tagName")
+    suspend fun deletePreparationTag(tagName: String)
+
+    @Query("SELECT * FROM tag_prepare_history")
+    fun getPreparationTags(): LiveData<List<PreparationTag>>
 
 }
