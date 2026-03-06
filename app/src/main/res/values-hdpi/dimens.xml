@@ -160,6 +160,7 @@
     <dimen name="margin_bottom_cl_url_memo_info">15dp</dimen>
     <dimen name="margin_bottom_padding_bottom_frag_memo">20dp</dimen>
     <dimen name="height_frag_memo">230dp</dimen>
+    <dimen name="padding_bottom_linear_change_delete">15dp</dimen>
 
     <dimen name="margin_side_cl_add_tag_dialog">10dp</dimen>
     <dimen name="size_ic_add_tag">27dp</dimen>

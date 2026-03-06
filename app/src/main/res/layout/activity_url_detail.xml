@@ -18,7 +18,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background_frag_info">
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -103,7 +103,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
+            android:background="@color/background_frag_info">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -174,19 +175,20 @@
                     android:gravity="fill_horizontal"
                     android:orientation="vertical"
                     android:visibility="visible"
+                    android:paddingBottom="@dimen/padding_bottom_linear_change_delete"
                     app:layout_constraintEnd_toEndOf="@+id/img_url"
                     app:layout_constraintStart_toStartOf="@+id/img_url"
                     app:layout_constraintTop_toBottomOf="@+id/view_pager">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
-                        android:id="@+id/btn_visit"
+                        android:id="@+id/btn_change"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/height_btn_in_url_detail_activity"
                         android:layout_gravity="start"
                         android:background="@drawable/border_btn_change_pic"
                         android:elevation="2dp"
                         android:onClick="@{() -> viewmodel.btnChangeImg()}"
-                        android:translationZ="2dp">
+                        android:translationZ="1dp">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="wrap_content"
@@ -237,7 +239,7 @@
                         android:background="@drawable/border_btn_delete"
                         android:elevation="2dp"
                         android:onClick="@{() -> viewmodel.btnDelete()}"
-                        android:translationZ="2dp">
+                        android:translationZ="1dp">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="wrap_content"

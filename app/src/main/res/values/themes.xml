@@ -2,8 +2,14 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.LinkBox" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowActivityTransitions">true</item>
-    </style>
 
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
     <style name="Theme.LinkBox" parent="Base.Theme.LinkBox" />
 
     <style name="ImageButton"> <!-- 이미지 버튼에 대한 스타일 -->

@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.view.imgdetail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -49,9 +50,30 @@ class ImgDetailActivity : BaseActivity() {
         }
 
         initViewPager(iBinding.viewPager)
-
+        initButton()
         initView()
         observe()
+
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initButton(){
+
+        iBinding.btnCapture.setOnTouchListener { v, motionEvent ->
+
+            setTouchAnimation(v, motionEvent)
+
+            false
+
+        }
+
+        iBinding.btnDelete.setOnTouchListener { v, motionEvent ->
+
+            setTouchAnimation(v, motionEvent)
+
+            false
+
+        }
 
     }
 

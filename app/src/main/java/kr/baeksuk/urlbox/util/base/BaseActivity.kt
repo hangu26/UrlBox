@@ -12,6 +12,8 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
@@ -116,6 +118,19 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
         return result
+    }
+
+    fun setTouchAnimation(view: View, event: MotionEvent?) {
+        event?.let {
+            when (it.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.animate().scaleX(0.97f).scaleY(0.97f).translationZ(5f).setDuration(100).start()
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    view.animate().scaleX(1f).scaleY(1f).translationZ(20f).setDuration(100).start()
+                }
+            }
+        }
     }
 
     private fun networkDialog() {

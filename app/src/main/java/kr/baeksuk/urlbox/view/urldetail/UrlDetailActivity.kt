@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.view.urldetail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -53,8 +54,24 @@ class UrlDetailActivity : BaseActivity() {
             tab.text = if (position == 0) "Info" else "Memo"
         }.attach()
 
+        initButton()
         initView()
         observe()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initButton() {
+
+        uBinding.btnChange.setOnTouchListener { v, motionEvent ->
+            setTouchAnimation(v, motionEvent)
+            false
+        }
+
+        uBinding.btnDelete.setOnTouchListener { v, motionEvent ->
+            setTouchAnimation(v, motionEvent)
+            false
+
+        }
     }
 
     private fun initView() {

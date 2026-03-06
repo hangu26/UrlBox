@@ -11,9 +11,11 @@ import android.os.Looper
 import android.util.Log
 import com.kakao.sdk.common.util.Utility
 import kr.baeksuk.urlBox.R
+import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 
-class SplashActivity : AppCompatActivity() {
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : BaseActivity() {
     @SuppressLint("PrivateResource")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
