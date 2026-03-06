@@ -74,4 +74,15 @@
     <string name="tx_refresh">更新</string>
     <string name="tx_tag">タグ</string>
     <string name="tx_write_review">レビューを書く</string>
+    <string name="tx_add">追加</string>
+    <string name="tx_login_detail">ログインしてすべてのデバイスでリンクを同期</string>
+    <string name="tx_or">または</string>
+    <string name="tx_guest_continue">ゲストとして続行</string>
+    <string name="tx_syncing">アカウントに同期中...</string>
+    <string name="tx_link_english">LINK</string>
+    <string name="tx_tags">タグ</string>
+    <string name="tx_add_tag">タグを追加</string>
+    <string name="tx_my_tags">マイタグ</string>
+    <string name="tx_input_tag">タグを入力してください</string>
+    <string name="tx_change_pic">写真を変更</string>
 </resources>

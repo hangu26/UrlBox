@@ -74,4 +74,15 @@
     <string name="tx_use_terms_detail">Service Terms of Use</string>
     <string name="tx_terms_detail">Privacy Policy</string>
     <string name="tx_write_review">Write a review</string>
+    <string name="tx_add">Add</string>
+    <string name="tx_login_detail">Log in to sync links across all devices</string>
+    <string name="tx_or">Or</string>
+    <string name="tx_guest_continue">Continue as Guest</string>
+    <string name="tx_syncing">Syncing to your account...</string>
+    <string name="tx_link_english">LINK</string>
+    <string name="tx_tags">Tags</string>
+    <string name="tx_add_tag">Add Tag</string>
+    <string name="tx_my_tags">My Tags</string>
+    <string name="tx_input_tag">Enter a tag</string>
+    <string name="tx_change_pic">Change Photo</string>
 </resources>

@@ -74,4 +74,15 @@
     <string name="tx_refresh">새로고침</string>
     <string name="tx_tag">태그</string>
     <string name="tx_write_review">리뷰 작성</string>
+    <string name="tx_add">추가</string>
+    <string name="tx_login_detail">로그인하여 모든 기기에서  링크를 동기화하세요</string>
+    <string name="tx_or">또는</string>
+    <string name="tx_guest_continue">게스트로 계속하기</string>
+    <string name="tx_syncing">계정에 동기화 중입니다...</string>
+    <string name="tx_link_english">링크</string>
+    <string name="tx_tags">태그</string>
+    <string name="tx_add_tag">태그 추가</string>
+    <string name="tx_my_tags">내 태그</string>
+    <string name="tx_input_tag">태그를 입력하세요</string>
+    <string name="tx_change_pic">사진 변경</string>
 </resources>
