@@ -6,8 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -115,6 +117,27 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
 
             false
         }
+
+        binding.txUrlNameInfo.setOnEditorActionListener { _, actionId, event ->
+
+            if (actionId == EditorInfo.IME_ACTION_DONE ||
+                (event?.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN)
+            ) {
+
+                val urlName = binding.txUrlNameInfo.text.toString()
+
+                if (urlName.isNotBlank()) {
+                    iViewModel.updateUrlName(urlLink ?: "",urlName)
+                    binding.txUrlNameInfo.clearFocus()
+                    hideKeyboard(requireActivity())
+                }
+
+                true
+            } else {
+                false
+            }
+        }
+
     }
 
     private fun observeTag() {

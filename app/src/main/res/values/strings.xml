@@ -88,6 +88,7 @@
     <string name="tx_my_tags">내 태그</string>
     <string name="tx_input_tag">태그를 입력하세요</string>
     <string name="tx_change_pic">사진 변경</string>
+    <string name="tx_example_link">https://www.youtube.com/wersadfasdgwear</string>
 
 
 </resources>

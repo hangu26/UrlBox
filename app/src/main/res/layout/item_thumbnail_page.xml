@@ -24,24 +24,80 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <FrameLayout
+            android:id="@+id/fl_dot_02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_dot"
+            app:layout_constraintBottom_toBottomOf="@+id/tx_memo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tx_memo" />
+
         <TextView
-            android:id="@+id/tx_url"
+            android:id="@+id/tx_memo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_start_tx_url_name"
+            android:layout_marginTop="@dimen/margin_top_tx_link_thumbnail"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_link_english"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/size_tx_url_name_title"
+            app:layout_constraintStart_toEndOf="@+id/fl_dot_02"
+            app:layout_constraintTop_toBottomOf="@+id/img_url" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_link"
             android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_gravity="center"
-            android:layout_marginTop="@dimen/url_detail_text_margin_top"
-            android:fontFamily="@font/pretendard_semibold"
-            android:gravity="center"
-            android:paddingStart="@dimen/url_detail_text_margin_side"
-            android:paddingEnd="@dimen/url_detail_text_margin_side"
-            android:text="https://www.youtube.com/wersadfasdgwear"
-            android:textSize="@dimen/url_detail_text_size"
-            android:textColor="@color/tx_black"
-            android:transitionName="titleTran"
-            android:onClick="@{() -> viewmodel.btnLoadUrl()}"
+            android:layout_height="@dimen/height_edt_url_name"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginTop="@dimen/margin_top_edt_url_name"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_btn_link_thumbnail"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center|start"
+            android:elevation="2dp"
+            android:translationZ="2dp"
+            android:paddingStart="@dimen/padding_start_edt_url_name"
+            android:paddingEnd="@dimen/padding_start_edt_url_name"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/img_url" />
+            app:layout_constraintTop_toBottomOf="@+id/tx_memo">
+
+            <ImageView
+                android:id="@+id/ic_link"
+                android:layout_width="@dimen/size_ic_link"
+                android:layout_height="@dimen/size_ic_link"
+                android:src="@drawable/icon_link"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tx_url"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/height_item_thumbnail_link"
+                android:layout_gravity="center"
+                android:fontFamily="@font/pretendard_semibold"
+                android:gravity="center"
+                android:paddingStart="@dimen/margin_start_tx_url_detail_thumbnail"
+                android:paddingEnd="@dimen/url_detail_text_margin_side"
+                android:text="@string/tx_example_link"
+                android:textSize="@dimen/size_tx_url_detail_thumbnail"
+                android:textColor="@color/white"
+                android:transitionName="titleTran"
+                android:ellipsize="end"
+                android:singleLine="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/ic_link"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

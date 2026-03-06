@@ -818,6 +818,99 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** urldetail 액티비티에서 이름 수정 함수 **/
+    fun updateUrlName(url: String, urlName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val userId = pref.getString("userId", "")
+                if (userId.isNullOrEmpty()) return@launch
+
+                // 1. 로컬 DB 업데이트 (기존 코드 유지)
+                urlDao.updateUrlName(url, urlName)
+
+                // 2. Firebase 업데이트를 위한 참조 설정
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                // 3. url 필드가 매개변수 url과 일치하는 노드 찾기
+                userUrlRef.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+                                    // 일치하는 노드의 urlName 필드만 업데이트
+                                    childSnapshot.ref.child("urlName").setValue(urlName)
+                                        .addOnSuccessListener {
+                                            Log.d("데이터 업데이트", "Firebase 업데이트 성공")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("데이터 업데이트", "Firebase 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            } else {
+                                Log.d("데이터 업데이트", "일치하는 URL을 찾을 수 없습니다.")
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("데이터 업데이트", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+
+            } catch (e: Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
+            }
+        }
+    }
+
+    /** urldetail 액티비티에서 메모 수정 함수 **/
+    /** urldetail 액티비티에서 메모 수정 함수 **/
+    fun updateUrlMemo(url: String, urlMemo: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val userId = pref.getString("userId", "")
+                if (userId.isNullOrEmpty()) return@launch
+
+                // 1. 로컬 DB 업데이트
+                urlDao.updateUrlMemo(url, urlMemo)
+
+                // 2. Firebase 참조
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                // 3. url이 같은 노드 찾기
+                userUrlRef.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+
+                                    // urlMemo 필드만 업데이트
+                                    childSnapshot.ref.child("urlMemo").setValue(urlMemo)
+                                        .addOnSuccessListener {
+                                            Log.d("메모 업데이트", "Firebase 업데이트 성공")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("메모 업데이트", "Firebase 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            } else {
+                                Log.d("메모 업데이트", "일치하는 URL을 찾을 수 없습니다.")
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("메모 업데이트", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+
+            } catch (e: Exception) {
+                Log.e("메모 업데이트 처리", e.toString())
+            }
+        }
+    }
+
 
     fun updateFavorite(url: String, isFavorite: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

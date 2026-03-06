@@ -1,27 +1,23 @@
 package kr.baeksuk.urlbox.view.imgdetail
 
-import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.util.Pair
 import android.view.ViewTreeObserver
 import android.widget.Toast
-import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.google.firebase.auth.internal.RecaptchaActivity
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityImgDetailBinding
-import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.ImgPagerRvAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
-import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.UrlData
-import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
+import kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.imgdetail.ImgDetailViewModel
 import org.koin.android.ext.android.inject
@@ -138,7 +134,7 @@ class ImgDetailActivity : BaseActivity() {
 
                 if (autoLogin) {
 
-                    val intent = Intent(this@ImgDetailActivity, CaptureActivity::class.java)
+                    val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
                     intent.putExtra("url", url.url)
                     intent.putExtra("edit", true)
                     startActivityAnimation(intent, this)
@@ -146,7 +142,7 @@ class ImgDetailActivity : BaseActivity() {
 
                 } else {
 
-                    val intent = Intent(this@ImgDetailActivity, CaptureActivity::class.java)
+                    val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
                     intent.putExtra("url", url.url)
                     intent.putExtra("edit", true)
                     startActivityAnimation(intent, this)

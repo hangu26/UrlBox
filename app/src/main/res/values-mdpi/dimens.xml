@@ -42,13 +42,22 @@
     <dimen name="text_btn_capture">18sp</dimen>
     <dimen name="url_detail_image_margin_top">33dp</dimen>
     <dimen name="url_detail_text_size">18sp</dimen>
+    <dimen name="size_tx_url_detail_thumbnail">14sp</dimen>
     <dimen name="url_detail_text_margin_side">27dp</dimen>
+    <dimen name="margin_start_tx_url_detail_thumbnail">18dp</dimen>
     <dimen name="url_detail_text_margin_top">25dp</dimen>
     <dimen name="url_detail_img_margin">15dp</dimen>
     <dimen name="margin_side_img_url_detail">21dp</dimen>
     <dimen name="margin_start_tx_url_name">5dp</dimen>
     <dimen name="margin_start_tx_link">10dp</dimen>
     <dimen name="size_ic_link">40dp</dimen>
+    <dimen name="size_tx_tag_in_capture">13sp</dimen>
+    <dimen name="size_ic_plus_capture">15dp</dimen>
+    <dimen name="size_tx_add_tag_in_capture">12sp</dimen>
+    <dimen name="margin_top_rv_tags">14dp</dimen>
+    <dimen name="margin_top_ll_btn_capture">14dp</dimen>
+    <dimen name="padding_top_cl_btn_capture">30dp</dimen>
+    <dimen name="min_height_rv_tags">45dp</dimen>
 
     <dimen name="corner_tab_indicator">50dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
@@ -57,7 +66,10 @@
     <dimen name="tx_guest_email_size">17sp</dimen>
     <dimen name="my_page_linear_margin_top">10dp</dimen> <!-- 광고 뷰 추가후 변경, 이전은 29dp -->
     <dimen name="my_page_linear_margin_top_02">20dp</dimen>
+    <dimen name="padding_bottom_my_page_linear">20dp</dimen>
     <dimen name="my_page_linear_height">90dp</dimen>
+    <dimen name="height_item_thumbnail_link">45dp</dimen>
+
     <dimen name="border_box_corner">8dp</dimen>
     <dimen name="border_cl_add_link">14dp</dimen>
     <dimen name="border_box_stroke_width">1dp</dimen>
@@ -138,11 +150,17 @@
     <dimen name="size_url_name_text">17sp</dimen>
     <dimen name="size_memo_text">17sp</dimen>
     <dimen name="height_edt_url_name">58dp</dimen>
+    <dimen name="height_edt_url_memo">174dp</dimen>
     <dimen name="margin_top_edt_url_name">8dp</dimen>
     <dimen name="margin_top_edt_memo">8dp</dimen>
     <dimen name="margin_top_memo_text">10dp</dimen>
+    <dimen name="margin_top_tx_link_thumbnail">20dp</dimen>
     <dimen name="margin_top_linear_btn_edit_delete">20dp</dimen>
     <dimen name="padding_start_edt_url_name">15dp</dimen>
+    <dimen name="margin_bottom_cl_url_memo_info">10dp</dimen>
+    <dimen name="margin_bottom_padding_bottom_frag_memo">20dp</dimen>
+    <dimen name="height_frag_memo">230dp</dimen>
+
     <dimen name="margin_side_cl_add_tag_dialog">10dp</dimen>
     <dimen name="size_ic_add_tag">27dp</dimen>
     <dimen name="margin_tx_tag_in_dialog">9dp</dimen>

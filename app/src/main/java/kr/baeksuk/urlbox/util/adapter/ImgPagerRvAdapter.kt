@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.util.adapter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -7,6 +8,8 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +23,8 @@ import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 import java.io.File
 
-class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Activity) : RecyclerView.Adapter<ImgPagerRvAdapter.MyViewHolder>() {
+class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context, act: Activity) :
+    RecyclerView.Adapter<ImgPagerRvAdapter.MyViewHolder>() {
 
     private val context = ctx
     private val activity = act
@@ -29,7 +33,8 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
         parent: ViewGroup,
         viewType: Int
     ): ImgPagerRvAdapter.MyViewHolder {
-        val binding = ItemThumbnailPageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            ItemThumbnailPageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(binding)
     }
 
@@ -45,7 +50,9 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
         return recyclerView.findViewHolderForAdapterPosition(position) as? MyViewHolder
     }
 
-    inner class MyViewHolder(binding: ItemThumbnailPageBinding) : RecyclerView.ViewHolder(binding.root){
+    @SuppressLint("ClickableViewAccessibility")
+    inner class MyViewHolder(binding: ItemThumbnailPageBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
         private var thumbnail = binding.imgUrl
         private var imageKey = ""
@@ -60,7 +67,7 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
             return thumbnail
         }
 
-        fun bind(url : Url, position : Int){
+        fun bind(url: Url, position: Int) {
             imageKey = url.imageKey
             txUrl.text = url.url
             isFavorite = url.favorite
@@ -104,8 +111,42 @@ class ImgPagerRvAdapter(private val urlList : List<Url>, ctx : Context, act: Act
 
             }
 
+            binding.clLink.setOnTouchListener { v, event ->
+
+                setTouchAnimation(v, event)
+
+                if (event?.action == MotionEvent.ACTION_UP) {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.toString()))
+                    context.startActivity(intent)
+                }
+
+                false
+            }
+
+            binding.txUrl.setOnTouchListener { _, event ->
+
+                setTouchAnimation(binding.clLink, event)
+
+                false
+            }
+
         }
 
+    }
+
+    fun setTouchAnimation(view: View, event: MotionEvent?) {
+        event?.let {
+            when (it.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.animate().scaleX(0.97f).scaleY(0.97f).translationZ(5f).setDuration(100)
+                        .start()
+                }
+
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    view.animate().scaleX(1f).scaleY(1f).translationZ(20f).setDuration(100).start()
+                }
+            }
+        }
     }
 
 }

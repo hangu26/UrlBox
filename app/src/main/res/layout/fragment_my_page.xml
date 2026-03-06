@@ -276,7 +276,8 @@
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/linear_box">
+                    app:layout_constraintTop_toBottomOf="@+id/linear_box"
+                    android:paddingBottom="@dimen/padding_bottom_my_page_linear">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/btn_saved_link"

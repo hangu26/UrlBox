@@ -18,7 +18,7 @@ class UrlDetailAdapter(
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> InfoFragment.newInstance(name, url)
-            else -> MemoFragment.newInstance(memo)
+            else -> MemoFragment.newInstance(memo, url)
         }
     }
 }

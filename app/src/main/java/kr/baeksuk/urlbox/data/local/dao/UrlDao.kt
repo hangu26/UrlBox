@@ -52,6 +52,12 @@ interface UrlDao{
     @Query("UPDATE url_backup_history SET imageKey = :newImageKey WHERE urlLink = :url")
     suspend fun updateBackup(url:String, newImageKey : String)
 
+    @Query("UPDATE url_backup_history SET urlName = :urlName WHERE urlLink = :url")
+    suspend fun updateUrlName(url: String,urlName : String)
+
+    @Query("UPDATE url_backup_history SET urlMemo = :urlMemo WHERE urlLink = :url")
+    suspend fun updateUrlMemo(url: String,urlMemo : String)
+
     @Query("UPDATE url_history SET favorite = :newFavorite WHERE urlLink = :url")
     suspend fun updateFavorite(url:String, newFavorite : Boolean)
 

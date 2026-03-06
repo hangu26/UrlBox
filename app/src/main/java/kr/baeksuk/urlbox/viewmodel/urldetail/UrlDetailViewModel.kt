@@ -69,6 +69,30 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
         _btnFavoriteState.value = true
     }
 
+    fun updateUrlName(url: String, urlName :String){
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                _repo.updateUrlName(url, urlName)
+            }
+
+        }
+
+    }
+
+    fun updateUrlMemo(url: String, urlMemo :String){
+
+        viewModelScope.launch(Dispatchers.IO) {
+
+            withContext(Dispatchers.Main) {
+                _repo.updateUrlMemo(url, urlMemo)
+            }
+
+        }
+
+    }
+
     fun updateFavorite(url: String, isFavorite: Boolean) {
 
         viewModelScope.launch(Dispatchers.IO) {
