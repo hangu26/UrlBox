@@ -197,7 +197,6 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                 val imageKey = UUID.randomUUID().toString()
                 val file = File(directory, "$imageKey.png")
                 val isEditUrl = intent.extras?.getBoolean("edit")
-
                     if (autoLogin) {
                         if (isEditUrl == true) {
                             val urlBackupEntity = UrlBackupEntity(
@@ -321,7 +320,6 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                 cBinding.btnCapture.visibility = View.VISIBLE
                 cBinding.btnSave.visibility = View.GONE
 //                cBinding.constraintTag.visibility = View.GONE
-                cBinding.rvTags.visibility = View.GONE
                 cBinding.btnSkip.visibility = View.VISIBLE
                 cBinding.btnCancel.visibility = View.GONE
             }

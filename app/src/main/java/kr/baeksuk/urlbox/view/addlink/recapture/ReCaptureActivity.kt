@@ -310,7 +310,6 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                 cBinding.btnCapture.visibility = View.VISIBLE
                 cBinding.btnSave.visibility = View.GONE
 //                cBinding.constraintTag.visibility = View.GONE
-                cBinding.rvTags.visibility = View.GONE
                 cBinding.btnSkip.visibility = View.VISIBLE
                 cBinding.btnCancel.visibility = View.GONE
             }

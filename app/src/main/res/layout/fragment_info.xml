@@ -71,6 +71,7 @@
                 android:textSize="@dimen/size_tx_url_name"
                 android:imeOptions="actionDone"
                 android:inputType="text"
+                android:selectAllOnFocus="true"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -47,6 +47,8 @@
             android:paddingStart="@dimen/item_url_padding_side"
             android:paddingTop="5dp"
             android:paddingEnd="@dimen/item_url_padding_side"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:text="https://www.youtube.com/wersadfasdgwear"
             android:textColor="@color/tx_black"
             android:textSize="@dimen/tx_confirm_url_size"

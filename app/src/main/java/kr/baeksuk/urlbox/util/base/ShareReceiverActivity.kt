@@ -150,7 +150,7 @@ class ShareReceiverActivity : AppCompatActivity() {
                     imgUri = "",
                     timeStamp = System.currentTimeMillis(),
                     urlName = url,
-                    urlMemo = txMemo,
+                    urlMemo = txMemo ?: "메모",
                     tag = emptyList()
                 )
                 viewModel.insertBackupUrl(entity, url, this, file, "")
@@ -161,7 +161,7 @@ class ShareReceiverActivity : AppCompatActivity() {
                     favorite = false,
                     timeStamp = System.currentTimeMillis(),
                     urlName = url,
-                    urlMemo = txMemo,
+                    urlMemo = txMemo ?: "메모",
                     tag = ""
                 )
                 viewModel.insertUrl(entity, url, this)
