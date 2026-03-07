@@ -66,7 +66,7 @@
     <dimen name="tx_guest_email_size">17sp</dimen>
     <dimen name="my_page_linear_margin_top">10dp</dimen> <!-- 광고 뷰 추가후 변경, 이전은 29dp -->
     <dimen name="my_page_linear_margin_top_02">20dp</dimen>
-    <dimen name="padding_bottom_my_page_linear">20dp</dimen>
+    <dimen name="padding_bottom_my_page_linear">50dp</dimen>
     <dimen name="my_page_linear_height">90dp</dimen>
     <dimen name="height_item_thumbnail_link">45dp</dimen>
 
@@ -157,9 +157,10 @@
     <dimen name="margin_top_tx_link_thumbnail">20dp</dimen>
     <dimen name="margin_top_linear_btn_edit_delete">20dp</dimen>
     <dimen name="padding_start_edt_url_name">15dp</dimen>
-    <dimen name="margin_bottom_cl_url_memo_info">10dp</dimen>
+    <dimen name="margin_bottom_cl_url_memo_info">15dp</dimen>
     <dimen name="margin_bottom_padding_bottom_frag_memo">20dp</dimen>
     <dimen name="height_frag_memo">230dp</dimen>
+    <dimen name="padding_bottom_linear_change_delete">15dp</dimen>
 
     <dimen name="margin_side_cl_add_tag_dialog">10dp</dimen>
     <dimen name="size_ic_add_tag">27dp</dimen>

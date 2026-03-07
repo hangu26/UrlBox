@@ -66,7 +66,7 @@
     <dimen name="tx_guest_email_size">17sp</dimen>
     <dimen name="my_page_linear_margin_top">10dp</dimen> <!-- 광고 뷰 추가후 변경, 이전은 29dp -->
     <dimen name="my_page_linear_margin_top_02">20dp</dimen>
-    <dimen name="padding_bottom_my_page_linear">20dp</dimen>
+    <dimen name="padding_bottom_my_page_linear">50dp</dimen>
     <dimen name="my_page_linear_height">90dp</dimen>
     <dimen name="height_item_thumbnail_link">45dp</dimen>
 

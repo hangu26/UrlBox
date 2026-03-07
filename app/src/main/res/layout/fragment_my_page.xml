@@ -21,13 +21,14 @@
 
         <ScrollView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="@dimen/my_page_constraint_margin_size"
             android:layout_marginTop="@dimen/my_page_constraint_margin_top"
             android:layout_marginEnd="@dimen/my_page_constraint_margin_size"
             android:paddingBottom="@dimen/padding_bottom_scrollview_my_page"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -309,7 +310,7 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/btn_go_saved"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/margin_tx_saved_start"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -381,7 +382,7 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/btn_go_folder"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/margin_tx_saved_start"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -453,7 +454,7 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/btn_go_favorite"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/margin_tx_saved_start"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"

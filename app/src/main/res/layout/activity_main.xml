@@ -80,10 +80,10 @@
             android:id="@+id/fl_main"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:background="@color/white"
             app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
         <LinearLayout
