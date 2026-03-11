@@ -186,7 +186,7 @@
                         android:layout_height="@dimen/height_btn_in_url_detail_activity"
                         android:layout_gravity="start"
                         android:background="@drawable/border_btn_change_pic"
-                        android:elevation="2dp"
+                        android:elevation="1dp"
                         android:onClick="@{() -> viewmodel.btnChangeImg()}"
                         android:translationZ="1dp">
 
@@ -237,7 +237,7 @@
                         android:layout_gravity="end"
                         android:layout_marginBottom="@dimen/margin_bottom_btn_delete"
                         android:background="@drawable/border_btn_delete"
-                        android:elevation="2dp"
+                        android:elevation="1dp"
                         android:onClick="@{() -> viewmodel.btnDelete()}"
                         android:translationZ="1dp">
 

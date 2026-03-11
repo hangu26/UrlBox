@@ -52,7 +52,6 @@ class MainActivity : BaseActivity() {
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
     }
-
     private fun initView() {
 
         when (intent.extras?.getString("TARGET_FRAGMENT")) {

@@ -268,8 +268,8 @@
     <dimen name="size_btn_close_in_set_tag">12dp</dimen>
     <dimen name="margin_side_btn_close_in_set_tag">8dp</dimen>
     <dimen name="margin_vertical_btn_close_in_set_tag">8dp</dimen>
-    <dimen name="width_app_splash_logo">142dp</dimen>
-    <dimen name="height_app_splash_logo">103dp</dimen>
+    <dimen name="width_app_splash_logo">242dp</dimen>
+    <dimen name="height_app_splash_logo">203dp</dimen>
     <dimen name="margin_top_ad_view">10dp</dimen>
 
 </resources>

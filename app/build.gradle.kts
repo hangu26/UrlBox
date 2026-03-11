@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 8
+        versionCode = 9
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -82,7 +82,6 @@ dependencies {
     
     implementation ("com.google.android.play:review-ktx:2.0.2")
 
-    implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
     implementation("com.google.android.gms:play-services-ads:23.4.0")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
@@ -104,18 +103,16 @@ dependencies {
     implementation("androidx.credentials:credentials:1.5.0-alpha05")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0-alpha05")
     implementation ("com.google.api-client:google-api-client:1.34.0")
-
+    implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
-
     implementation("com.google.firebase:firebase-auth-ktx")
-
+    implementation("com.google.firebase:firebase-database-ktx:21.0.0")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 
     implementation ("androidx.viewpager2:viewpager2:1.1.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
     implementation("androidx.room:room-runtime:2.6.1")
-    implementation("com.google.firebase:firebase-database-ktx:21.0.0")
-    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
@@ -132,5 +129,5 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 }

@@ -9,7 +9,7 @@
     <color name="color_btn_skip">#282727</color>
     <color name="gradient_thumbnail_detail_start">#020201</color>
     <color name="gradient_thumbnail_detail_end">#130F0A</color>
-
+    <color name="black_70">#B3000000</color>
     <color name="appBar_title_02">#A1824A</color>
     <color name="color_stroke_url_tag">#C9A86A</color>
     <color name="background_frag_info">#F9FAFB</color>
