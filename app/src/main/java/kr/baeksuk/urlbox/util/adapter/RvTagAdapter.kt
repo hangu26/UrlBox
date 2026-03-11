@@ -31,8 +31,12 @@ class RvTagAdapter(
     fun setTagData(tagDataList: List<Tag>) {
 
         val fixedTag = Tag(tag = "전체")
+
+        val favoriteTag = Tag(tag = "즐겨찾기")
+
         // "전체"로 고정된 Tag 생성
-        tagList = listOf(fixedTag) + tagDataList  // 첫 번째 아이템은 "전체"로 추가하고 나머지 데이터 추가
+        tagList =
+            listOf(fixedTag) + listOf(favoriteTag) + tagDataList  // 첫 번째 아이템은 "전체"로 추가하고 나머지 데이터 추가
 
         tagList.sortedByDescending { it.timeStamp }.distinct()
 
@@ -47,7 +51,9 @@ class RvTagAdapter(
 
         val fixedTag = Tag(tag = "전체")
 
-        tagList = listOf(fixedTag) + tag.map {
+        val favoriteTag = Tag(tag = "즐겨찾기")
+
+        tagList = listOf(fixedTag) + listOf(favoriteTag) + tag.map {
             Tag(
                 tag = it.tag,
                 timeStamp = it.timeStamp,
@@ -78,10 +84,12 @@ class RvTagAdapter(
 
             if (position == 0) {
                 binding.txTag.text = "전체"
+            } else if (position == 1) {
+                binding.txTag.text = "즐겨찾기"
             } else {
                 binding.txTag.text = tag.tag
             }
-            // 선택된 아이템이면 클릭된 배경, 아니면 기본 배경 적용
+
             if (selectedPosition == position) {
                 binding.btnTag.setBackgroundResource(R.drawable.border_url_tag_clicked)
             } else {
@@ -96,13 +104,15 @@ class RvTagAdapter(
                 notifyItemChanged(previousSelected)
                 notifyItemChanged(selectedPosition)
 
-                // 선택된 태그 필터링 실행
-//                filterListener.onTagFiltered(tag.tag.toString())
-
                 if (position == 0) {
                     // "전체" 버튼 클릭 시 "전체" 텍스트를 강제로 전달
                     filterListener.onTagFiltered(emptyList(), "전체")
-                } else {
+                }else if (position == 1) {
+                    // "즐겨찾기" 버튼 클릭 시 "즐겨찾기" 텍스트를 강제로 전달
+                    filterListener.onTagFiltered(emptyList(), "즐겨찾기")
+                }
+
+                else {
                     // 선택된 태그의 URL 리스트 전달
                     tagList[selectedPosition].urlList?.let { urlList ->
                         filterListener.onTagFiltered(urlList, tag.tag.toString())
@@ -114,6 +124,7 @@ class RvTagAdapter(
 
     override fun onItemMove(from: Int, to: Int) {
         if (from == 0 || to == 0) return // "전체" 태그는 이동 불가
+        if (from == 1 || to == 1) return // "즐겨찾기" 태그는 이동 불가
 
         val updatedList = tagList.toMutableList()
         Collections.swap(updatedList, from, to)

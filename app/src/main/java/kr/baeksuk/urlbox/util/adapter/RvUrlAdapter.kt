@@ -61,7 +61,10 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     fun filterByTag(tagUrl: List<String>, tag: String, recyclerview : RecyclerView) {
         val newList = if (tag == "전체") {
             urlList
-        } else {
+        }else if (tag == "즐겨찾기") {
+            urlList.filter { it.favorite }
+        }
+        else {
             urlList.filter { it.url in tagUrl }
         }
 
