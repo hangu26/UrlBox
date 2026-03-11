@@ -74,6 +74,7 @@
                         android:layout_height="@dimen/img_star_size"
                         android:layout_marginEnd="15dp"
                         android:onClick="@{() -> viewmodel.btnEdit()}"
+                        android:visibility="gone"
                         android:src="@drawable/icon_edit"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/icon_favorite"
