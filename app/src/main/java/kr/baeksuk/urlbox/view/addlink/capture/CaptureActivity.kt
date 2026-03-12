@@ -17,6 +17,8 @@ import android.os.Looper
 import android.util.Log
 import android.view.PixelCopy
 import android.view.View
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.core.content.FileProvider
@@ -114,18 +116,45 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
         val url = intent.getStringExtra("url")
-        if (url != null) {
-            cBinding.webView.loadUrl(url)
-            cBinding.webView.settings.apply {
-                javaScriptEnabled = true
-                domStorageEnabled = true
-                useWideViewPort = true
-                loadWithOverviewMode = true
-                allowContentAccess = true
-                mediaPlaybackRequiresUserGesture = false
+
+        cBinding.webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            allowContentAccess = true
+            mediaPlaybackRequiresUserGesture = false
+        }
+
+        cBinding.webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                val requestUrl = request.url.toString()
+
+                if (requestUrl.startsWith("http://") || requestUrl.startsWith("https://")) {
+                    return false
+                }
+
+                try {
+                    val intent = Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME)
+
+                    // 실행 가능한 앱이 있는지 체크
+                    if (intent.resolveActivity(view.context.packageManager) != null) {
+                        view.context.startActivity(intent)
+                        return true // 앱 실행 성공
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebView", "딥링크 해석 실패: ${e.message}")
+                }
+
+                return true
             }
         }
+
+        if (url != null) {
+            cBinding.webView.loadUrl(url)
+        }
     }
+
     @SuppressLint("NotifyDataSetChanged")
     private fun observeSetTag() = sViewModel.let { vm ->
         vm.getPreparationTags().observe(this) { tags ->
@@ -197,7 +226,9 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                 val imageKey = UUID.randomUUID().toString()
                 val file = File(directory, "$imageKey.png")
                 val isEditUrl = intent.extras?.getBoolean("edit")
+                
                     if (autoLogin) {
+                        /** 사진 변경일 때 로직 **/
                         if (isEditUrl == true) {
                             val urlBackupEntity = UrlBackupEntity(
                                 urlLink = url,
@@ -212,7 +243,10 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                             }
                             vm.updateBackupUrl(urlBackupEntity, this, file)
                             navigateToMain()
-                        } else {
+                            
+                        }
+                        /** 새롭게 URL 저장 할 때 로직 **/
+                        else {
                             val urlBackupEntity = UrlBackupEntity(
                                 urlLink = url,
                                 imageKey = imageKey,

@@ -472,6 +472,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     favorite = urlBackupEntity.favorite,
                     timeStamp = urlBackupEntity.timeStamp,
                     urlName = urlBackupEntity.urlName,
+                    urlMemo = urlBackupEntity.urlMemo
                 )
 
                 userRef.orderByChild("url").equalTo(urlLink)
