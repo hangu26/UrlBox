@@ -2,6 +2,7 @@ package kr.baeksuk.urlbox.viewmodel.addlink.capture
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
@@ -115,6 +116,7 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getBackupUrlIsExist(url)
+            Log.e("저장된지 확인", "URL: $url, 존재 여부: ${existingUrl != null}")
             withContext(Dispatchers.Main) {
                 if (existingUrl == null) {
                     _repo.insertBackup(urlBackupEntity, file, tag)

@@ -89,6 +89,15 @@
     <string name="tx_input_tag">태그를 입력하세요</string>
     <string name="tx_change_pic">사진 변경</string>
     <string name="tx_example_link" translatable="false">https://www.youtube.com/wersadfasdgwear</string>
+    <string name="tv_tutorial_01">링크를 한 곳에</string>
+    <string name="tv_tutorial_detail_01">흩어진 북마크를 썸네일로 보기 좋게 \n저장하세요</string>
+    <string name="tx_app_info_tutorial_01">UrlBox - 링크 관리의 새로운 방법</string>
+    <string name="tx_swipe_tutorial"><![CDATA[> 스와프하거나 다음 버튼을 눌러주세요]]></string>
+    <string name="tx_next">다음</string>
+    <string name="tv_tutorial_02">썸네일 캡처 화면</string>
+    <string name="tv_tutorial_detail_02">URL을 입력하면 썸네일 캡처를 위한 \n화면이 나와요</string>
+    <string name="tv_tutorial_03">태그로 정리</string>
+    <string name="tv_tutorial_detail_03">자유롭게 태그를 붙여 링크를 쉽게 \n분류하고 찾으세요</string>
 
 
 </resources>

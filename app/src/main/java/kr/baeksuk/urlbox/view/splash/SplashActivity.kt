@@ -13,6 +13,7 @@ import com.kakao.sdk.common.util.Utility
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
+import kr.baeksuk.urlbox.view.tutorial.TutorialActivity
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : BaseActivity() {
@@ -21,46 +22,25 @@ class SplashActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        val isTutorialClear = 1
-
+        val prefs = getSharedPreferences("User", Context.MODE_PRIVATE)
+        val isTutorialClear = prefs.getInt("isClearIntent", 0)
 
         Handler(Looper.getMainLooper()).postDelayed({
 
             if (isTutorialClear == 0) {
-//                intent.putExtra("isClearIntent", 0)
-//                val intent = Intent(this@SplashActivity, TutorialActivity::class.java)
-//                val options = ActivityOptions.makeCustomAnimation(
-//                    this@SplashActivity,
-//                    androidx.appcompat.R.anim.abc_fade_in,
-//                    androidx.appcompat.R.anim.abc_fade_out
-//                )
-//                startActivity(intent, options.toBundle())
-//
-//                // 액세스 토큰을 가져와서 Constants에 설정
-//
-//                finish()
+                val intent = Intent(this@SplashActivity, TutorialActivity::class.java)
+                startActivityAnimation(intent,this@SplashActivity)
+                finish()
 
             } else {
-                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-                pref.edit().putInt("isFirst", 1).apply()
+                prefs.edit().putInt("isFirst", 1).apply()
 
                 val intent = Intent(this@SplashActivity, MainActivity::class.java)
 
-                val options = ActivityOptions.makeCustomAnimation(
-                    this@SplashActivity,
-                    androidx.appcompat.R.anim.abc_fade_in,
-                    androidx.appcompat.R.anim.abc_fade_out
-                )
-                startActivity(intent, options.toBundle())
-
-                // 액세스 토큰을 가져와서 Constants에 설정
+                startActivityAnimation(intent,this@SplashActivity)
 
                 finish()
             }
-
-
         }, 2000)
     }
-
-
 }

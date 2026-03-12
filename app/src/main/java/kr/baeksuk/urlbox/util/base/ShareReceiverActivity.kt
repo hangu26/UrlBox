@@ -102,7 +102,7 @@ class ShareReceiverActivity : AppCompatActivity() {
         }
     }
 
-    // 기본 이미지 비트맵
+    /** 기본 이미지 비트맵 **/
     private fun getDefaultBitmap(): Bitmap {
         val drawable = getDrawable(R.drawable.urlbox_icon)!!
         return (drawable as BitmapDrawable).bitmap
@@ -133,7 +133,7 @@ class ShareReceiverActivity : AppCompatActivity() {
         return match?.value
     }
 
-    // 공유된 내용 저장
+    /** 공유된 내용 저장 **/
     private fun saveSharedContent(url: String, bitmap: Bitmap, autoLogin: Boolean, directory: File, txMemo: String) {
         val imageKey = UUID.randomUUID().toString()
         val file = File(directory, "$imageKey.png")
@@ -153,6 +153,7 @@ class ShareReceiverActivity : AppCompatActivity() {
                     urlMemo = txMemo ?: "메모",
                     tag = emptyList()
                 )
+                logD("저장됨: $url")
                 viewModel.insertBackupUrl(entity, url, this, file, "")
             } else {
                 val entity = UrlEntity(

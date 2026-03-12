@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 9
+        versionCode = 10
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -76,6 +76,9 @@ android {
 }
 
 dependencies {
+
+    /** 튜토리얼 뷰페이져 관련 라이브러리 **/
+    implementation("com.tbuonomo:dotsindicator:5.1.0")
 
     /** 로티 애니메이션 **/
     implementation ("com.airbnb.android:lottie:6.0.0")

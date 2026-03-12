@@ -21,9 +21,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name="kr.baeksuk.urlbox.view.tutorial.TutorialActivity"
+            android:exported="false" />
+        <activity
             android:name="kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
@@ -115,7 +118,7 @@
         <activity
             android:name="kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name="kr.baeksuk.urlbox.view.addlink.AddLinkActivity"
             android:exported="false" />

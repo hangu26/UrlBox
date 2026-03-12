@@ -17,7 +17,19 @@
     <color name="gradient_end_border_change_pic">#A1824A</color>
     <color name="color_cl_btn_capture">#0A0805</color>
     <color name="color_btn_delete_thumbnail">#494948</color>
-
+    <color name="color_dotsIndicator">#D1D5DC</color>
+    <color name="color_selected_dotsIndicator">#A1824A</color>
+    <color name="gradient_start_tuto_01">#332B7FFF</color>
+    <color name="gradient_end_tuto_01">#339810FA</color>
+    <color name="gradient_start_tuto_02">#33AD46FF</color>
+    <color name="gradient_end_tuto_02">#33E60076</color>
+    <color name="gradient_start_tuto_03">#33FF6900</color>
+    <color name="gradient_end_tuto_03">#33D08700</color>
+    <color name="gradient_start_btn_next_tutorial">#364153</color>
+    <color name="gradient_end_btn_next_tutorial">#101828</color>
+    <color name="color_tv_tutorial_detail">#4A5565</color>
+    <color name="color_tx_app_info_tutorial_01">#99A1AF</color>
+    <color name="color_tv_swipe_tutorial">#99A1AF</color>
 
     <color name="appBar_title_03">#D6C4B1</color>
     <color name="bottom_border">#E8E8E8</color>
