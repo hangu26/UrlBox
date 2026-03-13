@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="@dimen/constraint_url_margin_bottom">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/btn_url"
-        android:layout_width="@dimen/constraint_item_url_width"
-        android:layout_height="@dimen/constraint_item_url_height"
-        android:layout_marginStart="@dimen/constraint_hand_bottom"
-        android:layout_marginEnd="@dimen/constraint_hand_bottom"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
             android:id="@+id/img_thumbnail"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:src="@drawable/urlbox_icon"
             android:transitionName="imageTran"
@@ -40,13 +41,14 @@
         <TextView
             android:id="@+id/tx_url"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="@font/pretendard_semibold"
             android:gravity="center"
             android:paddingStart="@dimen/item_url_padding_side"
             android:paddingTop="5dp"
             android:paddingEnd="@dimen/item_url_padding_side"
+            android:paddingBottom="8dp"
             android:maxLines="1"
             android:ellipsize="end"
             android:text="https://www.youtube.com/wersadfasdgwear"

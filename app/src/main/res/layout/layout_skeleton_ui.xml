@@ -30,15 +30,102 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/sk_02"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/height_skeleton_02"
-            android:layout_marginStart="@dimen/margin_side_in_url_page"
-            android:layout_marginTop="@dimen/margin_top_skeleton_02"
-            android:layout_marginEnd="@dimen/margin_side_in_url_page"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_rv_tag"
+            android:layout_marginTop="@dimen/margin_top_rv_tag"
+            android:layout_marginEnd="@dimen/margin_side_rv_tag"
             android:background="@drawable/border_skeleton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sk_01" />
+            app:layout_constraintTop_toBottomOf="@+id/sk_01" >
+
+            <TextView
+                android:id="@+id/tx_add_link"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_start_tx_add_link"
+                android:layout_marginTop="@dimen/margin_top_tx_add_link"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="@string/tx_add_link"
+                android:visibility="invisible"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/tx_add_link_size"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/ll_add_link"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/edt_url_margin_top"
+                android:layout_marginEnd="@dimen/margin_start_ll_add_link"
+                android:layout_marginBottom="@dimen/margin_bottom_ll_add_link"
+                android:orientation="horizontal"
+                android:visibility="invisible"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/tx_add_link"
+                app:layout_constraintTop_toBottomOf="@+id/tx_add_link">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/btn_save_url"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/btn_save_url_height"
+                    android:layout_weight="7"
+                    android:background="@drawable/border_edt_url">
+
+                    <EditText
+                        android:id="@+id/edt_url"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/tx_save_url_margin_start"
+                        android:layout_marginEnd="@dimen/tx_save_url_margin_start"
+                        android:background="@null"
+                        android:fontFamily="@font/pretendard_light"
+                        android:hint="@string/tx_paste_url"
+                        android:imeOptions="actionDone"
+                        android:inputType="textUri"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/appBar_title_02"
+                        android:textSize="@dimen/tx_save_url_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <FrameLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.3" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.5"
+                    android:background="@drawable/border_add_link_main"
+                    android:onClick="@{() -> viewModel.btnAdd()}">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tx_add"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/tx_add_link_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <LinearLayout
             android:id="@+id/sk_03"

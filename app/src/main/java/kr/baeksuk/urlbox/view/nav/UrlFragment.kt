@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -46,6 +47,8 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         uBinding.viewModel = uViewModel
 
+        initViewType()
+        swipeRefresh()
         initDataView()
         setupRecyclerViews()
         observeLoading()
@@ -61,15 +64,72 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         if (isFirstLaunch) {
 
-            if (autoLogin){
+            if (autoLogin) {
 
             }
 
-        }else{
+        } else {
 
 
         }
 
+    }
+
+    private fun initViewType() {
+
+        binding.ivTwoType.setOnClickListener {
+            selectViewType(binding.ivTwoType)
+            changeGrid(2)
+        }
+
+        binding.ivThreeType.setOnClickListener {
+            selectViewType(binding.ivThreeType)
+            changeGrid(3)
+
+        }
+
+        binding.ivFourType.setOnClickListener {
+            selectViewType(binding.ivFourType)
+            changeGrid(4)
+
+        }
+
+        // 기본 선택
+        selectViewType(binding.ivTwoType)
+    }
+
+    private fun selectViewType(selected: ImageView) {
+
+        binding.ivTwoType.isSelected = false
+        binding.ivThreeType.isSelected = false
+        binding.ivFourType.isSelected = false
+
+        selected.isSelected = true
+    }
+
+    private fun swipeRefresh() {
+
+        uBinding.swipeRefreshLayout.setOnRefreshListener {
+            uBinding.swipeRefreshLayout.isRefreshing = false
+            uViewModel.btnRefresh()
+        }
+    }
+
+    private fun changeGrid(spanCount: Int) {
+        val rv = binding.rvUrl
+        val lm = rv.layoutManager as? GridLayoutManager ?: return
+
+        // 1. 칸 수 변경
+        lm.spanCount = spanCount
+
+        // 2. 중요: 아이템들이 새로운 너비(1/3 또는 1/4)에 맞춰 다시 계산되도록 함
+        rv.requestLayout()
+
+        // 3. 만약 여백 계산 로직(ItemDecoration)이 있다면 갱신
+        rv.invalidateItemDecorations()
+
+        // 4. 애니메이션 (생략 가능)
+        rv.scheduleLayoutAnimation()
     }
 
     /** 리사이클러뷰 연결 **/
@@ -140,7 +200,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 getUrlData(uViewModel)
                 getTagData(uViewModel)
 
-                pref.edit().putInt("isFirst", 0).apply() // 처음 로그인 완료 처리
+                pref.edit().putInt("isFirst", 0).apply()
 
                 Handler(Looper.getMainLooper()).postDelayed({
                     uViewModel.isLoading.value = false
@@ -201,6 +261,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             if (it) {
 //                getUrlData(uViewModel)
                 getTagData(uViewModel)
+                tagAdapter.clearSelection()
                 refreshUrlData(uViewModel)
 //                getUserUrlBackup(uViewModel)
 //                getUserTagBackup(uViewModel)
@@ -254,9 +315,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                     tag = url.tag
                 )
             }
-
             vm.refreshUrlBackup(urlBackupEntity)
-
             adapter.setLoginData(urlDataList, imgUriList, false)
             adapter.notifyDataSetChanged()
         }

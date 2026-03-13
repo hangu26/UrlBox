@@ -188,8 +188,7 @@
                         android:layout_gravity="start"
                         android:background="@drawable/border_btn_change_pic"
                         android:elevation="1dp"
-                        android:onClick="@{() -> viewmodel.btnChangeImg()}"
-                        android:translationZ="1dp">
+                        android:onClick="@{() -> viewmodel.btnChangeImg()}">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="wrap_content"
@@ -239,8 +238,7 @@
                         android:layout_marginBottom="@dimen/margin_bottom_btn_delete"
                         android:background="@drawable/border_btn_delete"
                         android:elevation="1dp"
-                        android:onClick="@{() -> viewmodel.btnDelete()}"
-                        android:translationZ="1dp">
+                        android:onClick="@{() -> viewmodel.btnDelete()}">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:layout_width="wrap_content"

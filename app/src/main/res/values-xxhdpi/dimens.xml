@@ -18,6 +18,10 @@
     <dimen name="btn_url_margin_bottom">22dp</dimen>
     <dimen name="btn_save_url_height">44dp</dimen>
     <dimen name="margin_side_in_url_page">34dp</dimen>
+    <dimen name="margin_start_ll_refresh">8dp</dimen>
+    <dimen name="width_space_view_type">4dp</dimen>
+    <dimen name="height_space_view_type">41dp</dimen>
+
     <dimen name="margin_top_frame_layout">9dp</dimen>
     <dimen name="margin_side_frame_layout">8dp</dimen>
     <dimen name="btn_save_url_margin_top">25dp</dimen>
@@ -58,7 +62,26 @@
     <dimen name="margin_top_ll_btn_capture">14dp</dimen>
     <dimen name="padding_top_cl_btn_capture">30dp</dimen>
     <dimen name="min_height_rv_tags">45dp</dimen>
-
+    <dimen name="size_anim_url">190dp</dimen>
+    <dimen name="margin_top_tv_tutorial_detail_01">15dp</dimen>
+    <dimen name="size_tv_tutorial_detail">18sp</dimen>
+    <dimen name="size_tv_tutorial">31sp</dimen>
+    <dimen name="gradient_radius_bg_lottie_shadow">100dp</dimen>
+    <dimen name="size_tx_app_info_tutorial_01">14sp</dimen>
+    <dimen name="mg_top_tx_app_info_tutorial_01">33dp</dimen>
+    <dimen name="size_tx_swipe_tutorial">14sp</dimen>
+    <dimen name="margin_bottom_tx_swipe_tutorial">80dp</dimen>
+    <dimen name="margin_start_tx_swipe_tutorial">29dp</dimen>
+    <dimen name="height_btn_next_tutorial">58dp</dimen>
+    <dimen name="margin_side_btn_next_tutorial">38dp</dimen>
+    <dimen name="margin_bottom_btn_next_tutorial">20dp</dimen>
+    <dimen name="corner_border_btn_next_tutorial">16dp</dimen>
+    <dimen name="size_tx_next">16sp</dimen>
+    <dimen name="size_dots_indicator">8dp</dimen>
+    <dimen name="space_dots_indicator">8dp</dimen>
+    <dimen name="margin_bottom_dots_indicator">33dp</dimen>
+    <dimen name="radius_border_ll_refresh">10dp</dimen>
+    <dimen name="size_ll_refresh">29dp</dimen>
     <dimen name="corner_tab_indicator">50dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
     <dimen name="my_page_constraint_margin_top">17dp</dimen>
@@ -69,6 +92,7 @@
     <dimen name="padding_bottom_my_page_linear">90dp</dimen>
     <dimen name="my_page_linear_height">90dp</dimen>
     <dimen name="height_item_thumbnail_link">45dp</dimen>
+    <dimen name="margin_top_fl_ic_tutorial_01">94dp</dimen>
 
     <dimen name="border_box_corner">8dp</dimen>
     <dimen name="border_cl_add_link">14dp</dimen>
@@ -108,7 +132,8 @@
     <dimen name="margin_top_tx_guest_continue">30dp</dimen>
     <dimen name="margin_top_ll_login">50dp</dimen>
     <dimen name="margin_side_chk_sync">30dp</dimen>
-    <dimen name="margin_top_frame_urls">11dp</dimen>
+    <dimen name="margin_top_frame_urls">6dp</dimen>
+    <dimen name="margin_bottom_ll_view_type">6dp</dimen>
     <dimen name="size_tx_syncing">17sp</dimen>
     <dimen name="size_anim_lottie_upload">120dp</dimen>
 

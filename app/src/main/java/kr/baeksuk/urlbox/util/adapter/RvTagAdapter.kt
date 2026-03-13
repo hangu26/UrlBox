@@ -65,6 +65,11 @@ class RvTagAdapter(
 
     }
 
+    fun clearSelection(){
+        val previousSelected = selectedPosition
+        selectedPosition = RecyclerView.NO_POSITION
+        notifyItemChanged(previousSelected)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvTagAdapter.MyViewHolder {
         val binding = ItemUrlTagBinding.inflate(LayoutInflater.from(parent.context), parent, false)

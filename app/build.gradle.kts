@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 10
+        versionCode = 12
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -76,6 +76,9 @@ android {
 }
 
 dependencies {
+
+    /** 새로고침 라이브러리 **/
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     /** 튜토리얼 뷰페이져 관련 라이브러리 **/
     implementation("com.tbuonomo:dotsindicator:5.1.0")

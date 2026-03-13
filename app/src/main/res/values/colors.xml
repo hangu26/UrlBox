@@ -30,6 +30,8 @@
     <color name="color_tv_tutorial_detail">#4A5565</color>
     <color name="color_tx_app_info_tutorial_01">#99A1AF</color>
     <color name="color_tv_swipe_tutorial">#99A1AF</color>
+    <color name="color_border_ll_refresh">#F2EDE1</color>
+    <color name="color_stroke_ll_refresh">#DCCFB7</color>
 
     <color name="appBar_title_03">#D6C4B1</color>
     <color name="bottom_border">#E8E8E8</color>

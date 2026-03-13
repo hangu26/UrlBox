@@ -18,6 +18,10 @@
     <dimen name="btn_url_margin_bottom">22dp</dimen>
     <dimen name="btn_save_url_height">44dp</dimen>
     <dimen name="margin_side_in_url_page">34dp</dimen>
+    <dimen name="margin_start_ll_refresh">8dp</dimen>
+    <dimen name="width_space_view_type">4dp</dimen>
+    <dimen name="height_space_view_type">41dp</dimen>
+
     <dimen name="margin_top_frame_layout">9dp</dimen>
     <dimen name="margin_side_frame_layout">8dp</dimen>
     <dimen name="btn_save_url_margin_top">25dp</dimen>
@@ -76,7 +80,8 @@
     <dimen name="size_dots_indicator">8dp</dimen>
     <dimen name="space_dots_indicator">8dp</dimen>
     <dimen name="margin_bottom_dots_indicator">33dp</dimen>
-
+    <dimen name="radius_border_ll_refresh">10dp</dimen>
+    <dimen name="size_ll_refresh">29dp</dimen>
     <dimen name="corner_tab_indicator">50dp</dimen>
     <dimen name="space_margin_between_constraint">17dp</dimen>
     <dimen name="my_page_constraint_margin_top">17dp</dimen>
@@ -127,7 +132,8 @@
     <dimen name="margin_top_tx_guest_continue">30dp</dimen>
     <dimen name="margin_top_ll_login">50dp</dimen>
     <dimen name="margin_side_chk_sync">30dp</dimen>
-    <dimen name="margin_top_frame_urls">11dp</dimen>
+    <dimen name="margin_top_frame_urls">6dp</dimen>
+    <dimen name="margin_bottom_ll_view_type">6dp</dimen>
     <dimen name="size_tx_syncing">17sp</dimen>
     <dimen name="size_anim_lottie_upload">120dp</dimen>
 

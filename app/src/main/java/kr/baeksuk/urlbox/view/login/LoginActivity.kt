@@ -137,12 +137,14 @@ class LoginActivity : BaseActivity() {
         }
 
         vm.kakaoLoginState.observe(this@LoginActivity) { isSuccess ->
+            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
 
             if (isSuccess) {
 
                 vm.userData.observe(this@LoginActivity){
                     uploadData(isUpload,it)
                 }
+                pref.edit().putInt("isFirst",1).apply()
 
                 InitUrlDataCount.clear()
 
@@ -268,7 +270,7 @@ class LoginActivity : BaseActivity() {
                                     uploadData(isUpload, userId)
                                     InitUrlDataCount.clear()
                                     UrlData.clear()
-
+                                    pref.edit().putInt("isFirst",1).apply()
                                     Log.e("SignIn", "Firebase 로그인 성공")
 
                                 } else {

@@ -174,6 +174,8 @@ class MyPageFragment : Fragment() {
 
                 kakaoLogout()
 
+                pref.edit().putInt("isFirst", 0).apply()
+
                 lifecycleScope.launch {
                     try {
                         credentialManager?.clearCredentialState(ClearCredentialStateRequest())
