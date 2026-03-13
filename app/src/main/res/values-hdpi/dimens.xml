@@ -93,6 +93,16 @@
     <dimen name="my_page_linear_height">90dp</dimen>
     <dimen name="height_item_thumbnail_link">45dp</dimen>
     <dimen name="margin_top_fl_ic_tutorial_01">94dp</dimen>
+    <dimen name="radius_btn_album">100dp</dimen>
+    <dimen name="stroke_width_btn_album">3dp</dimen>
+    <dimen name="width_btn_album">162dp</dimen>
+    <dimen name="height_btn_album">49dp</dimen>
+    <dimen name="translationY_btn_album">24dp</dimen>
+    <dimen name="size_ic_album">18dp</dimen>
+    <dimen name="margin_start_ic_album">22dp</dimen>
+    <dimen name="margin_end_tx_chose_album">22dp</dimen>
+    <dimen name="size_tx_chose_album">13sp</dimen>
+    <dimen name="margin_start_tx_chose_album">11dp</dimen>
 
     <dimen name="border_box_corner">8dp</dimen>
     <dimen name="border_cl_add_link">14dp</dimen>

@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.DataBindingUtil
 import com.bumptech.glide.Glide
 import com.google.android.material.tabs.TabLayoutMediator
@@ -144,6 +145,26 @@ class UrlDetailActivity : BaseActivity() {
             if (it) {
 
                 supportFinishAfterTransition()
+
+            }
+        }
+
+        vm.btnImageFullState.observe(this@UrlDetailActivity) {
+            if (it) {
+                val imgUri = intent.extras?.getString("imgUri", "")
+                val imageKey = intent.extras?.getString("image", "")
+
+                val fullIntent = Intent(this@UrlDetailActivity, ImageFullActivity::class.java)
+                fullIntent.putExtra("imgUri", imgUri)
+                fullIntent.putExtra("image", imageKey)
+
+                val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this@UrlDetailActivity,
+                    uBinding.imgUrl,
+                    "imageTran"
+                )
+
+                startActivity(fullIntent, options.toBundle())
 
             }
         }

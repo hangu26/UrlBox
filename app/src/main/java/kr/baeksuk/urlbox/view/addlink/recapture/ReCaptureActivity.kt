@@ -1,9 +1,11 @@
 package kr.baeksuk.urlbox.view.addlink.recapture
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Rect
@@ -19,6 +21,8 @@ import android.view.PixelCopy
 import android.view.View
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -54,10 +58,18 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
     private lateinit var adapter: RvTagInCaptureAdapter
     private val backPressedCallback = BackPressedCallback(this)
 
+    private val albumLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                cViewModel.onAlbumImageSelected(it)
+            }
+        }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        cBinding = DataBindingUtil.setContentView(this@ReCaptureActivity, R.layout.activity_re_capture)
+        cBinding =
+            DataBindingUtil.setContentView(this@ReCaptureActivity, R.layout.activity_re_capture)
         adapter = RvTagInCaptureAdapter(this@ReCaptureActivity)
         cBinding.apply {
             activity = this@ReCaptureActivity
@@ -110,7 +122,7 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
             cBinding.clBtnAddTags.visibility = View.VISIBLE
             cBinding.rvTags.visibility = View.VISIBLE
 
-        }else{
+        } else {
 
             cBinding.txTag.visibility = View.GONE
             cBinding.clBtnAddTags.visibility = View.GONE
@@ -142,16 +154,20 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
         val autoLogin = pref.getBoolean("auto login", false)
         val txMemo = resources.getString(R.string.tx_memo)
 
-        vm.btnAddTagsStage.observe(this@ReCaptureActivity){
+        vm.btnAddTagsStage.observe(this@ReCaptureActivity) {
 
-            if (autoLogin){
+            if (autoLogin) {
 
                 val dlg = AddTagDialogFragment()
                 dlg.show(supportFragmentManager, "AddTagDialog")
 
-            }else{
+            } else {
 
-                Toast.makeText(this@ReCaptureActivity,"태그 기능은 로그인 시에만 사용할 수 있습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@ReCaptureActivity,
+                    "태그 기능은 로그인 시에만 사용할 수 있습니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
 
             }
 
@@ -186,6 +202,26 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                         Toast.makeText(this, "캡처 실패", Toast.LENGTH_SHORT).show()
                     }
                 }
+            }
+        }
+
+        /** 앨범에서 이미지 선택 시 **/
+        vm.selectedImageUri.observe(this) { uri ->
+            if (uri != null) {
+                // 1. UI 상태 변경 (캡처 때와 동일하게)
+                cBinding.btnCapture.visibility = View.GONE
+                cBinding.btnSave.visibility = View.VISIBLE
+                cBinding.btnSkip.visibility = View.GONE
+                cBinding.btnCancel.visibility = View.VISIBLE
+
+                cBinding.cropImageView.setImageUriAsync(uri)
+                cBinding.webView.visibility = View.INVISIBLE
+            }
+        }
+
+        vm.btnAlbumState.observe(this@ReCaptureActivity) {
+            if (it) {
+                albumLauncher.launch("image/*")
             }
         }
 
@@ -331,7 +367,12 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
         try {
             PixelCopy.request(
                 window,
-                Rect(location[0], location[1], location[0] + webView.width, location[1] + webView.height),
+                Rect(
+                    location[0],
+                    location[1],
+                    location[0] + webView.width,
+                    location[1] + webView.height
+                ),
                 bitmap,
                 { result ->
                     if (result == PixelCopy.SUCCESS) {
@@ -377,22 +418,13 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
         }
     }
 
+
     private fun navigateToMain() {
         val intent = Intent(this@ReCaptureActivity, MainActivity::class.java)
         intent.putExtra("activity", "CaptureSave")
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivityAnimation(intent, this@ReCaptureActivity)
         finish()
-    }
-
-    // 기존 함수들 유지
-    private fun captureWebView(): Uri? = null // 더 이상 사용하지 않음 (이름만 유지하거나 삭제)
-
-    fun getDrawableFile(context: Context, drawableResId: Int, fileName: String): File {
-        val bitmap = BitmapFactory.decodeResource(context.resources, drawableResId)
-        val file = File(context.filesDir, fileName)
-        saveBitmapToFile(bitmap, file)
-        return file
     }
 
     override fun onTagSelected(tag: String) {
@@ -402,7 +434,11 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
     override fun finish() {
         super.finish()
         if (Build.VERSION.SDK_INT >= 34) {
-            overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, R.anim.slide_in_left, R.anim.slide_out_right)
+            overrideActivityTransition(
+                Activity.OVERRIDE_TRANSITION_CLOSE,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
+            )
         } else {
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }

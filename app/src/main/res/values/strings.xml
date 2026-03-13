@@ -98,6 +98,7 @@
     <string name="tv_tutorial_detail_02">URL을 입력하면 썸네일 캡처를 위한 \n화면이 나와요</string>
     <string name="tv_tutorial_03">태그로 정리</string>
     <string name="tv_tutorial_detail_03">자유롭게 태그를 붙여 링크를 쉽게 \n분류하고 찾으세요</string>
+    <string name="tx_chose_album">앨범에서 선택</string>
 
 
 </resources>

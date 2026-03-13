@@ -31,6 +31,9 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private val _btnEditState = MutableLiveData<Boolean>()
     val btnEditState = _btnEditState
 
+    private val _btnImageFullState = MutableLiveData<Boolean>()
+    val btnImageFullState = _btnImageFullState
+
     fun btnEdit() {
         _btnEditState.value = true
     }
@@ -67,6 +70,10 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun btnFavorite() {
         _btnFavoriteState.value = true
+    }
+
+    fun btnImageFull(){
+        _btnImageFullState.value = true
     }
 
     fun updateUrlName(url: String, urlName :String){

@@ -47,6 +47,13 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         uBinding.viewModel = uViewModel
 
+        postponeEnterTransition()
+
+        binding.rvUrl.viewTreeObserver.addOnPreDrawListener {
+            startPostponedEnterTransition()
+            true
+        }
+
         initViewType()
         swipeRefresh()
         initDataView()

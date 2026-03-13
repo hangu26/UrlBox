@@ -2,6 +2,7 @@ package kr.baeksuk.urlbox.viewmodel.addlink.capture
 
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
@@ -52,6 +53,12 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     private val _btnAddTagsStage = MutableLiveData<Boolean>()
     val btnAddTagsStage = _btnAddTagsStage
 
+    private val _btnAlbumState = MutableLiveData<Boolean>()
+    val btnAlbumState = _btnAlbumState
+
+    private val _selectedImageUri = MutableLiveData<Uri?>()
+    val selectedImageUri: LiveData<Uri?> = _selectedImageUri
+
     var isClicked = 0
 
     fun getTagData(lifecycleOwner: LifecycleOwner) : LiveData<List<Tag>>{
@@ -90,6 +97,19 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     fun btnAddTags(){
         _btnAddTagsStage.value = false
+    }
+
+    fun btnAlbum(){
+        _btnAlbumState.value = true
+    }
+
+    fun onAlbumImageSelected(uri: Uri) {
+        _selectedImageUri.value = uri
+    }
+
+    // 초기화 함수 (취소 시 등에 사용)
+    fun clearSelectedImage() {
+        _selectedImageUri.value = null
     }
 
     fun insertUrl(urlEntity: UrlEntity, url: String, context: Context) {
