@@ -136,6 +136,11 @@
     <dimen name="margin_bottom_ll_view_type">6dp</dimen>
     <dimen name="size_tx_syncing">17sp</dimen>
     <dimen name="size_anim_lottie_upload">120dp</dimen>
+    <dimen name="height_btn_clip_url">120dp</dimen>
+    <dimen name="size_ic_clip_link">31dp</dimen>
+    <dimen name="margin_ll_copy_delete">15dp</dimen>
+    <dimen name="space_ll_copy_delete">7dp</dimen>
+    <dimen name="margin_start_ic_clip_link">15dp</dimen>
 
     <dimen name="border_google_login_margin_side">30dp</dimen>
     <dimen name="border_google_login_margin_top">34dp</dimen>
