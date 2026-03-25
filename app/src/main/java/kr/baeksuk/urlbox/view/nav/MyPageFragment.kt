@@ -175,7 +175,6 @@ class MyPageFragment : Fragment() {
                 kakaoLogout()
 
                 pref.edit().putInt("isFirst", 0).apply()
-
                 lifecycleScope.launch {
                     try {
                         credentialManager?.clearCredentialState(ClearCredentialStateRequest())
@@ -223,8 +222,10 @@ class MyPageFragment : Fragment() {
     private fun restartApp(context: Context) {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
 
-        pref.edit().clear().commit() // 동기적으로 적용
-
+        pref.edit()
+            .clear()
+            .putInt("isClearIntent", 1)
+            .apply()
 
         // 앱 재시작
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
