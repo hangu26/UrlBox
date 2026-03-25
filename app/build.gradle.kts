@@ -62,14 +62,20 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        }
     }
 
     /** BaseActivity 에서 댓글 알림을 위한 GoogleCredential 의존성 추가를 위한 코드 -> com.google.api-client:google-api-client:1.34.0 **/
     packaging {
         resources {
             excludes += mutableSetOf("META-INF/DEPENDENCIES")
+        }
+        jniLibs {
+            // 16KB 페이지 크기 정렬 활성화
+            useLegacyPackaging = false
         }
     }
 
@@ -118,10 +124,10 @@ dependencies {
 
     implementation ("androidx.viewpager2:viewpager2:1.1.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
-    implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.8.4")
+    annotationProcessor("androidx.room:room-compiler:2.8.4")
+    kapt("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
 
     implementation("com.vanniktech:android-image-cropper:4.6.0")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")

@@ -39,6 +39,7 @@ import kr.baeksuk.urlbox.view.tag.TagActivity
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import org.koin.android.ext.android.inject
+import androidx.core.content.edit
 
 class MyPageFragment : Fragment() {
     private lateinit var mBinding: FragmentMyPageBinding
@@ -222,10 +223,10 @@ class MyPageFragment : Fragment() {
     private fun restartApp(context: Context) {
         val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
 
-        pref.edit()
-            .clear()
-            .putInt("isClearIntent", 1)
-            .apply()
+        pref.edit(commit = true) {
+            clear()
+                .putInt("isClearIntent", 1)
+        }
 
         // 앱 재시작
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
