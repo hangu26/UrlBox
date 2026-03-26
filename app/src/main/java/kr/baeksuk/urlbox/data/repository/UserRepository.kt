@@ -195,6 +195,12 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                 var loadedImagesCount = 0
                 val totalImagesCount = snapshot.childrenCount.toInt()
 
+                // URL이 없는 경우 바로 빈 결과 반환
+                if (totalImagesCount == 0) {
+                    mutableUrl.value = Pair(urlDataList, imageUrls)
+                    return
+                }
+
                 for (dataSnapshot in snapshot.children) {
                     val url = dataSnapshot.child("url").value.toString()
                     val imageKey = dataSnapshot.child("imageKey").value.toString()
@@ -202,7 +208,6 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                     val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
                     val urlName = dataSnapshot.child("urlName").value.toString()
                     val urlMemo = dataSnapshot.child("urlMemo").value.toString()
-//                    val tag = dataSnapshot.child("tags").value
 
                     // 🔹 tags 가져오기
                     val tagList = mutableListOf<UserTags>()
@@ -217,27 +222,20 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                         )
                     }
 
-
                     // Firebase Storage에서 이미지 URL 가져오기
                     val storageReference =
                         storage.reference.child("images").child(userId).child("$imageKey.png")
 
                     storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        // URL을 리스트에 추가
-
                         viewModelScope.launch(Dispatchers.IO) {
                             try {
                                 /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
                                 urlDao.insertImgUri(uri.toString(), url)
-                            } catch (e: java.lang.Exception) {
-
-                            }
+                            } catch (e: java.lang.Exception) { }
                         }
 
                         imageUrls.add(uri.toString())
 
-
-                        // UrlEntity 객체를 생성하여 urlDataList에 추가
                         urlDataList.add(
                             Url(
                                 url,
@@ -247,27 +245,46 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
                                 timeStamp,
                                 urlName,
                                 urlMemo,
-//                                tag
                                 tagList
                             )
                         )
 
-                        // 이미지 다운로드 완료 시, 카운트 증가
                         loadedImagesCount++
+                        if (loadedImagesCount == totalImagesCount) {
+                            mutableUrl.value = Pair(urlDataList, imageUrls)
+                        }
+                    }.addOnFailureListener { exception ->
+                        // ✅ 수정: Storage 404 등 실패해도 카운트를 증가시켜 데이터 로딩이 멈추지 않도록 처리
+                        Log.e(
+                            "Storage 이미지 로드 실패",
+                            "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
+                        )
 
-                        // 모든 이미지가 다운로드되었으면 LiveData 업데이트
+                        // 이미지가 없어도 URL 데이터는 빈 이미지 URI로 추가
+                        urlDataList.add(
+                            Url(
+                                url,
+                                imageKey,
+                                "",  // 이미지 없음
+                                favorite,
+                                timeStamp,
+                                urlName,
+                                urlMemo,
+                                tagList
+                            )
+                        )
+
+                        loadedImagesCount++
                         if (loadedImagesCount == totalImagesCount) {
                             mutableUrl.value = Pair(urlDataList, imageUrls)
                         }
                     }
-                        .addOnFailureListener { exception ->
-                            exception.printStackTrace()
-                        }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // 실패 처리
+                Log.e("Firebase DB 오류", error.message)
             }
         })
 
