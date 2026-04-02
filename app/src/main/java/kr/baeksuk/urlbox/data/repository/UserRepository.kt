@@ -2,8 +2,6 @@ package kr.baeksuk.urlbox.data.repository
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -19,14 +17,11 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
@@ -36,18 +31,14 @@ import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
-import java.io.FileOutputStream
-import kotlin.coroutines.resumeWithException
 
 class UserRepository(application: Application) : AndroidViewModel(application) {
 
     private var database: DatabaseReference = Firebase.database.reference
     private val pref = application.getSharedPreferences("User", Context.MODE_PRIVATE)
-    val ONE_MEGABYTE: Long = 1024 * 1024 // 1MB
     private val urlDatabase = UrlDatabase.getInstance(application)
 
     private val urlDao: UrlDao = urlDatabase.urlDao()
-    val ctx = application
 
     /**
     fun getUrlData(): LiveData<Pair<List<Url>, List<Bitmap>>> {
@@ -188,97 +179,80 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val urlDataList = mutableListOf<Url>()
-                val imageUrls = mutableListOf<String>()
+                viewModelScope.launch {
+                    data class UrlLoadResult(
+                        val order: Int,
+                        val urlData: Url,
+                        val imgUri: String
+                    )
 
-                // 이미지 다운로드 완료 카운트 변수
-                var loadedImagesCount = 0
-                val totalImagesCount = snapshot.childrenCount.toInt()
+                    val orderedResults = coroutineScope {
+                        snapshot.children.mapIndexed { index, dataSnapshot ->
+                            async(Dispatchers.IO) {
+                                val url = dataSnapshot.child("url").value.toString()
+                                val imageKey = dataSnapshot.child("imageKey").value.toString()
+                                val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
+                                val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
+                                val urlName = dataSnapshot.child("urlName").value.toString()
+                                val urlMemo = dataSnapshot.child("urlMemo").value.toString()
 
-                // URL이 없는 경우 바로 빈 결과 반환
-                if (totalImagesCount == 0) {
-                    mutableUrl.value = Pair(urlDataList, imageUrls)
-                    return
-                }
+                                // 🔹 tags 가져오기
+                                val tagList = mutableListOf<UserTags>()
+                                val tagsSnapshot = dataSnapshot.child("tags")
+                                for (tagSnapshot in tagsSnapshot.children) {
+                                    val tagValue = tagSnapshot.child("tag").value.toString()
+                                    tagList.add(
+                                        UserTags(
+                                            tag = tagValue,
+                                            timeStamp = timeStamp.toString().toLong()
+                                        )
+                                    )
+                                }
 
-                for (dataSnapshot in snapshot.children) {
-                    val url = dataSnapshot.child("url").value.toString()
-                    val imageKey = dataSnapshot.child("imageKey").value.toString()
-                    val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
-                    val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
-                    val urlName = dataSnapshot.child("urlName").value.toString()
-                    val urlMemo = dataSnapshot.child("urlMemo").value.toString()
+                                // Firebase Storage에서 이미지 URL 가져오기
+                                val storageReference =
+                                    storage.reference.child("images").child(userId).child("$imageKey.png")
 
-                    // 🔹 tags 가져오기
-                    val tagList = mutableListOf<UserTags>()
-                    val tagsSnapshot = dataSnapshot.child("tags")
-                    for (tagSnapshot in tagsSnapshot.children) {
-                        val tagValue = tagSnapshot.child("tag").value.toString()
-                        tagList.add(
-                            UserTags(
-                                tag = tagValue,
-                                timeStamp = timeStamp.toString().toLong()
-                            )
-                        )
+                                val imgUri = try {
+                                    val uri = storageReference.downloadUrl.await().toString()
+                                    try {
+                                        /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
+                                        urlDao.insertImgUri(uri, url)
+                                    } catch (e: Exception) {
+                                        Log.e("Room 이미지 URI 저장 실패", "url: $url, 오류: ${e.message}")
+                                    }
+                                    uri
+                                } catch (exception: Exception) {
+                                    // Storage 404 등 실패해도 동일한 슬롯을 유지해서 url/이미지 순서를 보장
+                                    Log.e(
+                                        "Storage 이미지 로드 실패",
+                                        "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
+                                    )
+                                    ""
+                                }
+
+                                UrlLoadResult(
+                                    order = index,
+                                    urlData = Url(
+                                        url,
+                                        imageKey,
+                                        imgUri,
+                                        favorite,
+                                        timeStamp,
+                                        urlName,
+                                        urlMemo,
+                                        tagList
+                                    ),
+                                    imgUri = imgUri
+                                )
+                            }
+                        }.awaitAll().sortedBy { it.order }
                     }
 
-                    // Firebase Storage에서 이미지 URL 가져오기
-                    val storageReference =
-                        storage.reference.child("images").child(userId).child("$imageKey.png")
-
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        viewModelScope.launch(Dispatchers.IO) {
-                            try {
-                                /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
-                                urlDao.insertImgUri(uri.toString(), url)
-                            } catch (e: java.lang.Exception) { }
-                        }
-
-                        imageUrls.add(uri.toString())
-
-                        urlDataList.add(
-                            Url(
-                                url,
-                                imageKey,
-                                uri.toString(),
-                                favorite,
-                                timeStamp,
-                                urlName,
-                                urlMemo,
-                                tagList
-                            )
-                        )
-
-                        loadedImagesCount++
-                        if (loadedImagesCount == totalImagesCount) {
-                            mutableUrl.value = Pair(urlDataList, imageUrls)
-                        }
-                    }.addOnFailureListener { exception ->
-                        // ✅ 수정: Storage 404 등 실패해도 카운트를 증가시켜 데이터 로딩이 멈추지 않도록 처리
-                        Log.e(
-                            "Storage 이미지 로드 실패",
-                            "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
-                        )
-
-                        // 이미지가 없어도 URL 데이터는 빈 이미지 URI로 추가
-                        urlDataList.add(
-                            Url(
-                                url,
-                                imageKey,
-                                "",  // 이미지 없음
-                                favorite,
-                                timeStamp,
-                                urlName,
-                                urlMemo,
-                                tagList
-                            )
-                        )
-
-                        loadedImagesCount++
-                        if (loadedImagesCount == totalImagesCount) {
-                            mutableUrl.value = Pair(urlDataList, imageUrls)
-                        }
-                    }
+                    mutableUrl.value = Pair(
+                        orderedResults.map { it.urlData },
+                        orderedResults.map { it.imgUri }
+                    )
                 }
             }
 
