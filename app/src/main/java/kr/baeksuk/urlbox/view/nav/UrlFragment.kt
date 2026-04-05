@@ -56,30 +56,10 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         initViewType()
         swipeRefresh()
-        initDataView()
         setupRecyclerViews()
         observeLoading()
         observeViewModel()
         loginHandler()
-    }
-
-    private fun initDataView() {
-
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
-        val isFirstLaunch = pref?.getBoolean("isFirstLaunch", true) ?: false
-
-        if (isFirstLaunch) {
-
-            if (autoLogin) {
-
-            }
-
-        } else {
-
-
-        }
-
     }
 
     private fun initViewType() {
@@ -114,14 +94,23 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         selected.isSelected = true
     }
 
+    /** 새로고침 **/
     private fun swipeRefresh() {
+        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
+        val autoLogin = pref.getBoolean("auto login", false)
 
-        uBinding.swipeRefreshLayout.setOnRefreshListener {
-            uBinding.swipeRefreshLayout.isRefreshing = false
-            uViewModel.btnRefresh()
+        uBinding.swipeRefreshLayout.isEnabled = autoLogin
+
+        if (autoLogin) {
+            uBinding.swipeRefreshLayout.setOnRefreshListener {
+                uBinding.swipeRefreshLayout.isRefreshing = false
+                uViewModel.btnRefresh()
+            }
         }
+
     }
 
+    /** Url 행 개수 설정 함수 **/
     private fun changeGrid(spanCount: Int) {
         val rv = binding.rvUrl
         val lm = rv.layoutManager as? GridLayoutManager ?: return

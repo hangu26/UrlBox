@@ -99,6 +99,7 @@
     <string name="tv_tutorial_03">태그로 정리</string>
     <string name="tv_tutorial_detail_03">자유롭게 태그를 붙여 링크를 쉽게 \n분류하고 찾으세요</string>
     <string name="tx_chose_album">앨범에서 선택</string>
+    <string name="tx_ad_label">광고</string>
 
 
 </resources>

@@ -62,7 +62,6 @@ class EditUrlViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
-                _repo.updateGuestUrlInfo(url, urlName, urlMemo)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             }

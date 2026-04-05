@@ -649,11 +649,23 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun updateGuestUrlInfo(url: String, urlName: String, urlMemo: String) {
+    fun updateGuestUrlName(url: String, urlName: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                urlDao.updateGuestUrlInfo(url, urlName, urlMemo)
+                urlDao.updateGuestUrlName(url, urlName)
+            } catch (e: java.lang.Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
+            }
+        }
+
+    }
+
+    fun updateGuestUrlMemo(url: String, urlMemo: String) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.updateGuestUrlMemo(url, urlMemo)
             } catch (e: java.lang.Exception) {
                 Log.e("데이터 업데이트 처리", e.toString())
             }

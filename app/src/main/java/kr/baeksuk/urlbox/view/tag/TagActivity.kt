@@ -3,6 +3,7 @@ package kr.baeksuk.urlbox.view.tag
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -10,6 +11,8 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityTagBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -29,6 +32,10 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
     private lateinit var adapter : RvTagInTagAdapter
     private val backPressedCallback = BackPressedCallback(this)
 
+    companion object {
+        private var adView: AdView? = null  // 광고 뷰를 재사용
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tag)
@@ -45,7 +52,7 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
             }
             rvTags.adapter = adapter
         }
-        requestAd()
+        setupAdView()
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
         observe()
@@ -93,16 +100,38 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
         tViewModel.deleteTag(tag)
     }
 
-    private fun requestAd(){
+    private fun setupAdView() {
+        adView?.destroy()
 
-        val adRequest = AdRequest.Builder().build() // 광고 요청 생성
-        tBinding.adView.loadAd(adRequest) // 광고 로드
+        adView = AdView(this).apply {
+            adUnitId = "ca-app-pub-6498037779961709/3085641605"
 
+            val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                this@TagActivity,
+                AdSize.FULL_WIDTH
+            )
+            setAdSize(adSize)
+
+            loadAd(AdRequest.Builder().build())
+        }
+
+        tBinding.adView.removeAllViews()
+        tBinding.adView.addView(adView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView?.resume()
+    }
+
+    override fun onPause() {
+        adView?.pause()
+        super.onPause()
     }
 
     override fun onDestroy() {
+        adView?.destroy()
         super.onDestroy()
-        tBinding.adView.destroy()
     }
 
 }

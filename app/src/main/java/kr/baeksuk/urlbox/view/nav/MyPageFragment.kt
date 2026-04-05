@@ -208,8 +208,7 @@ class MyPageFragment : Fragment() {
     private fun setupAdView() {
         if (adView == null) {  // 기존 광고 뷰가 없으면 새로 생성
             adView = AdView(requireContext()).apply {
-//                adUnitId = "ca-app-pub-6498037779961709/3334253119" // 이건 프로덕션때 사용해야할 실제 id
-                adUnitId = "ca-app-pub-3940256099942544/9214589741" // 테스트 id
+                adUnitId = "ca-app-pub-6498037779961709/6861235089" // 프로덕션용 id
 
                 setAdSize(AdSize.LARGE_BANNER)
                 loadAd(AdRequest.Builder().build())
@@ -237,9 +236,20 @@ class MyPageFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onResume() {
+        super.onResume()
+        adView?.resume()
+    }
+
+    override fun onPause() {
+        adView?.pause()
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
         adView?.destroy()
+        adView = null
+        super.onDestroyView()
     }
 
 }

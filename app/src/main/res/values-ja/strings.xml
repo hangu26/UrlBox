@@ -78,11 +78,22 @@
     <string name="tx_login_detail">ログインしてすべてのデバイスでリンクを同期</string>
     <string name="tx_or">または</string>
     <string name="tx_guest_continue">ゲストとして続行</string>
-    <string name="tx_syncing">アカウントに同期中...</string>
+    <string name="tx_syncing">アカウントに同期中…</string>
     <string name="tx_link_english">LINK</string>
     <string name="tx_tags">タグ</string>
     <string name="tx_add_tag">タグを追加</string>
     <string name="tx_my_tags">マイタグ</string>
     <string name="tx_input_tag">タグを入力してください</string>
     <string name="tx_change_pic">写真を変更</string>
+    <string name="tv_tutorial_01">リンクをひとつの場所に</string>
+    <string name="tv_tutorial_detail_01">散らばったブックマークをサムネイルで見やすく \n保存しましょう</string>
+    <string name="tx_app_info_tutorial_01">UrlBox - リンク管理の新しい方法</string>
+    <string name="tx_swipe_tutorial"><![CDATA[> スワイプするか、次へボタンを押してください]]></string>
+    <string name="tx_next">次へ</string>
+    <string name="tv_tutorial_02">サムネイルキャプチャ画面</string>
+    <string name="tv_tutorial_detail_02">URLを入力すると、サムネイルキャプチャ用の \n画面が表示されます</string>
+    <string name="tv_tutorial_03">タグで整理</string>
+    <string name="tv_tutorial_detail_03">タグを自由につけて、リンクを簡単に \n分類・検索しましょう</string>
+    <string name="tx_chose_album">アルバムから選択</string>
+    <string name="tx_ad_label">広告</string>
 </resources>

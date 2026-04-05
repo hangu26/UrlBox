@@ -80,9 +80,9 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            withContext(Dispatchers.Main) {
+                _repo.updateGuestUrlName(url, urlName)
+
                 _repo.updateUrlName(url, urlName)
-            }
 
         }
 
@@ -92,9 +92,9 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            withContext(Dispatchers.Main) {
+                _repo.updateGuestUrlMemo(url, urlMemo)
+
                 _repo.updateUrlMemo(url, urlMemo)
-            }
 
         }
 
@@ -104,9 +104,7 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            withContext(Dispatchers.Main) {
                 _repo.updateFavorite(url, isFavorite)
-            }
 
         }
 
@@ -116,9 +114,7 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
 
         viewModelScope.launch(Dispatchers.IO) {
 
-            withContext(Dispatchers.Main) {
                 _repo.updateUserFavorite(url, isFavorite)
-            }
 
         }
 
