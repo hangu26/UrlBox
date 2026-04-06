@@ -277,7 +277,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     private fun getUserUrlBackup(vm: UrlViewModel) {
         vm.getUserUrlBackup().observe(viewLifecycleOwner) { url ->
             adapter.setUserBackupData(url, true)
-
             adapter.notifyDataSetChanged()
         }
     }
@@ -360,7 +359,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
             adapter.setLoginData(urlDataList, imgUriList, false)
             adapter.notifyDataSetChanged()
-            adapter.notifyDataSetChanged()
         }
     }
 
@@ -385,7 +383,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 )
             })
             tagAdapter.notifyDataSetChanged()
-            tagAdapter.notifyDataSetChanged()
         }
     }
 
@@ -394,8 +391,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     override fun onTagFiltered(url: List<String>, tag: String) {
         adapter.filterByTag(url, tag, uBinding.rvUrl)
         Log.e("태그 선택됨", tag)
-        adapter.notifyDataSetChanged()
-        tagAdapter.notifyDataSetChanged()
         adapter.notifyDataSetChanged()
         tagAdapter.notifyDataSetChanged()
     }
