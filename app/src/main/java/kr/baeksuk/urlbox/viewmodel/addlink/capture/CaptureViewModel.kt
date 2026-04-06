@@ -115,15 +115,16 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     fun insertUrl(urlEntity: UrlEntity, url: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getUrlIsExist(url)
-            withContext(Dispatchers.Main) {
-                if (existingUrl == null) {
-                    _repo.insert(urlEntity)
+            if (existingUrl == null) {
+                _repo.insert(urlEntity)
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-                } else {
+                }
+            } else {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
     }
 
@@ -137,15 +138,16 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getBackupUrlIsExist(url)
             Log.e("저장된지 확인", "URL: $url, 존재 여부: ${existingUrl != null}")
-            withContext(Dispatchers.Main) {
-                if (existingUrl == null) {
-                    _repo.insertBackup(urlBackupEntity, file, tag)
+            if (existingUrl == null) {
+                _repo.insertBackup(urlBackupEntity, file, tag)
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-                } else {
+                }
+            } else {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-
         }
     }
 
@@ -159,11 +161,13 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val existingUrl = urlDao.getBackupUrlIsExist(url)
-            withContext(Dispatchers.Main) {
-                if (existingUrl == null) {
-                    _repo.insertBackupMultipleTags(urlBackupEntity, file, tags)
+            if (existingUrl == null) {
+                _repo.insertBackupMultipleTags(urlBackupEntity, file, tags)
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-                } else {
+                }
+            } else {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -172,23 +176,18 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     fun updateUrl(urlEntity: UrlEntity, url: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-
+            _repo.update(urlEntity)
             withContext(Dispatchers.Main) {
-                _repo.update(urlEntity)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-
             }
-
         }
     }
 
     fun updateBackupUrl(urlBackupEntity: UrlBackupEntity, context: Context, file: File) {
         viewModelScope.launch(Dispatchers.IO) {
-
+            _repo.updateBackup(urlBackupEntity, file)
             withContext(Dispatchers.Main) {
-                _repo.updateBackup(urlBackupEntity, file)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-
             }
 
         }

@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 20
+        versionCode = 21
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -82,6 +82,8 @@ android {
 }
 
 dependencies {
+
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
 
     /** 새로고침 라이브러리 **/
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")

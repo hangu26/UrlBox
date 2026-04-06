@@ -271,7 +271,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                             urlLink = url,
                             imageKey = imageKey,
                             favorite = false,
-                            imgUri = "",
+                            imgUri = file.absolutePath,
                             timeStamp = System.currentTimeMillis(),
                             tag = prepTags // ✅ 여기에 임시 태그 넣기
                         )
@@ -288,7 +288,7 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                             urlLink = url,
                             imageKey = imageKey,
                             favorite = false,
-                            imgUri = "",
+                            imgUri = file.absolutePath,
                             timeStamp = System.currentTimeMillis(),
                             urlName = url,
                             urlMemo = txMemo,

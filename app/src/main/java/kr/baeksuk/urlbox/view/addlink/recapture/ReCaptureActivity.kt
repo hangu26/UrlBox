@@ -241,7 +241,7 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                                 urlLink = url.toString(),
                                 imageKey = imageKey,
                                 favorite = false,
-                                imgUri = "",
+                                imgUri = file.absolutePath,
                                 timeStamp = System.currentTimeMillis(),
                             )
                             saveBitmapToFile(croppedBitmap, file)
@@ -252,7 +252,7 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                                 urlLink = url.toString(),
                                 imageKey = imageKey,
                                 favorite = false,
-                                imgUri = "",
+                                imgUri = file.absolutePath,
                                 timeStamp = System.currentTimeMillis(),
                                 urlName = url.toString(),
                                 urlMemo = txMemo,

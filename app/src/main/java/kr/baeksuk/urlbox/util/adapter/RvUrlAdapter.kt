@@ -6,6 +6,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.UnderlineSpan
@@ -39,6 +41,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         private const val VIEW_TYPE_URL = 0
         private const val VIEW_TYPE_AD = 1
         private const val AD_INTERVAL = 4
+        private const val MAX_NATIVE_AD_CACHE = 2
         private const val NATIVE_AD_UNIT_ID = "ca-app-pub-6498037779961709/3189583387"
     }
     data class IndexedUrl(
@@ -47,7 +50,7 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     )
     private sealed class DisplayItem {
         data class UrlItem(val indexedUrl: IndexedUrl) : DisplayItem()
-        object AdItem : DisplayItem()
+        data class AdItem(val adIndex: Int) : DisplayItem()
     }
     private val context = ctx
     private val activity = act
@@ -56,21 +59,85 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     private var filteredIndexedUrls = listOf<IndexedUrl>()
     private var displayItems = listOf<DisplayItem>()
     private var isBackup = false
+    private val nativeAdCache = object : LinkedHashMap<Int, NativeAd>(MAX_NATIVE_AD_CACHE, 0.75f, true) {}
+    private val loadingAdSlots = mutableSetOf<Int>()
+    private var adSlotCount = 0
     private fun rebuildDisplayItems() {
         val items = mutableListOf<DisplayItem>()
+        var adIndex = 0
         filteredIndexedUrls.forEachIndexed { index, indexedUrl ->
             items += DisplayItem.UrlItem(indexedUrl)
             if ((index + 1) % AD_INTERVAL == 0) {
-                items += DisplayItem.AdItem
+                items += DisplayItem.AdItem(adIndex++)
             }
         }
         displayItems = items
+        adSlotCount = adIndex
+        clearUnusedAds()
     }
     @SuppressLint("NotifyDataSetChanged")
     private fun updateFilteredUrls(newList: List<IndexedUrl>) {
         filteredIndexedUrls = newList
         rebuildDisplayItems()
         notifyDataSetChanged()
+    }
+
+    private fun clearUnusedAds() {
+        val removedSlots = nativeAdCache.keys.filter { it >= adSlotCount }
+        removedSlots.forEach { slot ->
+            nativeAdCache.remove(slot)?.destroy()
+        }
+        loadingAdSlots.removeAll { it >= adSlotCount }
+    }
+
+    private fun prefetchNativeAds() {
+        // 광고를 한 번에 전부 미리 로드하지 않고, 실제로 바인딩될 때만 로드한다.
+    }
+
+    private fun getAdPosition(adIndex: Int): Int {
+        return displayItems.indexOfFirst { it is DisplayItem.AdItem && it.adIndex == adIndex }
+    }
+
+    private fun loadNativeAd(adIndex: Int) {
+        if (!loadingAdSlots.add(adIndex)) return
+
+        val adLoader = AdLoader.Builder(context, NATIVE_AD_UNIT_ID)
+            .forNativeAd { ad ->
+                Handler(Looper.getMainLooper()).post {
+                    loadingAdSlots.remove(adIndex)
+                    if (adIndex >= adSlotCount) {
+                        ad.destroy()
+                        return@post
+                    }
+
+                    nativeAdCache[adIndex]?.destroy()
+                    nativeAdCache[adIndex] = ad
+                    trimNativeAdCache()
+
+                    val position = getAdPosition(adIndex)
+                    if (position != -1) {
+                        notifyItemChanged(position)
+                    }
+                }
+            }
+            .withAdListener(object : AdListener() {
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    Handler(Looper.getMainLooper()).post {
+                        loadingAdSlots.remove(adIndex)
+                        Log.e("NativeAd", "광고 로드 실패: ${error.message}")
+                    }
+                }
+            })
+            .build()
+
+        adLoader.loadAd(AdRequest.Builder().build())
+    }
+
+    private fun trimNativeAdCache() {
+        while (nativeAdCache.size > MAX_NATIVE_AD_CACHE) {
+            val eldestKey = nativeAdCache.entries.iterator().next().key
+            nativeAdCache.remove(eldestKey)?.destroy()
+        }
     }
     fun filterByTag(tagUrl: List<String>, tag: String, recyclerview: RecyclerView) {
         val newList = when (tag) {
@@ -185,14 +252,14 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = displayItems[position]) {
             is DisplayItem.UrlItem -> (holder as MyViewHolder).bind(item.indexedUrl)
-            DisplayItem.AdItem -> (holder as AdViewHolder).bind()
+            is DisplayItem.AdItem -> (holder as AdViewHolder).bind(item.adIndex)
         }
     }
     override fun getItemCount(): Int = displayItems.size
     override fun getItemViewType(position: Int): Int {
         return when (displayItems[position]) {
             is DisplayItem.UrlItem -> VIEW_TYPE_URL
-            DisplayItem.AdItem -> VIEW_TYPE_AD
+            is DisplayItem.AdItem -> VIEW_TYPE_AD
         }
     }
     inner class MyViewHolder(binding: ItemUrlListBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -276,49 +343,14 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
         }
     }
     inner class AdViewHolder(private val binding: ItemNativeAdBinding) : RecyclerView.ViewHolder(binding.root) {
-        private var nativeAd: NativeAd? = null
-        private var isLoading = false
-        private var isReleased = false
-        fun bind() {
-            isReleased = false
+        fun bind(adIndex: Int) {
             binding.nativeAdView.visibility = View.VISIBLE
-            if (nativeAd != null) {
-                populateNativeAd(nativeAd!!)
-                return
+            val cachedAd = nativeAdCache[adIndex]
+            if (cachedAd != null) {
+                populateNativeAd(cachedAd)
+            } else if (!loadingAdSlots.contains(adIndex)) {
+                loadNativeAd(adIndex)
             }
-            if (!isLoading) {
-                loadNativeAd()
-            }
-        }
-        private fun loadNativeAd() {
-            isLoading = true
-            Thread {
-                val adLoader = AdLoader.Builder(context, NATIVE_AD_UNIT_ID)
-                    .forNativeAd { ad ->
-                        binding.root.post {
-                            if (isReleased) {
-                                ad.destroy()
-                                isLoading = false
-                                return@post
-                            }
-                            nativeAd?.destroy()
-                            nativeAd = ad
-                            isLoading = false
-                            populateNativeAd(ad)
-                        }
-                    }
-                    .withAdListener(object : AdListener() {
-                        override fun onAdFailedToLoad(error: LoadAdError) {
-                            binding.root.post {
-                                Log.e("NativeAd", "광고 로드 실패: ${error.message}")
-                                isLoading = false
-                                binding.nativeAdView.visibility = View.VISIBLE
-                            }
-                        }
-                    })
-                    .build()
-                adLoader.loadAd(AdRequest.Builder().build())
-            }.start()
         }
         private fun populateNativeAd(ad: NativeAd) {
             binding.nativeAdView.headlineView = binding.adHeadline
@@ -328,17 +360,12 @@ class RvUrlAdapter(ctx: Context, act: Activity) :
             binding.nativeAdView.setNativeAd(ad)
             binding.nativeAdView.visibility = View.VISIBLE
         }
-        fun recycle() {
-            isReleased = true
-            isLoading = false
-            nativeAd?.destroy()
-            nativeAd = null
-        }
     }
-    override fun onViewRecycled(holder: RecyclerView.ViewHolder) {
-        if (holder is AdViewHolder) {
-            holder.recycle()
-        }
-        super.onViewRecycled(holder)
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        nativeAdCache.values.forEach { it.destroy() }
+        nativeAdCache.clear()
+        loadingAdSlots.clear()
+        super.onDetachedFromRecyclerView(recyclerView)
     }
 }
