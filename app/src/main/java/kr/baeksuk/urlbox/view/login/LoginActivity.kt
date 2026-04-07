@@ -23,6 +23,7 @@ import org.koin.android.ext.android.inject
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
@@ -30,17 +31,24 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.withContext
+import kr.baeksuk.urlbox.domain.LoginRequest
+import kr.baeksuk.urlbox.domain.LoginResult
+import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.UrlData
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import java.io.File
+import kotlin.getValue
 
 class LoginActivity : BaseActivity() {
 
     private lateinit var lBinding: ActivityLoginBinding
     private val lViewModel: LoginViewModel by inject()
+
+    private val sessionManager: UserSessionManager by inject()
     private val backPressedCallback = BackPressedCallback(this)
     private lateinit var auth: FirebaseAuth
     private var isUpload = false
@@ -116,18 +124,6 @@ class LoginActivity : BaseActivity() {
 
         }
 
-        /**
-        vm.googleLoginState.observe(this@LoginActivity) { isSuccess ->
-
-        if (isSuccess){
-        uploadData(isSuccess)
-        restartApp(this@LoginActivity)
-        }else{
-        Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
-        }
-        }
-         **/
-
         vm.loadingBar.observe(this) { show ->
             lBinding.loadingBarSkeleton.visibility = if (show) View.VISIBLE else View.GONE
         }
@@ -141,10 +137,13 @@ class LoginActivity : BaseActivity() {
 
             if (isSuccess) {
 
-                vm.userData.observe(this@LoginActivity){
-                    uploadData(isUpload,it)
+                vm.userData.observe(this@LoginActivity) {
+                    uploadData(isUpload, it)
                 }
-                pref.edit().putInt("isFirst",1).apply()
+
+                lifecycleScope.launch {
+                    sessionManager.setFirst()
+                }
 
                 InitUrlDataCount.clear()
 
@@ -270,7 +269,10 @@ class LoginActivity : BaseActivity() {
                                     uploadData(isUpload, userId)
                                     InitUrlDataCount.clear()
                                     UrlData.clear()
-                                    pref.edit().putInt("isFirst",1).apply()
+
+                                    lifecycleScope.launch {
+                                        sessionManager.setFirst()
+                                    }
                                     Log.e("SignIn", "Firebase 로그인 성공")
 
                                 } else {
@@ -305,22 +307,12 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun uploadData(isUpload: Boolean, user: User) {
-        if (isUpload) {
-            lViewModel.insertAllData(user, url, imgFileList)
-        } else {
-            lViewModel.insertUserId(user)
-        }
-
-        getSharedPreferences("User", Context.MODE_PRIVATE).edit()
-            .apply {
-                putString("userId", user.userId)
-                putString("userEmail", user.userEmail)
-                putString("userName", user.userName)
-                putString("userProfile", user.profileImage)
-                putBoolean("auto login", true)
-                apply()
-            }
-
+        lViewModel.submitLogin(
+            user = user,
+            isUpload = isUpload,
+            url = url,
+            imgFileList = imgFileList
+        )
     }
 
 }

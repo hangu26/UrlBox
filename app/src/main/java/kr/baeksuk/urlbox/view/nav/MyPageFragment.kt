@@ -3,6 +3,7 @@ package kr.baeksuk.urlbox.view.nav
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.se.omapi.Session
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,15 +12,11 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdSize
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -29,24 +26,30 @@ import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentMyPageBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
+import kr.baeksuk.urlbox.model.UserSession
+import kr.baeksuk.urlbox.util.util.SessionCache
 import kr.baeksuk.urlbox.view.favorite.FavoritesActivity
 import kr.baeksuk.urlbox.view.login.LoginActivity
 import kr.baeksuk.urlbox.view.savedlink.SavedLinkActivity
 import kr.baeksuk.urlbox.view.tag.TagActivity
 import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
-import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import org.koin.android.ext.android.inject
-import androidx.core.content.edit
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
 class MyPageFragment : Fragment() {
     private lateinit var mBinding: FragmentMyPageBinding
     private val mViewModel: MyPageViewModel by inject()
-    private var urlList = listOf<UrlEntity>()
+
+    private val sessionManager: UserSessionManager by inject()
+
+    private var currentSession: UserSession? = null
+    private var currentUrlBackup: List<UrlBackupEntity> = emptyList()
+    private var currentTagBackup: List<TagBackupEntity> = emptyList()
+
     private val startActivityAnimation = StartActivityAnimation()
-    private val credentialManager = activity?.let { CredentialManager.create(it) }
+    private val credentialManager by lazy { CredentialManager.create(requireActivity()) }
     private lateinit var auth: FirebaseAuth
 
     companion object {
@@ -56,73 +59,114 @@ class MyPageFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         mBinding = FragmentMyPageBinding.inflate(inflater, container, false)
         mBinding.apply {
             viewmodel = mViewModel
+            lifecycleOwner = viewLifecycleOwner
+            fragment = this@MyPageFragment
         }
         auth = Firebase.auth
 
         setupAdView()
         initView()
+        observeSession()
+        observeBackupData()
         observe()
         return mBinding.root
     }
 
     private fun initView() {
+        val cached = SessionCache.current
 
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
-        val userId = pref.getString("userId", "")
-        val userEmail = pref.getString("userEmail", "")
-        val userName = pref.getString("userName", "")
-        val userProfile = pref.getString("userProfile", "")
+        when {
+            cached == null -> showLoadingState()
+            cached.autoLogin -> renderLoggedInUi(cached)
+            else -> renderLoggedOutUi()
+        }
+    }
 
-        if (autoLogin) {
+    private fun showLoadingState() {
+        mBinding.btnLogin.visibility = View.INVISIBLE
+        mBinding.btnLogout.visibility = View.INVISIBLE
+        mBinding.txName.text = ""
+        mBinding.txGuestEmail.text = ""
+        mBinding.imgProfile.setImageResource(R.drawable.account_circle_24px)
 
-            mBinding.txName.text = userName
-            mBinding.txGuestEmail.text = userEmail
-            mBinding.btnLogin.visibility = View.GONE
-            mBinding.btnLogout.visibility = View.VISIBLE
-            Glide.with(requireContext())
-                .load(userProfile)
-                .into(mBinding.imgProfile)
+        mBinding.txLinkCount.text = ""
+        mBinding.txFavoriteCount.text = ""
+        mBinding.txTagCount.text = ""
+    }
 
-            mViewModel.getUrlBackup()
-                .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
+    private fun observeSession() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sessionManager.userSession.collect { session ->
+                currentSession = session
+                SessionCache.current = session
 
-                    mBinding.txLinkCount.text = url.size.toString()
-                    mBinding.txFavoriteCount.text = url.filter { it.favorite }.size.toString()
+                if (session.autoLogin) {
+                    renderLoggedInUi(session)
+                    renderBackupCounts()
+                } else {
+                    renderLoggedOutUi()
+                }
+            }
+        }
+    }
 
-                })
-
-            mViewModel.getUserTagBackup()
-                .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>> { tag ->
-
-                    mBinding.txTagCount.text = tag.mapNotNull { it.tag }.distinct().size.toString()
-
-                })
-
-        } else {
-
-            mBinding.txLinkCount.text = InitUrlDataCount.linkCount.toString()
-            mBinding.txFavoriteCount.text = InitUrlDataCount.favorite.toString()
-
+    private fun observeBackupData() {
+        mViewModel.getUrlBackup().observe(viewLifecycleOwner) { url ->
+            currentUrlBackup = url
+            renderBackupCounts()
         }
 
+        mViewModel.getUserTagBackup().observe(viewLifecycleOwner) { tag ->
+            currentTagBackup = tag
+            renderBackupCounts()
+        }
+    }
 
+    private fun renderLoggedInUi(session: UserSession) {
+        mBinding.txName.text = session.userName
+        mBinding.txGuestEmail.text = session.userEmail
+        mBinding.btnLogin.visibility = View.GONE
+        mBinding.btnLogout.visibility = View.VISIBLE
+
+        Glide.with(requireContext())
+            .load(session.userProfile)
+            .into(mBinding.imgProfile)
+    }
+
+    private fun renderLoggedOutUi() {
+        mBinding.btnLogin.visibility = View.VISIBLE
+        mBinding.btnLogout.visibility = View.GONE
+        mBinding.imgProfile.setImageResource(R.drawable.account_circle_24px)
+
+        mBinding.txLinkCount.text = InitUrlDataCount.linkCount.toString()
+        mBinding.txFavoriteCount.text = InitUrlDataCount.favorite.toString()
+        mBinding.txTagCount.text = "0"
+    }
+
+    private fun renderBackupCounts() {
+        if (currentSession?.autoLogin != true) return
+
+        mBinding.txLinkCount.text = currentUrlBackup.size.toString()
+        mBinding.txFavoriteCount.text = currentUrlBackup.filter { it.favorite }.size.toString()
+        val distinctTags = mutableSetOf<String>()
+        currentTagBackup.forEach { distinctTags.add(it.tag) }
+        mBinding.txTagCount.text = distinctTags.size.toString()
     }
 
     private fun observe() = mViewModel.let { vm ->
 
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+        vm.btnTagState.observe(viewLifecycleOwner) { clicked ->
 
-        vm.btnTagState.observe(viewLifecycleOwner) {
-            if (it) {
+            if (!clicked) return@observe
 
-                if (autoLogin) {
+            viewLifecycleOwner.lifecycleScope.launch {
+
+                if (vm.isLoggedIn()) {
 
                     val intent = Intent(context, TagActivity::class.java)
                     startActivityAnimation.startActivityAnimation(intent, requireContext())
@@ -134,8 +178,8 @@ class MyPageFragment : Fragment() {
 
                 }
 
-
             }
+
         }
 
         vm.btnEditState.observe(viewLifecycleOwner) {
@@ -168,31 +212,33 @@ class MyPageFragment : Fragment() {
         }
 
         /** 로그아웃 시, 룸에 저장된 백업 데이터 삭제 -> 다른 계정으로 로그인 시 데이터 겹치는 문제 방지 **/
-        vm.btnOutState.observe(viewLifecycleOwner) {
-            if (it) {
+        vm.btnOutState.observe(viewLifecycleOwner) { clicked ->
 
-                auth.signOut()
+            if (!clicked) return@observe
 
-                kakaoLogout()
+            auth.signOut()
 
-                pref.edit().putInt("isFirst", 0).apply()
-                lifecycleScope.launch {
-                    try {
-                        credentialManager?.clearCredentialState(ClearCredentialStateRequest())
+            kakaoLogout()
 
-                        vm.deleteUserBackup()
-                        vm.deleteUserTagBackup()
-                        restartApp(requireContext())
+            viewLifecycleOwner.lifecycleScope.launch {
 
-                    } catch (e: Exception) {
-                        e.printStackTrace() // 로그 출력 (에러 확인용)
-                    }
+                try {
+                    credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                    sessionManager.clearSession()
+                    SessionCache.current = null
+                    vm.deleteUserBackup()
+                    vm.deleteUserTagBackup()
+                    restartApp(requireContext())
+
+                } catch (e: Exception) {
+                    e.printStackTrace() // 로그 출력 (에러 확인용)
                 }
-
             }
+
         }
 
     }
+
 
     // 카카오 로그아웃 처리
     private fun kakaoLogout() {
@@ -220,14 +266,7 @@ class MyPageFragment : Fragment() {
     }
 
     private fun restartApp(context: Context) {
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
 
-        pref.edit(commit = true) {
-            clear()
-                .putInt("isClearIntent", 1)
-        }
-
-        // 앱 재시작
         val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)

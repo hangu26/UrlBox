@@ -7,14 +7,19 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
-class MyPageViewModel(application: Application) : AndroidViewModel(application) {
+class MyPageViewModel(
+    application: Application,
+    private val sessionManager: UserSessionManager
+) : AndroidViewModel(application) {
 
     private val _repo = UserRepository(application)
     private val _urlRepo = UrlRepository(application)
@@ -36,19 +41,11 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
     private val _btnTagState = MutableLiveData<Boolean>()
     val btnTagState = _btnTagState
 
-    fun getUrlData(lifecycleOwner: LifecycleOwner) : LiveData<Pair<List<Url>, List<String>>>{
-        val mutableUrl = MutableLiveData<Pair<List<Url>, List<String>>>()
-        _repo.getUrlData().observe(lifecycleOwner) {
-            mutableUrl.value = it
-        }
-        return mutableUrl
-    }
-
-    fun deleteUserBackup(){
+    fun deleteUserBackup() {
         _urlRepo.deleteUserBackup()
     }
 
-    fun deleteUserTagBackup(){
+    fun deleteUserTagBackup() {
         _urlRepo.deleteUserTagBackup()
     }
 
@@ -60,24 +57,28 @@ class MyPageViewModel(application: Application) : AndroidViewModel(application) 
         return this.tagBackup
     }
 
-    fun btnEdit(){
+    fun btnEdit() {
         _btnEditState.value = true
     }
 
-    fun btnSavedLink(){
+    fun btnSavedLink() {
         _btnSavedLinkState.value = true
     }
 
-    fun btnTag(){
+    fun btnTag() {
         _btnTagState.value = true
     }
 
-    fun btnFavorite(){
+    fun btnFavorite() {
         _btnFavoriteState.value = true
     }
 
-    fun btnOut(){
-        _btnOutState.value= true
+    fun btnOut() {
+        _btnOutState.value = true
+    }
+
+    suspend fun isLoggedIn() : Boolean {
+        return sessionManager.userSession.first().autoLogin
     }
 
 }

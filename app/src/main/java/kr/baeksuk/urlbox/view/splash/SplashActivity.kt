@@ -9,38 +9,52 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import com.kakao.sdk.common.util.Utility
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.SessionCache
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.view.tutorial.TutorialActivity
+import org.koin.android.ext.android.inject
+import kotlin.getValue
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : BaseActivity() {
+
+    private val sessionManager: UserSessionManager by inject()
+
     @SuppressLint("PrivateResource")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        val prefs = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val isTutorialClear = prefs.getInt("isClearIntent", 0)
+        lifecycleScope.launch {
 
-        Handler(Looper.getMainLooper()).postDelayed({
+            val session = sessionManager.userSession.first()
+            SessionCache.current = session
 
-            if (isTutorialClear == 0) {
-                val intent = Intent(this@SplashActivity, TutorialActivity::class.java)
-                startActivityAnimation(intent,this@SplashActivity)
-                finish()
+            delay(2000)
 
+            val isTutorialClear = sessionManager.isTutorialClear.first()
+
+            if (isTutorialClear) {
+                startActivityAnimation(
+                    Intent(this@SplashActivity, MainActivity::class.java),
+                    this@SplashActivity
+                )
             } else {
-                prefs.edit().putInt("isFirst", 1).apply()
-
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
-
-                startActivityAnimation(intent,this@SplashActivity)
-
-                finish()
+                startActivityAnimation(
+                    Intent(this@SplashActivity, TutorialActivity::class.java),
+                    this@SplashActivity
+                )
             }
-        }, 2000)
+            finish()
+        }
+
     }
 }

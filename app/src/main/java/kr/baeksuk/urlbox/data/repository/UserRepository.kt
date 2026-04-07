@@ -40,90 +40,8 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
     private val urlDao: UrlDao = urlDatabase.urlDao()
 
-    /**
-    fun getUrlData(): LiveData<Pair<List<Url>, List<Bitmap>>> {
-    val userId = pref.getString("userId", "")
-    val databaseReference =
-    FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("url")
 
-    val mutableUrl = MutableLiveData<Pair<List<Url>, List<Bitmap>>>()
-
-    // Firebase Storage 참조 가져오기
-    val storage = FirebaseStorage.getInstance()
-
-    databaseReference.addValueEventListener(object : ValueEventListener {
-    override fun onDataChange(snapshot: DataSnapshot) {
-    val urlDataList = mutableListOf<Url>()
-    val imgList = mutableListOf<Bitmap>()
-
-    // 이미지 다운로드 완료 카운트 변수
-    var loadedImagesCount = 0
-    val totalImagesCount = snapshot.childrenCount.toInt()
-
-    for (dataSnapshot in snapshot.children) {
-    val url = dataSnapshot.child("url").value.toString()
-    val imageKey = dataSnapshot.child("imageKey").value.toString()
-    val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
-    val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
-    val storageReference =
-    storage.reference.child("images").child(userId).child("$imageKey.png")
-
-    Log.e("데이터 확인용", "URL: $url, imageKey: $imageKey")
-
-    storageReference.getBytes(ONE_MEGABYTE) // 최대 1MB까지 다운로드
-    .addOnSuccessListener { bytes ->
-
-    // 다운로드한 데이터를 Bitmap으로 변환
-    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-
-    imgList.add(bitmap)
-    urlDataList.add(Url(url, imageKey, favorite, timeStamp))
-    Log.e("데이터 확인용", "URL: $url, urlDataList: $urlDataList")
-
-    // 이미지 다운로드 완료 시, 카운트 증가
-    loadedImagesCount++
-
-    // 모든 이미지가 다운로드되었으면 LiveData 업데이트
-    if (loadedImagesCount == totalImagesCount) {
-    mutableUrl.value = Pair(urlDataList, imgList)
-    }
-
-    val directory = ctx.filesDir // 앱의 내부 저장소 디렉토리
-    val file = File(directory, "$imageKey.png")
-
-    try {
-    val outStream = FileOutputStream(file)
-    bitmap.compress(
-    Bitmap.CompressFormat.PNG,
-    100,
-    outStream
-    ) // 압축해서 저장
-    outStream.flush()
-    outStream.close()
-    Log.d("파일 저장", "이미지 저장 완료: ${file.absolutePath}")
-
-    } catch (e: Exception) {
-    e.printStackTrace()
-    }
-
-    }
-    .addOnFailureListener { exception ->
-    exception.printStackTrace()
-    }
-    }
-    }
-
-    override fun onCancelled(error: DatabaseError) {
-    // 실패 처리
-    }
-    })
-
-    return mutableUrl
-    }
-     **/
-
-    fun getTagData(): LiveData<List<Tag>> {
-        val userId = pref.getString("userId", "")
+    fun getTagData(userId: String): LiveData<List<Tag>> {
         val databaseReference =
             FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("Tag")
 
@@ -167,8 +85,7 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun getUrlData(): LiveData<Pair<List<Url>, List<String>>> {
-        val userId = pref.getString("userId", "")
+    fun getUrlData(userId: String): LiveData<Pair<List<Url>, List<String>>> {
         val databaseReference =
             FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("url")
 

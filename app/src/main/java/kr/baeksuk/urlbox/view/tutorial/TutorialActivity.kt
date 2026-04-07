@@ -14,16 +14,22 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityTutorialBinding
 import kr.baeksuk.urlbox.util.adapter.TutorialPagerAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import kr.baeksuk.urlbox.view.main.MainActivity
+import org.koin.android.ext.android.inject
+import kotlin.getValue
 
 class TutorialActivity : BaseActivity() {
 
     private lateinit var tBinding: ActivityTutorialBinding
+    private val sessionManager: UserSessionManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,8 +85,10 @@ class TutorialActivity : BaseActivity() {
                         viewPager.setCurrentItem(current + 1, true)
                     } else {
                         val intent = Intent(this@TutorialActivity, MainActivity::class.java)
-                        val prefs = getSharedPreferences("User", Context.MODE_PRIVATE)
-                        prefs.edit().putInt("isClearIntent", 1).apply()
+//                        prefs.edit().putInt("isClearIntent", 1).apply()
+                        lifecycleScope.launch {
+                            sessionManager.setTutorialClearDone()
+                        }
                         startActivityAnimation(intent, this@TutorialActivity)
                         finish()
                     }

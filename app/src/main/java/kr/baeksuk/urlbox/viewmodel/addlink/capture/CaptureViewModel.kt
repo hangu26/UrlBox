@@ -61,15 +61,6 @@ class CaptureViewModel(application: Application) : AndroidViewModel(application)
 
     var isClicked = 0
 
-    fun getTagData(lifecycleOwner: LifecycleOwner) : LiveData<List<Tag>>{
-        val mutableTag = MutableLiveData<List<Tag>>()
-        _userRepo.getTagData().observe(lifecycleOwner){
-            mutableTag.value = it
-        }
-
-        return mutableTag
-    }
-
     fun btnShowTags() {
         _btnShowTagsState.value = isClicked % 2 == 0
         isClicked++

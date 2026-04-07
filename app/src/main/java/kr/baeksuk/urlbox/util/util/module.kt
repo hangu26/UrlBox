@@ -1,5 +1,8 @@
 package kr.baeksuk.urlbox.util.util
 
+import kr.baeksuk.urlbox.domain.LoginUseCase
+import kr.baeksuk.urlbox.data.repository.UserRepository
+import kr.baeksuk.urlbox.domain.LoadUserHomeDataUseCase
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
 import kr.baeksuk.urlbox.viewmodel.editurl.EditUrlViewModel
@@ -21,23 +24,27 @@ import kr.baeksuk.urlbox.viewmodel.tag.TagViewModel
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import kr.baeksuk.urlbox.viewmodel.useterms.UseTermsViewModel
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val module = module {
-
+    single {LoadUserHomeDataUseCase(get(), get())}
+    single { UserRepository(androidApplication()) }
+    single { LoginUseCase(get(), get()) }
+    single { UserSessionManager(androidContext()) }
     viewModel { MainViewModel(androidApplication()) }
-    viewModel { UrlViewModel(androidApplication()) }
+    viewModel { UrlViewModel(androidApplication(), get()) }
     viewModel { AddLinkViewModel(androidApplication()) }
     viewModel { CaptureViewModel(androidApplication()) }
     viewModel { UrlDetailViewModel(androidApplication()) }
     viewModel { ThumbnailViewModel(androidApplication()) }
-    viewModel { MyPageViewModel(androidApplication()) }
+    viewModel { MyPageViewModel(androidApplication(), get()) }
     viewModel { UrlDataViewModel() }
     viewModel { SavedLinkViewModel(androidApplication()) }
     viewModel { FavoriteViewModel(androidApplication()) }
     viewModel { ImgDetailViewModel(androidApplication()) }
-    viewModel { LoginViewModel(androidApplication()) }
+    viewModel { LoginViewModel(androidApplication(), get()) }
     viewModel { SettingViewModel(androidApplication()) }
     viewModel { LanguageViewModel(androidApplication()) }
     viewModel { MyFolderViewModel(androidApplication()) }
