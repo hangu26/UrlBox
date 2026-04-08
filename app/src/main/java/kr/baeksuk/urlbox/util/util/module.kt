@@ -1,7 +1,9 @@
 package kr.baeksuk.urlbox.util.util
 
+import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.data.repository.UserRepository
+import kr.baeksuk.urlbox.domain.LoadThumbnailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadUserHomeDataUseCase
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
@@ -29,16 +31,18 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val module = module {
-    single {LoadUserHomeDataUseCase(get(), get())}
-    single { UserRepository(androidApplication()) }
+    single { LoadThumbnailDataUseCase(get(), get()) }
+    single { UrlRepository(get()) }
+    single { LoadUserHomeDataUseCase(get(), get()) }
+    single { UserRepository(get()) }
     single { LoginUseCase(get(), get()) }
     single { UserSessionManager(androidContext()) }
     viewModel { MainViewModel(androidApplication()) }
-    viewModel { UrlViewModel(androidApplication(), get()) }
+    viewModel { UrlViewModel(androidApplication(), get(), get(), get()) }
     viewModel { AddLinkViewModel(androidApplication()) }
     viewModel { CaptureViewModel(androidApplication()) }
     viewModel { UrlDetailViewModel(androidApplication()) }
-    viewModel { ThumbnailViewModel(androidApplication()) }
+    viewModel { ThumbnailViewModel(androidApplication(), get()) }
     viewModel { MyPageViewModel(androidApplication(), get()) }
     viewModel { UrlDataViewModel() }
     viewModel { SavedLinkViewModel(androidApplication()) }

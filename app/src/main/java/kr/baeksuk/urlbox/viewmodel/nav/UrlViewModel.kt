@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -18,13 +19,15 @@ import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.domain.LoadUserHomeDataUseCase
 import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
 class UrlViewModel(
     application: Application,
-    private val loadUserHomeDataUseCase: LoadUserHomeDataUseCase
+    private val loadUserHomeDataUseCase: LoadUserHomeDataUseCase,
+    private val _repo : UrlRepository,
+    private val sessionManager: UserSessionManager
 ) : AndroidViewModel(application) {
 
-    private val _repo = UrlRepository(application)
     private val url = _repo.getGuestUrl()
     private val urlBackup = _repo.getUserUrlBackup()
     private val tagBackup = _repo.getUserTagBackup()
@@ -47,6 +50,9 @@ class UrlViewModel(
     private val _urlInputDoneState = MutableLiveData<Boolean>()
     val urlInputDoneState = _urlInputDoneState
 
+    private val _startMode = MutableLiveData<StartMode>()
+    val startMode: LiveData<StartMode> = _startMode
+
     private val _urlData = MediatorLiveData<Pair<List<Url>, List<String>>>()
     val urlData: LiveData<Pair<List<Url>, List<String>>> = _urlData
 
@@ -58,12 +64,38 @@ class UrlViewModel(
         REFRESH
     }
 
+    enum class StartMode {
+        GUEST,
+        LOGIN_REFRESH,
+        LOGIN_INSERT,
+        LOGIN_ONLY
+    }
+
     fun btnAdd() {
         _btnAddState.value = true
     }
 
     fun btnRefresh() {
         _btnRefreshState.value = true
+    }
+
+    fun prepareStartMode(beforeActivity: String) {
+        viewModelScope.launch {
+            val session = sessionManager.userSession.first()
+
+            if (session.autoLogin != true) {
+                _startMode.value = StartMode.GUEST
+                return@launch
+            }
+
+            val isFirst = sessionManager.isFirst.first()
+
+            _startMode.value = when {
+                beforeActivity == "CaptureSave" -> StartMode.LOGIN_REFRESH
+                isFirst -> StartMode.LOGIN_INSERT
+                else -> StartMode.LOGIN_ONLY
+            }
+        }
     }
 
     fun getGuestUrl(): LiveData<List<UrlEntity>> {

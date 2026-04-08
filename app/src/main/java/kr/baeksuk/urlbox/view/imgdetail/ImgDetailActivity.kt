@@ -10,14 +10,12 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.google.firebase.auth.internal.RecaptchaActivity
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityImgDetailBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.ImgPagerRvAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.UrlData
-import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.imgdetail.ImgDetailViewModel
@@ -39,7 +37,7 @@ class ImgDetailActivity : BaseActivity() {
 
         postponeEnterTransition() // 트랜지션 시작을 지연
 
-        adapter = ImgPagerRvAdapter(urlList, this@ImgDetailActivity, this@ImgDetailActivity)
+        adapter = ImgPagerRvAdapter(urlList, this@ImgDetailActivity)
 
         iBinding.apply {
             activity = this@ImgDetailActivity

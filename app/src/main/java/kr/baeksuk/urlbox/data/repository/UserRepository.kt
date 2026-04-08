@@ -1,13 +1,10 @@
 package kr.baeksuk.urlbox.data.repository
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -17,6 +14,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -32,48 +30,47 @@ import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
 
-class UserRepository(application: Application) : AndroidViewModel(application) {
+class UserRepository(context: Context){
 
+    private val urlDatabase = UrlDatabase.getInstance(context.applicationContext)
     private var database: DatabaseReference = Firebase.database.reference
-    private val pref = application.getSharedPreferences("User", Context.MODE_PRIVATE)
-    private val urlDatabase = UrlDatabase.getInstance(application)
-
     private val urlDao: UrlDao = urlDatabase.urlDao()
 
 
     fun getTagData(userId: String): LiveData<List<Tag>> {
         val databaseReference =
-            FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("Tag")
+            FirebaseDatabase.getInstance().reference.child("User").child(userId).child("Tag")
 
         val mutableTag = MutableLiveData<List<Tag>>()
 
         databaseReference.orderByChild("tag")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val tagDataList = mutableListOf<Tag>()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val tagDataList = mutableListOf<Tag>()
 
-                    snapshot.children.forEach { dataSnapshot ->
-                        val tag = dataSnapshot.child("tag").value.toString() // "tag" 필드의 값만 가져오기
-                        val timeStamp = dataSnapshot.child("timeStamp").value.toString()
+                        snapshot.children.forEach { dataSnapshot ->
+                            val tag = dataSnapshot.child("tag").value.toString()
+                            val timeStamp = dataSnapshot.child("timeStamp").value.toString()
 
-                        // URL 리스트 가져오기
-                        val urlList = mutableListOf<String>()
-                        dataSnapshot.child("url").children.forEach { urlSnapshot ->
-                            urlSnapshot.child("url").value?.toString()?.let { urlList.add(it) }
-                        }
+                            val urlList = mutableListOf<String>()
+                            dataSnapshot.child("url").children.forEach { urlSnapshot ->
+                                urlSnapshot.child("url").value?.toString()?.let { urlList.add(it) }
+                            }
 
-                        if (tag !in tagDataList.map { it.tag }) {
-                            tagDataList.add(
-                                Tag(
-                                    tag = tag,
-                                    timeStamp = timeStamp,
-                                    urlList = urlList
+                            if (tag !in tagDataList.map { it.tag }) {
+                                tagDataList.add(
+                                    Tag(
+                                        tag = tag,
+                                        timeStamp = timeStamp,
+                                        urlList = urlList
+                                    )
                                 )
-                            )
+                            }
                         }
-                    }
 
-                    mutableTag.value = tagDataList
+                        mutableTag.postValue(tagDataList)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -87,88 +84,82 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
 
     fun getUrlData(userId: String): LiveData<Pair<List<Url>, List<String>>> {
         val databaseReference =
-            FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("url")
+            FirebaseDatabase.getInstance().reference.child("User").child(userId).child("url")
 
         val mutableUrl = MutableLiveData<Pair<List<Url>, List<String>>>()
-
-        // Firebase Storage 참조 가져오기
         val storage = FirebaseStorage.getInstance()
 
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                viewModelScope.launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     data class UrlLoadResult(
                         val order: Int,
                         val urlData: Url,
                         val imgUri: String
                     )
 
-                    val orderedResults = coroutineScope {
-                        snapshot.children.mapIndexed { index, dataSnapshot ->
-                            async(Dispatchers.IO) {
-                                val url = dataSnapshot.child("url").value.toString()
-                                val imageKey = dataSnapshot.child("imageKey").value.toString()
-                                val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
-                                val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
-                                val urlName = dataSnapshot.child("urlName").value.toString()
-                                val urlMemo = dataSnapshot.child("urlMemo").value.toString()
+                    val orderedResults = snapshot.children.mapIndexed { index, dataSnapshot ->
+                        async(Dispatchers.IO) {
+                            val url = dataSnapshot.child("url").value.toString()
+                            val imageKey = dataSnapshot.child("imageKey").value.toString()
+                            val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
+                            val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
+                            val urlName = dataSnapshot.child("urlName").value.toString()
+                            val urlMemo = dataSnapshot.child("urlMemo").value.toString()
 
-                                // 🔹 tags 가져오기
-                                val tagList = mutableListOf<UserTags>()
-                                val tagsSnapshot = dataSnapshot.child("tags")
-                                for (tagSnapshot in tagsSnapshot.children) {
-                                    val tagValue = tagSnapshot.child("tag").value.toString()
-                                    tagList.add(
-                                        UserTags(
-                                            tag = tagValue,
-                                            timeStamp = timeStamp.toString().toLong()
-                                        )
+                            val tagList = mutableListOf<UserTags>()
+                            val tagsSnapshot = dataSnapshot.child("tags")
+                            for (tagSnapshot in tagsSnapshot.children) {
+                                val tagValue = tagSnapshot.child("tag").value.toString()
+                                tagList.add(
+                                    UserTags(
+                                        tag = tagValue,
+                                        timeStamp = timeStamp.toString().toLong()
                                     )
-                                }
-
-                                // Firebase Storage에서 이미지 URL 가져오기
-                                val storageReference =
-                                    storage.reference.child("images").child(userId).child("$imageKey.png")
-
-                                val imgUri = try {
-                                    val uri = storageReference.downloadUrl.await().toString()
-                                    try {
-                                        /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
-                                        urlDao.insertImgUri(uri, url)
-                                    } catch (e: Exception) {
-                                        Log.e("Room 이미지 URI 저장 실패", "url: $url, 오류: ${e.message}")
-                                    }
-                                    uri
-                                } catch (exception: Exception) {
-                                    // Storage 404 등 실패해도 동일한 슬롯을 유지해서 url/이미지 순서를 보장
-                                    Log.e(
-                                        "Storage 이미지 로드 실패",
-                                        "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
-                                    )
-                                    ""
-                                }
-
-                                UrlLoadResult(
-                                    order = index,
-                                    urlData = Url(
-                                        url,
-                                        imageKey,
-                                        imgUri,
-                                        favorite,
-                                        timeStamp,
-                                        urlName,
-                                        urlMemo,
-                                        tagList
-                                    ),
-                                    imgUri = imgUri
                                 )
                             }
-                        }.awaitAll().sortedBy { it.order }
-                    }
 
-                    mutableUrl.value = Pair(
-                        orderedResults.map { it.urlData },
-                        orderedResults.map { it.imgUri }
+                            val storageReference =
+                                storage.reference.child("images").child(userId).child("$imageKey.png")
+
+                            val imgUri = try {
+                                val uri = storageReference.downloadUrl.await().toString()
+                                try {
+                                    urlDao.insertImgUri(uri, url)
+                                } catch (e: Exception) {
+                                    Log.e("Room 이미지 URI 저장 실패", "url: $url, 오류: ${e.message}")
+                                }
+                                uri
+                            } catch (exception: Exception) {
+                                Log.e(
+                                    "Storage 이미지 로드 실패",
+                                    "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
+                                )
+                                ""
+                            }
+
+                            UrlLoadResult(
+                                order = index,
+                                urlData = Url(
+                                    url,
+                                    imageKey,
+                                    imgUri,
+                                    favorite,
+                                    timeStamp,
+                                    urlName,
+                                    urlMemo,
+                                    tagList
+                                ),
+                                imgUri = imgUri
+                            )
+                        }
+                    }.awaitAll().sortedBy { it.order }
+
+                    mutableUrl.postValue(
+                        Pair(
+                            orderedResults.map { it.urlData },
+                            orderedResults.map { it.imgUri }
+                        )
                     )
                 }
             }

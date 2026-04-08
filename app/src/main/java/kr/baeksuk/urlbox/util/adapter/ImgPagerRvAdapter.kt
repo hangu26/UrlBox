@@ -1,44 +1,35 @@
 package kr.baeksuk.urlbox.util.adapter
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.core.net.toUri
 import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
-import kr.baeksuk.urlbox.model.GuestModeHandler
-import kr.baeksuk.urlbox.model.LoggedInModeHandler
-import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
-import kr.baeksuk.urlbox.util.util.ImgUriListData
 import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.util.util.ViewPagerPosition
-import java.io.File
 
-class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context, act: Activity) :
+class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context) :
     RecyclerView.Adapter<ImgPagerRvAdapter.MyViewHolder>() {
 
     private val context = ctx
-    private val activity = act
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): ImgPagerRvAdapter.MyViewHolder {
+    ): MyViewHolder {
         val binding =
             ItemThumbnailPageBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return MyViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ImgPagerRvAdapter.MyViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.bind(urlList[position], position)
     }
 
@@ -46,48 +37,20 @@ class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context, act: Activ
         return urlList.size
     }
 
-    fun getViewHolderAtPosition(recyclerView: RecyclerView, position: Int): MyViewHolder? {
-        return recyclerView.findViewHolderForAdapterPosition(position) as? MyViewHolder
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     inner class MyViewHolder(binding: ItemThumbnailPageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         private var thumbnail = binding.imgUrl
-        private var imageKey = ""
         private var txUrl = binding.txUrl
         private var isFavorite = false
-        private var timeStamp = ""
-        private var imgUri = ""
-        val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
-        private val autoLogin = pref.getBoolean("auto login", false)
-
-        fun getThumbnail(): ImageView {
-            return thumbnail
-        }
 
         fun bind(url: Url, position: Int) {
-            imageKey = url.imageKey
             txUrl.text = url.url
             isFavorite = url.favorite
-            imgUri = url.imgUri
-            timeStamp = url.timeStamp.toString()
 
             ViewPagerPosition.thumbnail = thumbnail
-
-            val imgUriList = ImgUriListData.imgUriListData
-            Log.e("이미지 uri 리스트", imgUriList.toString())
-
-            val modeHandler: ModeHandler = if (autoLogin) {
-                LoggedInModeHandler(imgUriList!!, layoutPosition)
-            } else {
-                GuestModeHandler(imageKey, context)
-
-            }
-
-            /** 인터페이스를 통해 로그인 모드와 게스트 모드 로직 분리 구현 **/
-            modeHandler.loadImage(url.imgUri, thumbnail, context, true)
+            ThumbnailImageLoader.load(context, url, thumbnail, position, true, emptyList())
 
 
         }
@@ -106,7 +69,7 @@ class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context, act: Activ
 
             txUrl.setOnClickListener {
 
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.text.toString()))
+                val intent = Intent(Intent.ACTION_VIEW, txUrl.text.toString().toUri())
                 context.startActivity(intent)
 
             }
@@ -116,7 +79,7 @@ class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context, act: Activ
                 setTouchAnimation(v, event)
 
                 if (event?.action == MotionEvent.ACTION_UP) {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.toString()))
+                    val intent = Intent(Intent.ACTION_VIEW, txUrl.text.toString().toUri())
                     context.startActivity(intent)
                 }
 
