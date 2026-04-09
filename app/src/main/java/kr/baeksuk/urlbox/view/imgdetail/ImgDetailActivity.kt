@@ -8,8 +8,10 @@ import android.util.Log
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityImgDetailBinding
 import kr.baeksuk.urlbox.model.Url
@@ -55,7 +57,7 @@ class ImgDetailActivity : BaseActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun initButton(){
+    private fun initButton() {
 
         iBinding.btnCapture.setOnTouchListener { v, motionEvent ->
 
@@ -147,28 +149,13 @@ class ImgDetailActivity : BaseActivity() {
         vm.btnEditState.observe(this@ImgDetailActivity) {
             if (it) {
 
-                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-                val autoLogin = pref.getBoolean("auto login", false)
-
                 val url = getCurrentUrl()
 
-                if (autoLogin) {
-
-                    val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
-                    intent.putExtra("url", url.url)
-                    intent.putExtra("edit", true)
-                    startActivityAnimation(intent, this)
-                    finish()
-
-                } else {
-
-                    val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
-                    intent.putExtra("url", url.url)
-                    intent.putExtra("edit", true)
-                    startActivityAnimation(intent, this)
-                    finish()
-
-                }
+                val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
+                intent.putExtra("url", url.url)
+                intent.putExtra("edit", true)
+                startActivityAnimation(intent, this)
+                finish()
 
             }
         }
@@ -176,74 +163,37 @@ class ImgDetailActivity : BaseActivity() {
         vm.btnDelete.observe(this@ImgDetailActivity) {
             if (it) {
 
-                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-                val autoLogin = pref.getBoolean("auto login", false)
-
                 val url = getCurrentUrl()
 
-                Log.e("로그인 상태", autoLogin.toString())
-                if (autoLogin) {
+                vm.deleteImage(url.url, url.imageKey)
 
-                    vm.deleteUserData(url.url, url.imageKey)
-                    val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
-
-                } else {
-
-                    vm.deleteGuestData(url.url)
-                    val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
-
-                }
+                val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
+                startActivityAnimation(intent, this)
+                finishAffinity()
 
             }
         }
 
         vm.btnFavoriteState.observe(this@ImgDetailActivity) {
-            val url = getCurrentUrl()
-
-            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-            val autoLogin = pref.getBoolean("auto login", false)
 
             if (it) {
 
-                if (!favoriteClicked) {
+                val url = getCurrentUrl()
 
-                    favoriteClicked = true
+                    favoriteClicked = !favoriteClicked
 
-                    iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
-                    Toast.makeText(this, "즐겨찾기가 설정되었습니다.", Toast.LENGTH_SHORT).show()
+                    iBinding.iconFavorite.setImageResource(
+                        if (favoriteClicked) R.drawable.icon_favorite_corral
+                        else R.drawable.icon_favorite_app_color
+                    )
 
-                    if (autoLogin) {
+                    Toast.makeText(
+                        this@ImgDetailActivity,
+                        if (favoriteClicked) "즐겨찾기가 설정되었습니다." else "즐겨찾기가 해제되었습니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-                        vm.updateUserFavorite(url.url, favoriteClicked)
-
-                    } else {
-
-                        vm.updateFavorite(url.url, favoriteClicked)
-
-                    }
-
-                } else {
-
-                    favoriteClicked = false
-
-                    iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
-                    Toast.makeText(this, "즐겨찾기가 해제되었습니다.", Toast.LENGTH_SHORT).show()
-
-                    if (autoLogin) {
-
-                        vm.updateUserFavorite(url.url, favoriteClicked)
-
-                    } else {
-
-                        vm.updateFavorite(url.url, favoriteClicked)
-
-                    }
-
-                }
+                    vm.toggleFavorite(url.url, favoriteClicked)
 
             }
         }

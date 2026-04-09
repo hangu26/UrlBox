@@ -25,6 +25,7 @@ import kr.baeksuk.urlbox.util.util.OnTagFilterSelectedListener
 import kr.baeksuk.urlbox.util.util.TagTouchCallback
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
+import kr.baeksuk.urlbox.viewmodel.nav.StartMode
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
@@ -181,23 +182,12 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 uViewModel.isLoading.value = true
                 uViewModel.isTagLoading.value = true
                 uViewModel.loadUserData(UrlViewModel.RemoteSyncMode.REFRESH)
-
-                uBinding.root.postDelayed({
-                    uViewModel.isLoading.value = false
-                    uViewModel.isTagLoading.value = false
-                    activity?.intent?.putExtra("activity", "")
-                }, 700)
             }
 
             UrlViewModel.RemoteSyncMode.INSERT -> {
                 uViewModel.isLoading.value = true
                 uViewModel.isTagLoading.value = true
                 uViewModel.loadUserData(UrlViewModel.RemoteSyncMode.INSERT)
-
-                uBinding.root.postDelayed({
-                    uViewModel.isLoading.value = false
-                    uViewModel.isTagLoading.value = false
-                }, 700)
             }
 
             null -> Unit
@@ -264,10 +254,9 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     private fun observeViewModel() = uViewModel.let { vm ->
         vm.startMode.observe(viewLifecycleOwner) { mode ->
             when (mode) {
-                UrlViewModel.StartMode.GUEST -> renderGuestMode()
-                UrlViewModel.StartMode.LOGIN_REFRESH -> renderLoggedInMode(UrlViewModel.RemoteSyncMode.REFRESH)
-                UrlViewModel.StartMode.LOGIN_INSERT -> renderLoggedInMode(UrlViewModel.RemoteSyncMode.INSERT)
-                UrlViewModel.StartMode.LOGIN_ONLY -> renderLoggedInMode(null)
+                StartMode.GUEST -> renderGuestMode()
+                StartMode.LOGIN_REFRESH -> renderLoggedInMode(UrlViewModel.RemoteSyncMode.REFRESH)
+                StartMode.LOGIN_ONLY -> renderLoggedInMode(null)
                 null -> Unit
             }
         }

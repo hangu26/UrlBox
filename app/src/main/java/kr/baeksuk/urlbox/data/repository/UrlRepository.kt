@@ -6,6 +6,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -22,6 +23,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
@@ -832,11 +834,10 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     }
 
     /** urldetail 액티비티에서 이름 수정 함수 **/
-    fun updateUrlName(url: String, urlName: String) {
+    fun updateUrlName(url: String, urlName: String, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val userId = pref.getString("userId", "")
-                if (userId.isNullOrEmpty()) return@launch
+                if (userId.isEmpty()) return@launch
 
                 // 1. 로컬 DB 업데이트 (기존 코드 유지)
                 urlDao.updateUrlName(url, urlName)
@@ -878,11 +879,10 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     /** urldetail 액티비티에서 메모 수정 함수 **/
     /** urldetail 액티비티에서 메모 수정 함수 **/
-    fun updateUrlMemo(url: String, urlMemo: String) {
+    fun updateUrlMemo(url: String, urlMemo: String, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val userId = pref.getString("userId", "")
-                if (userId.isNullOrEmpty()) return@launch
+                if (userId.isEmpty()) return@launch
 
                 // 1. 로컬 DB 업데이트
                 urlDao.updateUrlMemo(url, urlMemo)
@@ -925,7 +925,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun updateFavorite(url: String, isFavorite: Boolean) {
+    suspend fun updateFavorite(url: String, isFavorite: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 urlDao.updateFavorite(url, isFavorite)
@@ -935,49 +935,35 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateUserFavorite(url: String, isFavorite: Boolean) {
-
-        val userId = pref.getString("userId", "")
-
-        viewModelScope.launch(Dispatchers.IO) {
+    suspend fun updateUserFavorite(url: String, isFavorite: Boolean, userId: String) {
+        withContext(Dispatchers.IO) {
             try {
+                // Room 먼저 업데이트
                 urlDao.updateUserFavorite(url, isFavorite)
 
-                databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
-                        .child("url")
+                // Firebase Query
+                val query = FirebaseDatabase.getInstance().reference
+                    .child("User")
+                    .child(userId)
+                    .child("url")
+                    .orderByChild("url")
+                    .equalTo(url)
 
-                databaseReference.orderByChild("url").equalTo(url)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
+                // 1회 조회를 suspend로 대기
+                val snapshot = query.get().await()
 
-                                for (child in snapshot.children) {
-                                    val key = child.key
+                if (!snapshot.exists()) {
+                    Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
+                    return@withContext
+                }
 
-                                    if (key != null) {
-                                        databaseReference.child(key).child("favorite")
-                                            .setValue(isFavorite).addOnCompleteListener {
-                                                Log.e("업데이트 성공", "Firebase favorite 업데이트 완료")
-                                            }.addOnFailureListener { e ->
-                                                Log.e("업데이트 실패", e.toString())
-                                            }
-                                    }
+                // 즐겨찾기 값 업데이트
+                snapshot.children.forEach { child ->
+                    child.ref.child("favorite").setValue(isFavorite).await()
+                }
 
-                                }
-
-                            } else {
-
-                                Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.e("Firebase 에러", error.message)
-                        }
-                    })
-
-            } catch (e: java.lang.Exception) {
+                Log.e("업데이트 성공", "Firebase favorite 업데이트 완료")
+            } catch (e: Exception) {
                 Log.e("데이터 업데이트 처리", e.toString())
             }
         }
@@ -1063,8 +1049,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun deleteUserData(url: String, imageKey: String) {
-        val userId = pref.getString("userId", "") ?: return
+    fun deleteUserData(url: String, imageKey: String, userId: String) {
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
         val databaseRef = FirebaseDatabase.getInstance().reference
         val urlRef = databaseRef.child("User").child(userId).child("url")

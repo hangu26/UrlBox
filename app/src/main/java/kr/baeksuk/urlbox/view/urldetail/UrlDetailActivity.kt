@@ -38,7 +38,6 @@ class UrlDetailActivity : BaseActivity() {
         uBinding =
             DataBindingUtil.setContentView(this@UrlDetailActivity, R.layout.activity_url_detail)
 
-
         val urlName = intent.extras?.getString("urlName", "").toString()
         val urlMemo = intent.extras?.getString("urlMemo", "").toString()
         val url = intent.extras?.getString("title", "").toString()
@@ -76,48 +75,43 @@ class UrlDetailActivity : BaseActivity() {
     }
 
     private fun initView() {
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+        val imageKey = intent.extras?.getString("imageKey", "") ?: ""
+        val url = intent.extras?.getString("title").orEmpty()
+        val imgUri = intent.extras?.getString("imgUri", "") ?: ""
+        val favoriteState = intent.extras?.getBoolean("isFavorite") == true
 
-        val imageKey = intent.extras?.getString("image", "")
-        val url = intent.extras?.getString("title")
-        val favoriteState = intent.extras?.getBoolean("isFavorite")
-        val imgUri = intent.extras?.getString("imgUri", "")
+        visitUrl = url
 
-        visitUrl = url!!
+        uViewModel.loadSessionState()
 
-        if (autoLogin) {
+        uViewModel.isLoggedIn.observe(this) { loggedIn ->
+            renderImage(loggedIn, imageKey, imgUri)
+        }
 
-            Glide.with(this@UrlDetailActivity)
+        favoriteClicked = favoriteState
+        uBinding.iconFavorite.setImageResource(
+            if (favoriteClicked) R.drawable.icon_favorite_corral
+            else R.drawable.icon_favorite_app_color
+        )
+    }
+
+    private fun renderImage(loggedIn: Boolean, imageKey: String, imgUri: String) {
+        if (loggedIn) {
+            Glide.with(this)
                 .load(imgUri)
                 .into(uBinding.imgUrl)
-
         } else {
-
-            val directory = this.filesDir
+            val directory = filesDir
             val filePath = "$directory/$imageKey.png"
             val file = File(filePath)
             val bitmap = BitmapFactory.decodeFile(file.absolutePath)
 
             if (file.exists()) {
-
                 uBinding.imgUrl.setImageBitmap(bitmap)
-
             } else {
                 Log.e("사진 파일", "파일이 존재하지 않습니다.")
             }
-
         }
-
-        if (favoriteState == true) {
-            favoriteClicked = true
-            uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
-        } else {
-            favoriteClicked = false
-            uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
-        }
-
-
     }
 
     private fun observe() = uViewModel.let { vm ->
@@ -170,55 +164,32 @@ class UrlDetailActivity : BaseActivity() {
         }
 
         vm.btnChangeImgState.observe(this@UrlDetailActivity) {
-            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-            val autoLogin = pref.getBoolean("auto login", false)
 
             if (it) {
                 val url = intent.extras?.getString("title")
 
-                if (autoLogin) {
-
-                    val intent = Intent(this@UrlDetailActivity, ReCaptureActivity::class.java)
-                    intent.putExtra("url", url)
-                    intent.putExtra("edit", true)
-                    startActivityAnimation(intent, this)
-//                    finish()
-
-                } else {
-
-                    val intent = Intent(this@UrlDetailActivity, ReCaptureActivity::class.java)
-                    intent.putExtra("url", url)
-                    intent.putExtra("edit", true)
-                    startActivityAnimation(intent, this)
-//                    finish()
-
-                }
+                val intent = Intent(this@UrlDetailActivity, ReCaptureActivity::class.java)
+                intent.putExtra("url", url)
+                intent.putExtra("edit", true)
+                startActivityAnimation(intent, this)
 
             }
         }
 
         vm.btnDelete.observe(this@UrlDetailActivity) {
-            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-            val autoLogin = pref.getBoolean("auto login", false)
 
             if (it) {
 
                 val url = intent.extras?.getString("title", "")
                 val imageKey = intent.extras?.getString("imageKey", "")
 
-                if (autoLogin) {
-
-                    vm.deleteUserData(url.toString(), imageKey.toString())
-                    val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
-
-                } else {
-                    vm.deleteGuestData(url!!)
-                    val intent = Intent(this@UrlDetailActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
+                vm.deleteData(url.toString(), imageKey.toString())
+                val intent = Intent(this@UrlDetailActivity, MainActivity::class.java).apply {
+                    putExtra("activity", "Delete")
                 }
+
+                startActivityAnimation(intent, this)
+                finishAffinity()
 
             }
         }
@@ -232,48 +203,23 @@ class UrlDetailActivity : BaseActivity() {
 
         vm.btnFavoriteState.observe(this@UrlDetailActivity) {
 
-            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-            val autoLogin = pref.getBoolean("auto login", false)
-
             if (it) {
-                val url = intent.extras?.getString("title")
+                val url = intent.extras?.getString("title") ?: ""
 
-                if (!favoriteClicked) {
+                favoriteClicked = !favoriteClicked
 
-                    favoriteClicked = true
+                uBinding.iconFavorite.setImageResource(
+                    if (favoriteClicked) R.drawable.icon_favorite_corral
+                    else R.drawable.icon_favorite_app_color
+                )
 
-                    uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
-                    Toast.makeText(this, "즐겨찾기가 설정되었습니다.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@UrlDetailActivity,
+                    if (favoriteClicked) "즐겨찾기가 설정되었습니다." else "즐겨찾기가 해제되었습니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
 
-                    if (autoLogin) {
-
-                        vm.updateUserFavorite(url!!, favoriteClicked)
-
-                    } else {
-
-                        vm.updateFavorite(url!!, favoriteClicked)
-
-                    }
-
-
-                } else {
-
-                    favoriteClicked = false
-
-                    uBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
-                    Toast.makeText(this, "즐겨찾기가 해제되었습니다.", Toast.LENGTH_SHORT).show()
-
-                    if (autoLogin) {
-
-                        vm.updateUserFavorite(url!!, favoriteClicked)
-
-                    } else {
-
-                        vm.updateFavorite(url!!, favoriteClicked)
-
-                    }
-
-                }
+                vm.toggleFavorite(url, favoriteClicked)
 
             }
         }

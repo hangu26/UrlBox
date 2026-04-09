@@ -10,12 +10,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kr.baeksuk.urlbox.model.UserSession
 import kotlin.text.get
+import kotlin.text.set
 
 private val Context.dataStore by preferencesDataStore(name = "user_session")
 
 class UserSessionManager(private val context: Context) {
 
     companion object {
+
+        private val KEY_HOME_SYNC_DONE = booleanPreferencesKey("home_sync_done")
         private val KEY_USER_ID = stringPreferencesKey("userId")
         private val KEY_USER_EMAIL = stringPreferencesKey("userEmail")
         private val KEY_USER_NAME = stringPreferencesKey("userName")
@@ -51,6 +54,10 @@ class UserSessionManager(private val context: Context) {
         pref[KEY_IS_FIRST] ?: true
     }
 
+    val homeSyncDone: Flow<Boolean> = context.dataStore.data.map { pref ->
+        pref[UserSessionManager.Companion.KEY_HOME_SYNC_DONE] ?: false
+    }
+
     val isTutorialClear = context.dataStore.data
         .map { pref -> pref[KEY_IS_CLEAR] ?: false }
 
@@ -71,6 +78,11 @@ class UserSessionManager(private val context: Context) {
         )
     }
 
+    suspend fun setHomeSyncDone() {
+        context.dataStore.edit { pref ->
+            pref[UserSessionManager.Companion.KEY_HOME_SYNC_DONE] = true
+        }
+    }
 
     suspend fun saveLogin(
         userId: String,

@@ -24,7 +24,7 @@ import kr.baeksuk.urlbox.util.util.UserSessionManager
 class UrlViewModel(
     application: Application,
     private val loadUserHomeDataUseCase: LoadUserHomeDataUseCase,
-    private val _repo : UrlRepository,
+    private val _repo: UrlRepository,
     private val sessionManager: UserSessionManager
 ) : AndroidViewModel(application) {
 
@@ -64,12 +64,6 @@ class UrlViewModel(
         REFRESH
     }
 
-    enum class StartMode {
-        GUEST,
-        LOGIN_REFRESH,
-        LOGIN_INSERT,
-        LOGIN_ONLY
-    }
 
     fun btnAdd() {
         _btnAddState.value = true
@@ -88,11 +82,9 @@ class UrlViewModel(
                 return@launch
             }
 
-            val isFirst = sessionManager.isFirst.first()
-
-            _startMode.value = when {
-                beforeActivity == "CaptureSave" -> StartMode.LOGIN_REFRESH
-                isFirst -> StartMode.LOGIN_INSERT
+            _startMode.value = when (beforeActivity) {
+                "CaptureSave" -> StartMode.LOGIN_REFRESH
+                "Delete" -> StartMode.LOGIN_ONLY
                 else -> StartMode.LOGIN_ONLY
             }
         }
@@ -122,12 +114,28 @@ class UrlViewModel(
                 return@launch
             }
 
+            var urlLoaded = false
+            var tagLoaded = false
+
+            fun finishSyncIfNeeded() {
+                if (urlLoaded && tagLoaded) {
+                    if (mode == RemoteSyncMode.INSERT || mode == RemoteSyncMode.REFRESH) {
+                        viewModelScope.launch {
+                            sessionManager.setHomeSyncDone()
+                        }
+                    }
+                }
+            }
+
             val urlSource = loadUserHomeDataUseCase.getUrlData(userId)
             _urlData.addSource(urlSource) { data ->
                 syncUrlBackup(data, mode)
                 _urlData.value = data
                 _isLoading.value = false
                 _urlData.removeSource(urlSource)
+
+                urlLoaded = true
+                finishSyncIfNeeded()
             }
 
             val tagSource = loadUserHomeDataUseCase.getTagData(userId)
@@ -137,6 +145,9 @@ class UrlViewModel(
                 _tagData.value = sorted
                 _isTagLoading.value = false
                 _tagData.removeSource(tagSource)
+
+                tagLoaded = true
+                finishSyncIfNeeded()
             }
         }
     }

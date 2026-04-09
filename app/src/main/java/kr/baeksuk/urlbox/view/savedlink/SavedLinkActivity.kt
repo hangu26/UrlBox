@@ -86,7 +86,7 @@ class SavedLinkActivity : BaseActivity(), OnClipItemClickListener {
     }
 
     override fun onDeleteClick(url: String, imageKey : String, position: Int) {
-        uViewModel.deleteUserData(url,imageKey)
+        uViewModel.deleteData(url,imageKey)
     }
 
 

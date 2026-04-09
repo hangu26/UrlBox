@@ -52,7 +52,6 @@ class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context) :
             ViewPagerPosition.thumbnail = thumbnail
             ThumbnailImageLoader.load(context, url, thumbnail, position, true, emptyList())
 
-
         }
 
         fun updateTransitionName(newPosition: Int) {

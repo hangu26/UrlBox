@@ -77,7 +77,7 @@ class ThumbnailFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = tViewModel.let { vm ->
 
-        vm.loadThumbnail()
+//        vm.loadThumbnail()
 
         vm.thumbnailState.observe(viewLifecycleOwner){ state ->
             when(state){
@@ -123,6 +123,11 @@ class ThumbnailFragment : Fragment() {
         }
 
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        tViewModel.loadThumbnail()
     }
 
 }

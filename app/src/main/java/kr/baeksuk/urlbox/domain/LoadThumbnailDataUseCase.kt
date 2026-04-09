@@ -1,33 +1,24 @@
 package kr.baeksuk.urlbox.domain
 
-import androidx.lifecycle.LiveData
 import kotlinx.coroutines.flow.first
-import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.util.util.UserSessionManager
+import kr.baeksuk.urlbox.view.nav.ThumbnailState
 
 class LoadThumbnailDataUseCase(
-    private val sessionManager: UserSessionManager,
-    private val repository: UrlRepository
+    private val repository: UrlRepository,
+    private val sessionManager: UserSessionManager
 ) {
-
-    suspend fun isLoggedIn(): Boolean {
+    suspend operator fun invoke(): ThumbnailState {
         val session = sessionManager.userSession.first()
-        return session.autoLogin ?: false
-    }
 
-    fun getGuestUrls() : LiveData<List<UrlEntity>> {
-        return repository.getGuestUrl()
+        return if (session.autoLogin) {
+            val urls = repository.getUserUrlBackup().value.orEmpty()
+            val tags = repository.getUserTagBackup().value.orEmpty()
+            ThumbnailState.Login(urls, tags)
+        } else {
+            val urls = repository.getGuestUrl().value.orEmpty()
+            ThumbnailState.Guest(urls)
+        }
     }
-
-    fun getLoginUrlBackup() : LiveData<List<UrlBackupEntity>> {
-        return repository.getUserUrlBackup()
-    }
-
-    fun getLoginTagBackup() : LiveData<List<TagBackupEntity>> {
-        return repository.getUserTagBackup()
-    }
-
 }
