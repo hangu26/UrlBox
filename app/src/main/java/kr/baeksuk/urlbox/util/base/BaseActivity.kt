@@ -37,9 +37,11 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun backToMain(activity: Context) {
-        val intent = Intent(activity, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+    fun backToMain(activity: Context, targetFragment: String? = null) {
+        val intent = Intent(activity, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            targetFragment?.let { putExtra("TARGET_FRAGMENT", it) }
+        }
         startActivityAnimation(intent, activity)
         finish()
 

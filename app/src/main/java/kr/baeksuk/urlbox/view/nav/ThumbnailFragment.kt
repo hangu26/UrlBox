@@ -9,16 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentThumbnailBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvThumbnailAdapter
-import kr.baeksuk.urlbox.util.util.UrlData
 import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
 import org.koin.android.ext.android.inject
+import kotlinx.coroutines.launch
 
 class ThumbnailFragment : Fragment() {
 
@@ -27,6 +30,11 @@ class ThumbnailFragment : Fragment() {
     private lateinit var adapter: RvThumbnailAdapter
     private val startActivityAnimation = StartActivityAnimation()
     private var currentUrlList: List<Url> = emptyList()
+
+    private fun transitionNameFor(url: Url): String {
+        val key = if (url.imageKey.isNotBlank()) url.imageKey else url.url
+        return "imageTran_$key"
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
@@ -55,15 +63,16 @@ class ThumbnailFragment : Fragment() {
     }
 
     private fun openImgDetail(url: Url, sharedView: View, position: Int) {
-        UrlData.urlList = currentUrlList
-        UrlData.selectedPosition = position
 
-        val transitionName = sharedView.transitionName ?: "imageTran_$position"
+        val transitionName = transitionNameFor(url)
+        sharedView.transitionName = transitionName
 
         val intent = Intent(requireContext(), ImgDetailActivity::class.java).apply {
             putExtra("title", url.url)
             putExtra("image", url.imageKey)
             putExtra("isFavorite", url.favorite)
+            putExtra("startPosition", position)
+            putExtra("transitionName", transitionName)
         }
 
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
@@ -77,39 +86,12 @@ class ThumbnailFragment : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = tViewModel.let { vm ->
 
-//        vm.loadThumbnail()
-
-        vm.thumbnailState.observe(viewLifecycleOwner){ state ->
-            when(state){
-                is ThumbnailState.Guest -> {
-                    currentUrlList = state.urls.map { entity ->
-                        Url(
-                            url = entity.urlLink,
-                            imageKey = entity.imageKey,
-                            favorite = entity.favorite,
-                            timeStamp = entity.timeStamp,
-                            urlName = entity.urlName,
-                            urlMemo = entity.urlMemo
-                        )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    vm.thumbnailState.collect { state ->
+                        render(state)
                     }
-                    adapter.setGuestData(state.urls)
-                    adapter.notifyDataSetChanged()
-                }
-                is ThumbnailState.Login -> {
-                    currentUrlList = state.urls.sortedByDescending { it.timeStamp }.map { entity ->
-                        Url(
-                            url = entity.urlLink,
-                            imageKey = entity.imageKey,
-                            imgUri = entity.imgUri,
-                            favorite = entity.favorite,
-                            timeStamp = entity.timeStamp,
-                            urlName = entity.urlName,
-                            urlMemo = entity.urlMemo,
-                            tag = entity.tag
-                        )
-                    }
-                    adapter.setUserBackupData(state.urls, true)
-                    adapter.notifyDataSetChanged()
                 }
             }
         }
@@ -121,13 +103,42 @@ class ThumbnailFragment : Fragment() {
                 requireActivity().finish()
             }
         }
-
-
     }
 
-    override fun onResume() {
-        super.onResume()
-        tViewModel.loadThumbnail()
+    @SuppressLint("NotifyDataSetChanged")
+    private fun render(state: ThumbnailState) {
+        when (state) {
+            is ThumbnailState.Guest -> {
+                currentUrlList = state.urls.map { entity ->
+                    Url(
+                        url = entity.urlLink,
+                        imageKey = entity.imageKey,
+                        favorite = entity.favorite,
+                        timeStamp = entity.timeStamp,
+                        urlName = entity.urlName,
+                        urlMemo = entity.urlMemo
+                    )
+                }
+                adapter.setGuestData(state.urls)
+            }
+
+            is ThumbnailState.Login -> {
+                currentUrlList = state.urls.sortedByDescending { it.timeStamp }.map { entity ->
+                    Url(
+                        url = entity.urlLink,
+                        imageKey = entity.imageKey,
+                        imgUri = entity.imgUri,
+                        favorite = entity.favorite,
+                        timeStamp = entity.timeStamp,
+                        urlName = entity.urlName,
+                        urlMemo = entity.urlMemo,
+                        tag = entity.tag
+                    )
+                }
+                adapter.setUserBackupData(state.urls, true)
+            }
+        }
     }
+
 
 }

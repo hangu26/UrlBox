@@ -3,22 +3,31 @@ package kr.baeksuk.urlbox.util.adapter
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.net.toUri
+import androidx.core.view.doOnPreDraw
 import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
-import kr.baeksuk.urlbox.util.util.UrlData
-import kr.baeksuk.urlbox.util.util.ViewPagerPosition
 
-class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context) :
+class ImgPagerRvAdapter(
+    private var urlList: List<Url>,
+    private val startPosition: Int,
+    ctx: Context,
+    private val onCurrentPageReady: ((View) -> Unit)? = null
+) :
     RecyclerView.Adapter<ImgPagerRvAdapter.MyViewHolder>() {
 
     private val context = ctx
+    private var enterTransitionStarted = false
+
+    private fun transitionNameFor(url: Url): String {
+        val key = if (url.imageKey.isNotBlank()) url.imageKey else url.url
+        return "imageTran_$key"
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -37,11 +46,16 @@ class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context) :
         return urlList.size
     }
 
+    fun updateData(newList: List<Url>) {
+        urlList = newList
+        notifyDataSetChanged()
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     inner class MyViewHolder(binding: ItemThumbnailPageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private var thumbnail = binding.imgUrl
+        val thumbnail = binding.imgUrl
         private var txUrl = binding.txUrl
         private var isFavorite = false
 
@@ -49,22 +63,20 @@ class ImgPagerRvAdapter(private val urlList: List<Url>, ctx: Context) :
             txUrl.text = url.url
             isFavorite = url.favorite
 
-            ViewPagerPosition.thumbnail = thumbnail
+            thumbnail.transitionName = transitionNameFor(url)
             ThumbnailImageLoader.load(context, url, thumbnail, position, true, emptyList())
 
-        }
+            if (!enterTransitionStarted && position == startPosition) {
+                thumbnail.doOnPreDraw {
+                    enterTransitionStarted = true
+                    onCurrentPageReady?.invoke(thumbnail)
+                }
+            }
 
-        fun updateTransitionName(newPosition: Int) {
-            thumbnail.transitionName = "imageTran_$newPosition"
-            Log.e("Transition Name 업데이트", "imageTran_$newPosition")
         }
 
         init {
 
-            val itemPosition = UrlData.selectedPosition
-
-            thumbnail.transitionName = "imageTran_$itemPosition"
-            Log.e("아이템 번호 뷰페이저", "imageTran_$itemPosition")
 
             txUrl.setOnClickListener {
 

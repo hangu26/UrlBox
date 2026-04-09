@@ -25,6 +25,15 @@ class RvThumbnailAdapter(
     private var imgUriList = listOf<String>()
     private var isBackup = false
 
+    init {
+        setHasStableIds(true)
+    }
+
+    private fun transitionNameFor(url: Url): String {
+        val key = if (url.imageKey.isNotBlank()) url.imageKey else url.url
+        return "imageTran_$key"
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun setGuestData(url: List<UrlEntity>) {
         thumbnailList = url.map { urlEntity ->
@@ -62,6 +71,12 @@ class RvThumbnailAdapter(
 
     }
 
+    override fun getItemId(position: Int): Long {
+        val item = thumbnailList.getOrNull(position) ?: return RecyclerView.NO_ID
+        val key = if (item.imageKey.isNotBlank()) item.imageKey else item.url
+        return key.hashCode().toLong()
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -72,7 +87,6 @@ class RvThumbnailAdapter(
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.bind(thumbnailList[position], position)
-        holder.thumbnail.transitionName = "imageTran_$position"
     }
 
     override fun getItemCount(): Int {
@@ -86,7 +100,7 @@ class RvThumbnailAdapter(
         private val iconFavorite = binding.iconFavorite
 
         fun bind(url: Url, position: Int) {
-            thumbnail.transitionName = "imageTran_$position"
+            thumbnail.transitionName = transitionNameFor(url)
             iconFavorite.visibility = if (url.favorite) View.VISIBLE else View.GONE
 
             imageLoader(

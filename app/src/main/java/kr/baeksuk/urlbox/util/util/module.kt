@@ -4,6 +4,7 @@ import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.domain.DeleteImageUseCase
+import kr.baeksuk.urlbox.domain.LoadDetailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadThumbnailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadUserHomeDataUseCase
 import kr.baeksuk.urlbox.domain.ToggleFavoriteUseCase
@@ -37,6 +38,8 @@ import org.koin.dsl.module
 import kotlin.math.sin
 
 val module = module {
+
+    single { LoadDetailDataUseCase(get(), get()) }
     single { UpdateUrlMemoUseCase(get(), get()) }
     single { UpdateUrlNameUseCase(get(), get()) }
     single { ToggleFavoriteUseCase(get(), get()) }
@@ -57,7 +60,7 @@ val module = module {
     viewModel { UrlDataViewModel() }
     viewModel { SavedLinkViewModel(androidApplication()) }
     viewModel { FavoriteViewModel(androidApplication()) }
-    viewModel { ImgDetailViewModel(androidApplication(), get(), get(), get()) }
+    viewModel { ImgDetailViewModel(androidApplication(), get(), get(), get() ,get()) }
     viewModel { LoginViewModel(androidApplication(), get()) }
     viewModel { SettingViewModel(androidApplication()) }
     viewModel { LanguageViewModel(androidApplication()) }

@@ -246,7 +246,7 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                             )
                             saveBitmapToFile(croppedBitmap, file)
                             vm.updateBackupUrl(urlBackupEntity, this, file)
-                            navigateToMain()
+                            navigateToMain("Thumbnail")
                         } else {
                             val urlBackupEntity = UrlBackupEntity(
                                 urlLink = url.toString(),
@@ -274,7 +274,7 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
 
                         if (isEditUrl == true) {
                             vm.updateUrl(urlEntity, url.toString(), this)
-                            backToMain(this@ReCaptureActivity)
+                            backToMain(this@ReCaptureActivity, "Thumbnail")
                         } else {
                             vm.insertUrl(urlEntity, url.toString(), this)
                             backToMain(this@ReCaptureActivity)
@@ -322,7 +322,7 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                     saveBitmapToFile(bitmap, file)
                     if (isEditUrl == true) vm.updateBackupUrl(urlBackupEntity, this, file)
                     else vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file, "")
-                    backToMain(this@ReCaptureActivity)
+                    backToMain(this@ReCaptureActivity, if (isEditUrl == true) "Thumbnail" else null)
                 } else {
                     val urlEntity = UrlEntity(
                         urlLink = url.toString(),
@@ -419,9 +419,10 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
     }
 
 
-    private fun navigateToMain() {
+    private fun navigateToMain(targetFragment: String? = null) {
         val intent = Intent(this@ReCaptureActivity, MainActivity::class.java)
         intent.putExtra("activity", "CaptureSave")
+        intent.putExtra("TARGET_FRAGMENT", targetFragment)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivityAnimation(intent, this@ReCaptureActivity)
         finish()

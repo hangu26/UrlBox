@@ -25,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.data.local.entity.PreparationTag
@@ -1154,17 +1155,17 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun getGuestUrl(): LiveData<List<UrlEntity>> {
-        return url
-    }
+    fun getGuestUrlFlow(): Flow<List<UrlEntity>> = urlDao.getAllFlow()
 
-    fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> {
-        return urlBackup
-    }
+    fun getUserUrlBackupFlow(): Flow<List<UrlBackupEntity>> = urlDao.getAllBackupFlow()
 
-    fun getUserTagBackup(): LiveData<List<TagBackupEntity>> {
-        return tagBackup
-    }
+    fun getUserTagBackupFlow(): Flow<List<TagBackupEntity>> = urlDao.getTagBackupFlow()
+
+    fun getGuestUrl(): LiveData<List<UrlEntity>> = url
+
+    fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> = urlBackup
+
+    fun getUserTagBackup(): LiveData<List<TagBackupEntity>> = tagBackup
 
     suspend fun hasBackupData(): Boolean {
         return urlDao.hasBackupData() // suspend 함수 호출

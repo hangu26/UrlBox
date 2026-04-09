@@ -1,7 +1,14 @@
 package kr.baeksuk.urlbox.domain
 
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kr.baeksuk.urlbox.data.repository.UrlRepository
+import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
+import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.util.UserSessionManager
 import kr.baeksuk.urlbox.view.nav.ThumbnailState
 
@@ -9,16 +16,21 @@ class LoadThumbnailDataUseCase(
     private val repository: UrlRepository,
     private val sessionManager: UserSessionManager
 ) {
-    suspend operator fun invoke(): ThumbnailState {
-        val session = sessionManager.userSession.first()
-
-        return if (session.autoLogin) {
-            val urls = repository.getUserUrlBackup().value.orEmpty()
-            val tags = repository.getUserTagBackup().value.orEmpty()
-            ThumbnailState.Login(urls, tags)
-        } else {
-            val urls = repository.getGuestUrl().value.orEmpty()
-            ThumbnailState.Guest(urls)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeThumbnailState(): Flow<ThumbnailState> {
+        return sessionManager.userSession.flatMapLatest { session ->
+            if (session.autoLogin) {
+                combine(
+                    repository.getUserUrlBackupFlow(),
+                    repository.getUserTagBackupFlow()
+                ) { urls: List<UrlBackupEntity>, tags: List<TagBackupEntity> ->
+                    ThumbnailState.Login(urls, tags)
+                }
+            } else {
+                repository.getGuestUrlFlow().map { urls: List<UrlEntity> ->
+                    ThumbnailState.Guest(urls)
+                }
+            }
         }
     }
 }

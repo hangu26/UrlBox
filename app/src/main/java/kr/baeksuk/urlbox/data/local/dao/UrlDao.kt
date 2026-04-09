@@ -36,7 +36,13 @@ interface UrlDao{
     suspend fun insertImgUri(newUri : String, url: String)
 
     @Query("SELECT * FROM url_backup_history ORDER BY id DESC")
+    fun getAllBackupFlow(): Flow<List<UrlBackupEntity>>
+
+    @Query("SELECT * FROM url_backup_history ORDER BY id DESC")
     fun getAllBackup(): LiveData<List<UrlBackupEntity>>
+
+    @Query("SELECT * FROM tag_backup_history ORDER BY id DESC")
+    fun getTagBackupFlow(): Flow<List<TagBackupEntity>>
 
     @Query("SELECT * FROM tag_backup_history ORDER BY id DESC")
     fun getTagBackup(): LiveData<List<TagBackupEntity>>
@@ -88,6 +94,9 @@ interface UrlDao{
     suspend fun insertTagBackup(tagBackupEntities: List<TagBackupEntity>) // 리스트 저장 지원
 
     @Query("SELECT * FROM url_history ORDER BY id DESC")
+    fun getAllFlow(): Flow<List<UrlEntity>>
+
+    @Query("SELECT * FROM url_history ORDER BY id DESC")
     fun getAll(): LiveData<List<UrlEntity>>
 
     @Query("DELETE FROM url_history WHERE urlLink = :url")
@@ -135,6 +144,10 @@ interface UrlDao{
     suspend fun deletePreparationTag(tagName: String)
 
     @Query("SELECT * FROM tag_prepare_history")
+    fun getPreparationTagsFlow(): Flow<List<PreparationTag>>
+
+    @Query("SELECT * FROM tag_prepare_history")
     fun getPreparationTags(): LiveData<List<PreparationTag>>
 
 }
+
