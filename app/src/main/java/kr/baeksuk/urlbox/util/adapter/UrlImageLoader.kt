@@ -8,6 +8,7 @@ import kr.baeksuk.urlbox.model.Url
 import java.io.File
 
 object UrlImageLoader {
+    /** load */
     fun load(
         context: Context,
         url: Url,

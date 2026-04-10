@@ -10,13 +10,18 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.UserTags
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
-class SetTagViewModel(application: Application) : AndroidViewModel(application) {
+class SetTagViewModel(
+    application: Application,
+    private val sessionManager: UserSessionManager
+) : AndroidViewModel(application) {
 
     private val _repo = UrlRepository(application)
     private val tagBackup = _repo.getUserTagBackup()
@@ -51,8 +56,10 @@ class SetTagViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun insertUserTag(tag: String, urlTitle : String) {
-
-        _repo.insertUserTag(tag, urlTitle)
+        viewModelScope.launch(Dispatchers.IO) {
+            val userId = sessionManager.userId.first().orEmpty()
+            _repo.insertUserTag(tag, urlTitle, userId)
+        }
 
     }
 
@@ -80,8 +87,10 @@ class SetTagViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun deleteUserTag(tag: String, urlTitle : String) {
-
-        _repo.deleteUserUrlTag(tag, urlTitle)
+        viewModelScope.launch(Dispatchers.IO) {
+            val userId = sessionManager.userId.first().orEmpty()
+            _repo.deleteUserUrlTag(tag, urlTitle, userId)
+        }
 
     }
 

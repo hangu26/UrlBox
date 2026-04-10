@@ -3,6 +3,8 @@ package kr.baeksuk.urlbox.util.util
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.data.repository.UserRepository
+import kr.baeksuk.urlbox.domain.CaptureLoginStateUseCase
+import kr.baeksuk.urlbox.domain.CaptureSaveUseCase
 import kr.baeksuk.urlbox.domain.DeleteImageUseCase
 import kr.baeksuk.urlbox.domain.LoadDetailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadThumbnailDataUseCase
@@ -30,12 +32,10 @@ import kr.baeksuk.urlbox.viewmodel.setting.SettingViewModel
 import kr.baeksuk.urlbox.viewmodel.tag.TagViewModel
 import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import kr.baeksuk.urlbox.viewmodel.useterms.UseTermsViewModel
-import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
-import kotlin.math.sin
 
 val module = module {
 
@@ -48,12 +48,14 @@ val module = module {
     single { UrlRepository(get()) }
     single { LoadUserHomeDataUseCase(get(), get()) }
     single { UserRepository(get()) }
+    single { CaptureLoginStateUseCase(get()) }
+    single { CaptureSaveUseCase(get(), get()) }
     single { LoginUseCase(get(), get()) }
     single { UserSessionManager(androidContext()) }
     viewModel { MainViewModel(androidApplication()) }
     viewModel { UrlViewModel(androidApplication(), get(), get(), get()) }
     viewModel { AddLinkViewModel(androidApplication()) }
-    viewModel { CaptureViewModel(androidApplication()) }
+    viewModel { CaptureViewModel(androidApplication(), get(), get()) }
     viewModel { UrlDetailViewModel(androidApplication(), get(), get(), get(), get(), get()) }
     viewModel { ThumbnailViewModel(androidApplication(), get()) }
     viewModel { MyPageViewModel(androidApplication(), get()) }
@@ -65,9 +67,9 @@ val module = module {
     viewModel { SettingViewModel(androidApplication()) }
     viewModel { LanguageViewModel(androidApplication()) }
     viewModel { MyFolderViewModel(androidApplication()) }
-    viewModel { EditUrlViewModel(androidApplication()) }
-    viewModel { TagViewModel(androidApplication()) }
-    viewModel { SetTagViewModel(androidApplication()) }
+    viewModel { EditUrlViewModel(androidApplication(), get()) }
+    viewModel { TagViewModel(androidApplication(), get()) }
+    viewModel { SetTagViewModel(androidApplication(), get()) }
     viewModel { PrivacyViewModel(androidApplication()) }
     viewModel { UseTermsViewModel(androidApplication()) }
 

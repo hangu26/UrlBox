@@ -177,6 +177,7 @@ class ImgDetailActivity : BaseActivity() {
                 val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
                 intent.putExtra("url", url.url)
                 intent.putExtra("edit", true)
+                intent.putExtra("TARGET_FRAGMENT", "Thumbnail")
                 startActivityAnimation(intent, this)
                 finish()
 

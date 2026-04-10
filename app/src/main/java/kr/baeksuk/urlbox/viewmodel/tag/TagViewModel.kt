@@ -5,11 +5,18 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.model.Tag
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
-class TagViewModel(application: Application) : AndroidViewModel(application) {
+class TagViewModel(
+    application: Application,
+    private val sessionManager: UserSessionManager
+) : AndroidViewModel(application) {
 
     private val _urlRepo = UrlRepository(application)
 
@@ -27,7 +34,10 @@ class TagViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun deleteTag(tag : String){
-        _urlRepo.deleteUserTag(tag)
+        viewModelScope.launch {
+            val userId = sessionManager.userId.first().orEmpty()
+            _urlRepo.deleteUserTag(tag, userId)
+        }
     }
 
 }

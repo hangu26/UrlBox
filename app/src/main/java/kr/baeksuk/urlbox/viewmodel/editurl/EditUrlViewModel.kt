@@ -9,10 +9,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.data.repository.UrlRepository
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
-class EditUrlViewModel(application: Application) : AndroidViewModel(application) {
+class EditUrlViewModel(
+    application: Application,
+    private val sessionManager: UserSessionManager
+) : AndroidViewModel(application) {
 
     private val _repo = UrlRepository(application)
 
@@ -49,7 +54,8 @@ class EditUrlViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch(Dispatchers.IO) {
 
             withContext(Dispatchers.Main) {
-                _repo.updateUrlInfo(url, urlName, urlMemo)
+                val userId = sessionManager.userId.first().orEmpty()
+                _repo.updateUrlInfo(url, urlName, urlMemo, userId)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
 
             }

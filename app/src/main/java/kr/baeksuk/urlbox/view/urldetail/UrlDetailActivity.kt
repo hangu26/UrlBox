@@ -171,6 +171,7 @@ class UrlDetailActivity : BaseActivity() {
                 val intent = Intent(this@UrlDetailActivity, ReCaptureActivity::class.java)
                 intent.putExtra("url", url)
                 intent.putExtra("edit", true)
+                intent.putExtra("TARGET_FRAGMENT", "URL")
                 startActivityAnimation(intent, this)
 
             }
