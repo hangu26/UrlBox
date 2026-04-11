@@ -46,7 +46,7 @@
     <string name="tx_app_info">App Information</string>
     <string name="tx_app_info_detail">More App Information</string>
     <string name="tx_feedback">Feedback</string>
-    <string name="tx_feedback_detail">Send Feedback to Developer</string>
+    <string name="tx_feedback_detail">Send feedback via web form</string>
     <string name="tx_terms">Privacy Policy</string>
     <string name="tx_version">App Version</string>
     <string name="tx_version_detail">1.0.0</string>

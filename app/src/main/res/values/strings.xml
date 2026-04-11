@@ -46,7 +46,8 @@
     <string name="tx_app_info">앱 정보</string>
     <string name="tx_app_info_detail">앱 정보 더보기</string>
     <string name="tx_feedback">피드백</string>
-    <string name="tx_feedback_detail">개발자에게 피드백 보내기</string>
+    <string name="tx_feedback_detail">웹 폼으로 의견 보내기</string>
+    <string name="feedback_form_url" translatable="false">https://docs.google.com/forms/d/e/1FAIpQLScjRcS880D_OBJ29SwAaCrMaaJgyclTJey7Lj99RiZRrZYzmQ/viewform?usp=publish-editor</string>
     <string name="tx_terms">개인정보처리방침</string>
     <string name="tx_terms_detail">개인정보처리방침</string>
     <string name="tx_use_terms_detail">서비스 이용약관</string>

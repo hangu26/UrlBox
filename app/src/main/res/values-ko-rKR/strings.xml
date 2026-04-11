@@ -46,7 +46,7 @@
     <string name="tx_app_info">앱 정보</string>
     <string name="tx_app_info_detail">앱 정보 더보기</string>
     <string name="tx_feedback">피드백</string>
-    <string name="tx_feedback_detail">개발자에게 피드백 보내기</string>
+    <string name="tx_feedback_detail">웹 폼으로 의견 보내기</string>
     <string name="tx_terms">개인정보처리방침</string>
     <string name="tx_search_tag">태그 검색</string>
     <string name="tx_set_tag">태그 설정하기</string>

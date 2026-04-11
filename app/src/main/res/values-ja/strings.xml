@@ -46,7 +46,7 @@
     <string name="tx_app_info">アプリ情報</string>
     <string name="tx_app_info_detail">アプリ情報をもっと見る</string>
     <string name="tx_feedback">フィードバック</string>
-    <string name="tx_feedback_detail">開発者にフィードバックを送る</string>
+    <string name="tx_feedback_detail">Webフォームで意見を送る</string>
     <string name="tx_terms">プライバシーポリシー</string>
     <string name="tx_search_tag">タグ検索</string>
     <string name="tx_set_tag">タグ設定</string>

@@ -1,17 +1,10 @@
 package kr.baeksuk.urlbox.view.setting
 
-import android.content.Context
+import android.content.ActivityNotFoundException
 import android.content.Intent
-import android.content.res.Configuration
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.os.LocaleListCompat
 import androidx.databinding.DataBindingUtil
-import com.google.android.play.core.review.ReviewException
-import com.google.android.play.core.review.ReviewManagerFactory
-import com.google.android.play.core.review.model.ReviewErrorCode
+import androidx.core.net.toUri
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivitySettingBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
@@ -22,7 +15,6 @@ import kr.baeksuk.urlbox.view.privacy.PrivacyActivity
 import kr.baeksuk.urlbox.view.useterms.UseTermsActivity
 import kr.baeksuk.urlbox.viewmodel.setting.SettingViewModel
 import org.koin.android.ext.android.inject
-import java.util.Locale
 
 class SettingActivity : BaseActivity() {
 
@@ -89,6 +81,12 @@ class SettingActivity : BaseActivity() {
             }
         }
 
+        vm.btnFeedbackState.observe(this@SettingActivity) {
+            if (it) {
+                openFeedbackForm()
+            }
+        }
+
         vm.btnReviewState.observe(this@SettingActivity){
             if (it){
 
@@ -101,20 +99,36 @@ class SettingActivity : BaseActivity() {
 
     /** 구글 플레이 리뷰 함수 **/
     private fun showInAppReviewPopup(){
-        val manager = ReviewManagerFactory.create(this)
-        val request = manager.requestReviewFlow()
-        request.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val reviewInfo = task.result
-                val flow = manager.launchReviewFlow(this, reviewInfo)
-                flow.addOnCompleteListener { _ ->
-                    Log.i("reviewResult" ,"$reviewInfo")
-                }
-            } else {
-                // There was some problem, log or handle the error code.
-                @ReviewErrorCode val reviewErrorCode = (task.exception as ReviewException).errorCode
-                Log.e("reviewError", "$reviewErrorCode")
-            }
+        openPlayStoreReviewPage()
+    }
+
+    private fun openPlayStoreReviewPage() {
+        val packageName = packageName
+        val marketIntent = Intent(
+            Intent.ACTION_VIEW,
+            "market://details?id=$packageName&showAllReviews=true".toUri()
+        ).apply {
+            setPackage("com.android.vending")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+
+        try {
+            startActivity(marketIntent)
+        } catch (_: ActivityNotFoundException) {
+            // Google Play가 없는 기기에서는 아무 동작도 하지 않음
+        }
+    }
+
+    private fun openFeedbackForm() {
+        val feedbackUrl = getString(R.string.feedback_form_url)
+        val intent = Intent(Intent.ACTION_VIEW, feedbackUrl.toUri()).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+        }
+
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            // 브라우저가 없는 기기에서는 아무 동작도 하지 않음
         }
     }
 
