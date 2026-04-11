@@ -82,18 +82,23 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
 
             rvCurrentTags.adapter = currentTagAdapter
         }
+        iViewModel.loadSessionState()
 
-        val pref = context?.getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref?.getBoolean("auto login", false) ?: false
-
-        if (!autoLogin){
-            binding.clTags.visibility = View.GONE
-            binding.flDot03.visibility = View.INVISIBLE
-            binding.txTags.visibility = View.INVISIBLE
-        }
-
+        observeSessionState()
         observeTag()
         initButton()
+    }
+
+    private fun observeSessionState() {
+        iViewModel.isLoggedIn.observe(viewLifecycleOwner) { isLoggedIn ->
+            renderTagSection(isLoggedIn)
+        }
+    }
+
+    private fun renderTagSection(isLoggedIn: Boolean) {
+        binding.clTags.visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+        binding.flDot03.visibility = if (isLoggedIn) View.VISIBLE else View.INVISIBLE
+        binding.txTags.visibility = if (isLoggedIn) View.VISIBLE else View.INVISIBLE
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -127,7 +132,7 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
                 val urlName = binding.txUrlNameInfo.text.toString()
 
                 if (urlName.isNotBlank()) {
-                    iViewModel.updateUrlName(urlLink ?: "",urlName)
+                    iViewModel.updateUrlName(urlLink ?: "", urlName)
                     binding.txUrlNameInfo.clearFocus()
                     hideKeyboard(requireActivity())
                 }

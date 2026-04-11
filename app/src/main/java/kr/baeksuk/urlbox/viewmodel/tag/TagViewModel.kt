@@ -25,8 +25,17 @@ class TagViewModel(
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
 
+    private val _isLoggedIn = MutableLiveData<Boolean>()
+    val isLoggedIn: LiveData<Boolean> = _isLoggedIn
+
     fun getUserTagBackup(): LiveData<List<TagBackupEntity>> {
         return this.tagBackup
+    }
+
+    fun loadSessionState() {
+        viewModelScope.launch {
+            _isLoggedIn.value = sessionManager.userSession.first().autoLogin ?: false
+        }
     }
 
     fun btnClose(){

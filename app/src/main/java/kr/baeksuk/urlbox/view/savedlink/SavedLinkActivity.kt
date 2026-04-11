@@ -50,14 +50,19 @@ class SavedLinkActivity : BaseActivity(), OnClipItemClickListener {
 
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
-        observe()
+        sViewModel.loadSessionState()
 
+        observeSessionState()
+    }
+
+    private fun observeSessionState() {
+        sViewModel.isLoggedIn.observe(this@SavedLinkActivity) { isLoggedIn ->
+            observe(isLoggedIn)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun observe() = sViewModel.let { vm ->
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+    private fun observe(autoLogin : Boolean) = sViewModel.let { vm ->
 
         if (autoLogin) {
 
@@ -85,8 +90,8 @@ class SavedLinkActivity : BaseActivity(), OnClipItemClickListener {
 
     }
 
-    override fun onDeleteClick(url: String, imageKey : String, position: Int) {
-        uViewModel.deleteData(url,imageKey)
+    override fun onDeleteClick(url: String, imageKey: String, position: Int) {
+        uViewModel.deleteData(url, imageKey)
     }
 
 

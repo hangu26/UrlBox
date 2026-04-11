@@ -77,6 +77,9 @@ class CaptureViewModel(
         }
     }
 
+    /** 공유 진입처럼 즉시 필요한 흐름에서 세션 상태를 suspend로 조회 */
+    suspend fun getAutoLoginState(): Boolean = captureLoginStateUseCase()
+
     /** 태그 영역 표시 여부를 토글 */
     fun btnShowTags() {
         _btnShowTagsState.value = isClicked % 2 == 0
@@ -101,6 +104,11 @@ class CaptureViewModel(
     /** 저장 버튼 클릭 상태 전달 */
     fun btnSave() {
         _btnSaveState.value = true
+    }
+
+    /** 공유 인텐트 저장을 완료될 때까지 기다리는 suspend 진입점 */
+    suspend fun saveSharedContent(request: CaptureSaveRequest): CaptureSaveResult {
+        return captureSaveUseCase(request)
     }
 
     /** 취소 버튼 클릭 상태 전달 */

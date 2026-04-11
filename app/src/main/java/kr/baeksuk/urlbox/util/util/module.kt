@@ -26,6 +26,7 @@ import kr.baeksuk.urlbox.viewmodel.nav.MyPageViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
+import kr.baeksuk.urlbox.viewmodel.share.ShareReceiverViewModel
 import kr.baeksuk.urlbox.viewmodel.privacy.PrivacyViewModel
 import kr.baeksuk.urlbox.viewmodel.savedlink.SavedLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.setting.SettingViewModel
@@ -58,9 +59,10 @@ val module = module {
     viewModel { CaptureViewModel(androidApplication(), get(), get()) }
     viewModel { UrlDetailViewModel(androidApplication(), get(), get(), get(), get(), get()) }
     viewModel { ThumbnailViewModel(androidApplication(), get()) }
+    viewModel { ShareReceiverViewModel(androidApplication(), get()) }
     viewModel { MyPageViewModel(androidApplication(), get()) }
     viewModel { UrlDataViewModel() }
-    viewModel { SavedLinkViewModel(androidApplication()) }
+    viewModel { SavedLinkViewModel(androidApplication(),get()) }
     viewModel { FavoriteViewModel(androidApplication()) }
     viewModel { ImgDetailViewModel(androidApplication(), get(), get(), get() ,get()) }
     viewModel { LoginViewModel(androidApplication(), get()) }

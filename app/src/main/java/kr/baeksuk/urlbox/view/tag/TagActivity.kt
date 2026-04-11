@@ -1,9 +1,7 @@
 package kr.baeksuk.urlbox.view.tag
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -32,13 +30,14 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
     private lateinit var adapter : RvTagInTagAdapter
     private val backPressedCallback = BackPressedCallback(this)
 
+    private var autoLogin = false
+
     companion object {
         private var adView: AdView? = null  // 광고 뷰를 재사용
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tag)
         adapter = RvTagInTagAdapter(this,this, this)
 
         tBinding = DataBindingUtil.setContentView(this@TagActivity, R.layout.activity_tag)
@@ -55,36 +54,39 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
         setupAdView()
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
+        observeSessionState()
         observe()
+        tViewModel.loadSessionState()
 
+    }
+
+    private fun observeSessionState() {
+        tViewModel.isLoggedIn.observe(this@TagActivity) { isLoggedIn ->
+            autoLogin = isLoggedIn
+
+            if (autoLogin) {
+                tViewModel.getUserTagBackup().observe(this@TagActivity, Observer<List<TagBackupEntity>> { tag ->
+
+                    adapter.setUserTagData(tag)
+
+                })
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = tViewModel.let { vm ->
 
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+        vm.btnCloseState.observe(this@TagActivity){
+            if (it){
 
-        if (autoLogin) {
+                finishToMyPage(this)
 
-            vm.getUserTagBackup().observe(this, Observer<List<TagBackupEntity>> { tag ->
-
-                adapter.setUserTagData(tag)
-                adapter.notifyDataSetChanged()
-
-            })
-
-            vm.btnCloseState.observe(this@TagActivity){
-                if (it){
-
-                    finishToMyPage(this)
-
-                }
             }
-
         }
 
     }
+
 
     override fun onTagLongTouched(tag: String) {
 
