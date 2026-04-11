@@ -1,12 +1,11 @@
 package kr.baeksuk.urlbox.util.base
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.viewmodel.share.ShareReceiverUiState
 import kr.baeksuk.urlbox.viewmodel.share.ShareReceiverViewModel
@@ -30,15 +29,20 @@ class ShareReceiverActivity : AppCompatActivity() {
                     when (state) {
                         ShareReceiverUiState.Idle -> Unit
                         ShareReceiverUiState.Loading -> Log.d(TAG, "공유 인텐트 처리 중")
-                        ShareReceiverUiState.Finished -> finish()
+                        ShareReceiverUiState.Finished -> finishWithoutAnimation()
                         is ShareReceiverUiState.Error -> {
                             Log.e(TAG, state.message)
-                            finish()
+                            finishWithoutAnimation()
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun finishWithoutAnimation() {
+        finish()
+        overridePendingTransition(0, 0)
     }
 
     private companion object {

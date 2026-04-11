@@ -62,7 +62,8 @@
             android:exported="false" /> <!-- 카카오 로그인, 인가코드를 받기 위한 액티비티 -->
         <activity
             android:name="kr.baeksuk.urlbox.util.base.ShareReceiverActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.LinkBox.ShareReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
