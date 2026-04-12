@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 24
+        versionCode = 27
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

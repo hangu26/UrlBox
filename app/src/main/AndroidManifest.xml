@@ -61,6 +61,9 @@
             android:name="kr.baeksuk.urlbox.view.setting.SettingActivity"
             android:exported="false" /> <!-- 카카오 로그인, 인가코드를 받기 위한 액티비티 -->
         <activity
+            android:name="kr.baeksuk.urlbox.view.admin.FeedbackAdminActivity"
+            android:exported="false" />
+        <activity
             android:name="kr.baeksuk.urlbox.util.base.ShareReceiverActivity"
             android:exported="true"
             android:theme="@style/Theme.LinkBox.ShareReceiver">

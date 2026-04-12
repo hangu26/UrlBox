@@ -3,8 +3,19 @@ package kr.baeksuk.urlbox.viewmodel.setting
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kr.baeksuk.urlbox.domain.feedback.CheckAdminAccessUseCase
 
-class SettingViewModel(application: Application) : AndroidViewModel(application) {
+sealed class FeedbackDestination {
+    object UserForm : FeedbackDestination()
+    object AdminPanel : FeedbackDestination()
+}
+
+class SettingViewModel(
+    application: Application,
+    private val checkAdminAccessUseCase: CheckAdminAccessUseCase
+) : AndroidViewModel(application) {
 
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
@@ -21,31 +32,41 @@ class SettingViewModel(application: Application) : AndroidViewModel(application)
     private val _btnReviewState = MutableLiveData<Boolean>()
     val btnReviewState = _btnReviewState
 
-    private val _btnFeedbackState = MutableLiveData<Boolean>()
-    val btnFeedbackState = _btnFeedbackState
+    private val _feedbackDestination = MutableLiveData<FeedbackDestination?>()
+    val feedbackDestination = _feedbackDestination
 
-    fun btnLanguage(){
+    fun btnLanguage() {
         _btnLanguageState.value = true
     }
 
-    fun btnClose(){
+    fun btnClose() {
         _btnCloseState.value = true
     }
 
-    fun btnPrivacy(){
+    fun btnPrivacy() {
         _btnPrivacyState.value = true
     }
 
-    fun btnUseTerms(){
+    fun btnUseTerms() {
         _btnUseTermsState.value = true
     }
 
-    fun btnReview(){
+    fun btnReview() {
         _btnReviewState.value = true
     }
 
-    fun btnFeedback(){
-        _btnFeedbackState.value = true
+    fun btnFeedback() {
+        viewModelScope.launch {
+            _feedbackDestination.value = if (checkAdminAccessUseCase()) {
+                FeedbackDestination.AdminPanel
+            } else {
+                FeedbackDestination.UserForm
+            }
+        }
+    }
+
+    fun clearFeedbackDestination() {
+        _feedbackDestination.value = null
     }
 
 }

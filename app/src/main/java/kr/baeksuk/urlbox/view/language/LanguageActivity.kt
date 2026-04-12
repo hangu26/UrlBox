@@ -1,7 +1,6 @@
 package kr.baeksuk.urlbox.view.language
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
@@ -42,10 +41,7 @@ class LanguageActivity : BaseActivity() {
         vm.btnKoreanState.observe(this@LanguageActivity){
 
             if (it){
-
-                val enLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("ko-KR")
-                AppCompatDelegate.setApplicationLocales(enLocale)
-                backToSetting()
+                applyLocaleAndReturn("ko-KR")
 
             }
 
@@ -54,10 +50,7 @@ class LanguageActivity : BaseActivity() {
         vm.btnEnglishState.observe(this@LanguageActivity){
 
             if (it){
-
-                val enLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("en-US")
-                AppCompatDelegate.setApplicationLocales(enLocale)
-                backToSetting()
+                applyLocaleAndReturn("en-US")
 
             }
 
@@ -66,10 +59,7 @@ class LanguageActivity : BaseActivity() {
         vm.btnJapanese.observe(this@LanguageActivity){
 
             if (it){
-
-                val enLocale: LocaleListCompat = LocaleListCompat.forLanguageTags("ja")
-                AppCompatDelegate.setApplicationLocales(enLocale)
-                backToSetting()
+                applyLocaleAndReturn("ja")
 
             }
 
@@ -77,9 +67,21 @@ class LanguageActivity : BaseActivity() {
 
     }
 
-    private fun backToSetting(){
+    private fun applyLocaleAndReturn(languageTag: String) {
+        val locale: LocaleListCompat = LocaleListCompat.forLanguageTags(languageTag)
+        AppCompatDelegate.setApplicationLocales(locale)
+        window.decorView.post {
+            backToSetting(clearTask = true)
+        }
+    }
 
-        val intent = Intent(this@LanguageActivity, SettingActivity::class.java)
+    private fun backToSetting(clearTask: Boolean = false){
+
+        val intent = Intent(this@LanguageActivity, SettingActivity::class.java).apply {
+            if (clearTask) {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            }
+        }
         startActivityAnimation(intent,this@LanguageActivity)
         finish()
 

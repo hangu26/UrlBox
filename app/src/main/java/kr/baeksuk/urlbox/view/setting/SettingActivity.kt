@@ -9,10 +9,12 @@ import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivitySettingBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
+import kr.baeksuk.urlbox.view.admin.FeedbackAdminActivity
 import kr.baeksuk.urlbox.view.language.LanguageActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.view.privacy.PrivacyActivity
 import kr.baeksuk.urlbox.view.useterms.UseTermsActivity
+import kr.baeksuk.urlbox.viewmodel.setting.FeedbackDestination
 import kr.baeksuk.urlbox.viewmodel.setting.SettingViewModel
 import org.koin.android.ext.android.inject
 
@@ -81,10 +83,14 @@ class SettingActivity : BaseActivity() {
             }
         }
 
-        vm.btnFeedbackState.observe(this@SettingActivity) {
-            if (it) {
-                openFeedbackForm()
+        vm.feedbackDestination.observe(this@SettingActivity) { destination ->
+            if (destination == null) return@observe
+
+            when (destination) {
+                FeedbackDestination.AdminPanel -> openFeedbackAdminPanel()
+                FeedbackDestination.UserForm -> openFeedbackForm()
             }
+            vm.clearFeedbackDestination()
         }
 
         vm.btnReviewState.observe(this@SettingActivity){
@@ -130,6 +136,11 @@ class SettingActivity : BaseActivity() {
         } catch (_: ActivityNotFoundException) {
             // 브라우저가 없는 기기에서는 아무 동작도 하지 않음
         }
+    }
+
+    private fun openFeedbackAdminPanel() {
+        val intent = Intent(this, FeedbackAdminActivity::class.java)
+        startActivityAnimation(intent, this)
     }
 
 }

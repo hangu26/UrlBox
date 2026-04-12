@@ -83,6 +83,7 @@ class UrlViewModel(
             }
 
             _startMode.value = when (beforeActivity) {
+                "Login_refresh" -> StartMode.LOGIN_REFRESH
                 "CaptureSave" -> StartMode.LOGIN_ONLY
                 "Delete" -> StartMode.LOGIN_ONLY
                 else -> StartMode.LOGIN_ONLY

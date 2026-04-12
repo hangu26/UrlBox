@@ -79,6 +79,10 @@
     <string name="tx_or">または</string>
     <string name="tx_guest_continue">ゲストとして続行</string>
     <string name="tx_syncing">アカウントに同期中…</string>
+    <string name="tx_admin_feedback_title">フィードバック管理</string>
+    <string name="tx_admin_feedback_subtitle">Firebaseに入ったGoogle Formの回答一覧です。</string>
+    <string name="tx_feedback_admin_empty">まだフィードバックはありません。</string>
+    <string name="tx_feedback_admin_change_status">ステータス変更</string>
     <string name="tx_link_english">LINK</string>
     <string name="tx_tags">タグ</string>
     <string name="tx_add_tag">タグを追加</string>

@@ -68,7 +68,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
         val beforeActivity = activity?.intent?.extras?.getString("activity") ?: ""
         uViewModel.prepareStartMode(beforeActivity)
-        if (beforeActivity == "CaptureSave") {
+        if (beforeActivity == "CaptureSave" || beforeActivity == "Login_refresh") {
             activity?.intent?.removeExtra("activity")
         }
 

@@ -79,6 +79,10 @@
     <string name="tx_or">Or</string>
     <string name="tx_guest_continue">Continue as Guest</string>
     <string name="tx_syncing">Syncing to your account…</string>
+    <string name="tx_admin_feedback_title">Feedback Management</string>
+    <string name="tx_admin_feedback_subtitle">This is a list of Google Form responses stored in Firebase.</string>
+    <string name="tx_feedback_admin_empty">No feedback yet.</string>
+    <string name="tx_feedback_admin_change_status">Change Status</string>
     <string name="tx_link_english">LINK</string>
     <string name="tx_tags">Tags</string>
     <string name="tx_add_tag">Add Tag</string>

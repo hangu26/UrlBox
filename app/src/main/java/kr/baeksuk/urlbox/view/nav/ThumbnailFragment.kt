@@ -16,9 +16,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentThumbnailBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvThumbnailAdapter
-import kr.baeksuk.urlbox.util.util.StartActivityAnimation
-import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
+import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
 import org.koin.android.ext.android.inject
 import kotlinx.coroutines.launch
@@ -28,7 +27,6 @@ class ThumbnailFragment : Fragment() {
     private lateinit var tBinding: FragmentThumbnailBinding
     private val tViewModel: ThumbnailViewModel by inject()
     private lateinit var adapter: RvThumbnailAdapter
-    private val startActivityAnimation = StartActivityAnimation()
     private var currentUrlList: List<Url> = emptyList()
 
     private fun transitionNameFor(url: Url): String {
@@ -40,7 +38,7 @@ class ThumbnailFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         tBinding = FragmentThumbnailBinding.inflate(inflater, container, false)
         adapter = RvThumbnailAdapter(
@@ -98,9 +96,7 @@ class ThumbnailFragment : Fragment() {
 
         vm.btnAddState.observe(viewLifecycleOwner) {
             if (it) {
-                val intent = Intent(requireContext(), AddLinkActivity::class.java)
-                startActivityAnimation.startActivityAnimation(intent, requireContext())
-                requireActivity().finish()
+                (requireActivity() as MainActivity).navigateUrlFromThumbnail()
             }
         }
     }

@@ -178,7 +178,9 @@ class LoginActivity : BaseActivity() {
         vm.insertComplete.observe(this) { complete ->
             if (complete) {
                 // 데이터 모두 동기화 완료 → MainActivity로 이동
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    putExtra("activity", "Login_refresh")
+                }
                 startActivityAnimation(intent, this)
                 finish()
             }

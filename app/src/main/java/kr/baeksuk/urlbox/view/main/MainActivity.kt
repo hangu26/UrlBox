@@ -128,6 +128,10 @@ class MainActivity : BaseActivity() {
         changeFragment(UrlFragment(), bundle)
     }
 
+    fun navigateUrlFromThumbnail(bundle: Bundle? = null) {
+        changeFragment(UrlFragment(), bundle, animated = true)
+    }
+
     private fun navigateThumbnail(bundle: Bundle? = null) {
         changeFragment(ThumbnailFragment(), bundle)
 
@@ -138,9 +142,17 @@ class MainActivity : BaseActivity() {
 
     }
 
-    fun changeFragment(fragment: Fragment, bundle: Bundle? = null) {
+    fun changeFragment(fragment: Fragment, bundle: Bundle? = null, animated: Boolean = false) {
         bundle?.let { b -> fragment.apply { arguments = b } }
-        supportFragmentManager.beginTransaction().replace(R.id.fl_main, fragment).commit()
+        supportFragmentManager.beginTransaction().apply {
+            if (animated) {
+                setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
+            }
+            replace(R.id.fl_main, fragment)
+        }.commit()
     }
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {
