@@ -1,15 +1,10 @@
 package kr.baeksuk.urlbox.data.repository
 
-import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -19,8 +14,13 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.model.Tag
@@ -29,134 +29,48 @@ import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
-import java.io.FileOutputStream
 
-class UserRepository(application: Application) : AndroidViewModel(application) {
+class UserRepository(context: Context){
 
+    private val urlDatabase = UrlDatabase.getInstance(context.applicationContext)
     private var database: DatabaseReference = Firebase.database.reference
-    private val pref = application.getSharedPreferences("User", Context.MODE_PRIVATE)
-    val ONE_MEGABYTE: Long = 1024 * 1024 // 1MB
-    private val urlDatabase = UrlDatabase.getInstance(application)
-
     private val urlDao: UrlDao = urlDatabase.urlDao()
-    val ctx = application
 
-    /**
-    fun getUrlData(): LiveData<Pair<List<Url>, List<Bitmap>>> {
-    val userId = pref.getString("userId", "")
-    val databaseReference =
-    FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("url")
 
-    val mutableUrl = MutableLiveData<Pair<List<Url>, List<Bitmap>>>()
-
-    // Firebase Storage 참조 가져오기
-    val storage = FirebaseStorage.getInstance()
-
-    databaseReference.addValueEventListener(object : ValueEventListener {
-    override fun onDataChange(snapshot: DataSnapshot) {
-    val urlDataList = mutableListOf<Url>()
-    val imgList = mutableListOf<Bitmap>()
-
-    // 이미지 다운로드 완료 카운트 변수
-    var loadedImagesCount = 0
-    val totalImagesCount = snapshot.childrenCount.toInt()
-
-    for (dataSnapshot in snapshot.children) {
-    val url = dataSnapshot.child("url").value.toString()
-    val imageKey = dataSnapshot.child("imageKey").value.toString()
-    val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
-    val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
-    val storageReference =
-    storage.reference.child("images").child(userId).child("$imageKey.png")
-
-    Log.e("데이터 확인용", "URL: $url, imageKey: $imageKey")
-
-    storageReference.getBytes(ONE_MEGABYTE) // 최대 1MB까지 다운로드
-    .addOnSuccessListener { bytes ->
-
-    // 다운로드한 데이터를 Bitmap으로 변환
-    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-
-    imgList.add(bitmap)
-    urlDataList.add(Url(url, imageKey, favorite, timeStamp))
-    Log.e("데이터 확인용", "URL: $url, urlDataList: $urlDataList")
-
-    // 이미지 다운로드 완료 시, 카운트 증가
-    loadedImagesCount++
-
-    // 모든 이미지가 다운로드되었으면 LiveData 업데이트
-    if (loadedImagesCount == totalImagesCount) {
-    mutableUrl.value = Pair(urlDataList, imgList)
-    }
-
-    val directory = ctx.filesDir // 앱의 내부 저장소 디렉토리
-    val file = File(directory, "$imageKey.png")
-
-    try {
-    val outStream = FileOutputStream(file)
-    bitmap.compress(
-    Bitmap.CompressFormat.PNG,
-    100,
-    outStream
-    ) // 압축해서 저장
-    outStream.flush()
-    outStream.close()
-    Log.d("파일 저장", "이미지 저장 완료: ${file.absolutePath}")
-
-    } catch (e: Exception) {
-    e.printStackTrace()
-    }
-
-    }
-    .addOnFailureListener { exception ->
-    exception.printStackTrace()
-    }
-    }
-    }
-
-    override fun onCancelled(error: DatabaseError) {
-    // 실패 처리
-    }
-    })
-
-    return mutableUrl
-    }
-     **/
-
-    fun getTagData(): LiveData<List<Tag>> {
-        val userId = pref.getString("userId", "")
+    fun getTagData(userId: String): LiveData<List<Tag>> {
         val databaseReference =
-            FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("Tag")
+            FirebaseDatabase.getInstance().reference.child("User").child(userId).child("Tag")
 
         val mutableTag = MutableLiveData<List<Tag>>()
 
         databaseReference.orderByChild("tag")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val tagDataList = mutableListOf<Tag>()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val tagDataList = mutableListOf<Tag>()
 
-                    snapshot.children.forEach { dataSnapshot ->
-                        val tag = dataSnapshot.child("tag").value.toString() // "tag" 필드의 값만 가져오기
-                        val timeStamp = dataSnapshot.child("timeStamp").value.toString()
+                        snapshot.children.forEach { dataSnapshot ->
+                            val tag = dataSnapshot.child("tag").value.toString()
+                            val timeStamp = dataSnapshot.child("timeStamp").value.toString()
 
-                        // URL 리스트 가져오기
-                        val urlList = mutableListOf<String>()
-                        dataSnapshot.child("url").children.forEach { urlSnapshot ->
-                            urlSnapshot.child("url").value?.toString()?.let { urlList.add(it) }
-                        }
+                            val urlList = mutableListOf<String>()
+                            dataSnapshot.child("url").children.forEach { urlSnapshot ->
+                                urlSnapshot.child("url").value?.toString()?.let { urlList.add(it) }
+                            }
 
-                        if (tag !in tagDataList.map { it.tag }) {
-                            tagDataList.add(
-                                Tag(
-                                    tag = tag,
-                                    timeStamp = timeStamp,
-                                    urlList = urlList
+                            if (tag !in tagDataList.map { it.tag }) {
+                                tagDataList.add(
+                                    Tag(
+                                        tag = tag,
+                                        timeStamp = timeStamp,
+                                        urlList = urlList
+                                    )
                                 )
-                            )
+                            }
                         }
-                    }
 
-                    mutableTag.value = tagDataList
+                        mutableTag.postValue(tagDataList)
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -168,93 +82,91 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun getUrlData(): LiveData<Pair<List<Url>, List<String>>> {
-        val userId = pref.getString("userId", "")
+    fun getUrlData(userId: String): LiveData<Pair<List<Url>, List<String>>> {
         val databaseReference =
-            FirebaseDatabase.getInstance().reference.child("User").child(userId!!).child("url")
+            FirebaseDatabase.getInstance().reference.child("User").child(userId).child("url")
 
         val mutableUrl = MutableLiveData<Pair<List<Url>, List<String>>>()
-
-        // Firebase Storage 참조 가져오기
         val storage = FirebaseStorage.getInstance()
 
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val urlDataList = mutableListOf<Url>()
-                val imageUrls = mutableListOf<String>()
+                CoroutineScope(Dispatchers.IO).launch {
+                    data class UrlLoadResult(
+                        val order: Int,
+                        val urlData: Url,
+                        val imgUri: String
+                    )
 
-                // 이미지 다운로드 완료 카운트 변수
-                var loadedImagesCount = 0
-                val totalImagesCount = snapshot.childrenCount.toInt()
+                    val orderedResults = snapshot.children.mapIndexed { index, dataSnapshot ->
+                        async(Dispatchers.IO) {
+                            val url = dataSnapshot.child("url").value.toString()
+                            val imageKey = dataSnapshot.child("imageKey").value.toString()
+                            val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
+                            val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
+                            val urlName = dataSnapshot.child("urlName").value.toString()
+                            val urlMemo = dataSnapshot.child("urlMemo").value.toString()
 
-                for (dataSnapshot in snapshot.children) {
-                    val url = dataSnapshot.child("url").value.toString()
-                    val imageKey = dataSnapshot.child("imageKey").value.toString()
-                    val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
-                    val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
-                    val urlName = dataSnapshot.child("urlName").value.toString()
-                    val urlMemo = dataSnapshot.child("urlMemo").value.toString()
-//                    val tag = dataSnapshot.child("tags").value
-
-                    // 🔹 tags 가져오기
-                    val tagList = mutableListOf<UserTags>()
-                    val tagsSnapshot = dataSnapshot.child("tags")
-                    for (tagSnapshot in tagsSnapshot.children) {
-                        val tagValue = tagSnapshot.child("tag").value.toString()
-                        tagList.add(UserTags(tag = tagValue, timeStamp = timeStamp.toString().toLong()))
-                    }
-
-
-                    // Firebase Storage에서 이미지 URL 가져오기
-                    val storageReference =
-                        storage.reference.child("images").child(userId).child("$imageKey.png")
-
-                    storageReference.downloadUrl.addOnSuccessListener { uri ->
-                        // URL을 리스트에 추가
-
-                        viewModelScope.launch(Dispatchers.IO) {
-                            try {
-                                /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
-                                urlDao.insertImgUri(uri.toString(), url)
-                            } catch (e: java.lang.Exception) {
-
+                            val tagList = mutableListOf<UserTags>()
+                            val tagsSnapshot = dataSnapshot.child("tags")
+                            for (tagSnapshot in tagsSnapshot.children) {
+                                val tagValue = tagSnapshot.child("tag").value.toString()
+                                tagList.add(
+                                    UserTags(
+                                        tag = tagValue,
+                                        timeStamp = timeStamp.toString().toLong()
+                                    )
+                                )
                             }
-                        }
 
-                        imageUrls.add(uri.toString())
+                            val storageReference =
+                                storage.reference.child("images").child(userId).child("$imageKey.png")
 
+                            val imgUri = try {
+                                val uri = storageReference.downloadUrl.await().toString()
+                                try {
+                                    urlDao.insertImgUri(uri, url)
+                                } catch (e: Exception) {
+                                    Log.e("Room 이미지 URI 저장 실패", "url: $url, 오류: ${e.message}")
+                                }
+                                uri
+                            } catch (exception: Exception) {
+                                Log.e(
+                                    "Storage 이미지 로드 실패",
+                                    "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
+                                )
+                                ""
+                            }
 
-                        // UrlEntity 객체를 생성하여 urlDataList에 추가
-                        urlDataList.add(
-                            Url(
-                                url,
-                                imageKey,
-                                uri.toString(),
-                                favorite,
-                                timeStamp,
-                                urlName,
-                                urlMemo,
-//                                tag
-                                tagList
+                            UrlLoadResult(
+                                order = index,
+                                urlData = Url(
+                                    url,
+                                    imageKey,
+                                    imgUri,
+                                    favorite,
+                                    timeStamp,
+                                    urlName,
+                                    urlMemo,
+                                    tagList
+                                ),
+                                imgUri = imgUri
                             )
+                        }
+                    }.awaitAll().sortedBy { it.order }
+
+                    mutableUrl.postValue(
+                        Pair(
+                            orderedResults.map { it.urlData },
+                            orderedResults.map { it.imgUri }
                         )
-
-                        // 이미지 다운로드 완료 시, 카운트 증가
-                        loadedImagesCount++
-
-                        // 모든 이미지가 다운로드되었으면 LiveData 업데이트
-                        if (loadedImagesCount == totalImagesCount) {
-                            mutableUrl.value = Pair(urlDataList, imageUrls)
-                        }
-                    }
-                        .addOnFailureListener { exception ->
-                            exception.printStackTrace()
-                        }
+                    )
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // 실패 처리
+                Log.e("Firebase DB 오류", error.message)
             }
         })
 
@@ -262,118 +174,79 @@ class UserRepository(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun insertUserId(user: User) {
-        val userRef: DatabaseReference = database.child("User").child(user.userId)
+    suspend fun insertUserIdSuspend(user: User) {
+        val userRef = database.child("User").child(user.userId)
 
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // 로그인 했을 때 db에 존재하는 아이디라면
-                } else {
-                    userRef.setValue(user).addOnSuccessListener {
-                        Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
-                    }.addOnFailureListener {
-                        Log.d("유저 아이디 저장", "유저 아이디 저장 실패")
-                    }
-                }
-            }
+        // get().await()를 사용하여 snapshot을 바로 가져옵니다.
+        val snapshot = userRef.get().await()
 
-            override fun onCancelled(error: DatabaseError) {
-                // 예외 처리 필요
-            }
-        })
-
+        if (!snapshot.exists()) {
+            userRef.setValue(user).await()
+        }
     }
 
-    fun insertAllData(user: User, urlList: List<UrlToLogin>, imgFileList: List<File>) {
-        val userRef: DatabaseReference = database.child("User").child(user.userId)
-        val urlInUser: DatabaseReference = userRef.child("url")
+    /**
+     * 2. 전체 데이터 저장 (유저 정보 + URL 리스트 + 이미지 파일)
+     */
+    suspend fun insertAllDataSuspend(
+        user: User,
+        urlList: List<UrlToLogin>,
+        imgFileList: List<File>
+    ) = coroutineScope {
+        val userRef = database.child("User").child(user.userId)
+        val urlInUser = userRef.child("url")
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${user.userId}/")
 
-        userRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
+        // 유저 존재 여부 확인 및 생성
+        val snapshot = userRef.get().await()
+        if (!snapshot.exists()) {
+            userRef.setValue(user).await()
+        }
 
-                    insertUrlDataInFirebase(urlInUser, urlList, imgFileList, storageRef)
-
-                } else {
-                    userRef.setValue(user).addOnSuccessListener {
-                        Log.d("유저 아이디 저장", "유저 아이디 저장 성공")
-
-                        insertUrlDataInFirebase(urlInUser, urlList, imgFileList, storageRef)
-
-                    }.addOnFailureListener {
-
-                    }
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // 예외 처리 필요
-            }
-        })
-
-
+        // URL 및 이미지 업로드 실행 (병렬 처리)
+        insertUrlDataInFirebaseSuspend(urlInUser, urlList, imgFileList, storageRef)
     }
 
-    fun insertUrlDataInFirebase(
+    /**
+     * 3. URL 데이터 및 이미지 업로드 핵심 로직 (성능 최적화 버전)
+     */
+    private suspend fun insertUrlDataInFirebaseSuspend(
         urlInUser: DatabaseReference,
         urlList: List<UrlToLogin>,
         imgFileList: List<File>,
         storageRef: StorageReference
-    ) {
-        urlInUser.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-                    // 기존 URL 데이터 가져오기
-                    val existingUrls =
-                        snapshot.children.mapNotNull { it.getValue(UrlToLogin::class.java) }
+    ) = coroutineScope {
 
-                    // 새로운 URL 중 기존 데이터와 중복되지 않은 URL만 필터링
-                    val newUrls = urlList.filter { newUrl ->
-                        existingUrls.none { it.url == newUrl.url } // ✅ URL이 겹치면 추가 안 함 (favorite 값 무시)
-                    }
+        // [STEP 1] 기존 URL 목록 한 번에 가져오기
+        val existingUrlsSnapshot = urlInUser.get().await()
+        val existingUrls =
+            existingUrlsSnapshot.children.mapNotNull { it.getValue(UrlToLogin::class.java) }
 
-                    if (newUrls.isNotEmpty()) {
-                        newUrls.forEach { newUrl ->
-                            urlInUser.child("img" + newUrl.timeStamp)
-                                .setValue(newUrl)
-                        }
-                        Log.d("URL 데이터 저장", "새로운 URL 데이터 저장 완료")
-                    } else {
-                        Log.e("URL 데이터 저장", "모든 URL이 중복되어 저장하지 않음")
-                    }
-                } else {
-                    // 기존 데이터가 없을 때는 바로 삽입
-                    urlList.forEach { newUrl ->
-                        urlInUser.child(newUrl.imageKey).setValue(newUrl)
-                    }
+        // 중복되지 않은 새 데이터만 필터링
+        val newUrls = urlList.filter { newUrl -> existingUrls.none { it.url == newUrl.url } }
+
+        // [STEP 2] DB 업데이트 - updateChildren을 사용하여 여러 개를 한 번의 네트워크 요청으로 처리
+        val dbTask = async {
+            if (newUrls.isNotEmpty()) {
+                val updateMap = mutableMapOf<String, Any>()
+                newUrls.forEach { newUrl ->
+                    updateMap["img${newUrl.timeStamp}"] = newUrl
                 }
-
-                // 🔥 이미지 파일 리스트를 Firebase Storage에 업로드
-                imgFileList.forEach { file ->
-                    if (file.exists()) {
-                        val fileUri = Uri.fromFile(file) // File을 Uri로 변환
-                        val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
-
-                        fileRef.putFile(fileUri).addOnSuccessListener {
-                            Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                        }.addOnFailureListener {
-                            Log.e("Storage Upload", "파일 업로드 실패: ${file.name}, 오류: ${it.message}")
-                        }
-                    } else {
-                        Log.e("Storage Upload", "파일이 존재하지 않음: ${file.absolutePath}")
-                    }
-                }
-
+                urlInUser.updateChildren(updateMap).await()
             }
+        }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase Error", "데이터 읽기 실패: ${error.message}")
+        // [STEP 3] Storage 업로드 - 모든 파일을 동시에 업로드 시작 (병렬 처리)
+        val storageTasks = imgFileList.filter { it.exists() }.map { file ->
+            async {
+                val fileUri = Uri.fromFile(file)
+                storageRef.child(file.name).putFile(fileUri).await()
             }
-        })
+        }
 
+        // [STEP 4] 모든 작업(DB + Storage)이 끝날 때까지 대기
+        dbTask.await()
+        storageTasks.awaitAll()
     }
-
 
 }

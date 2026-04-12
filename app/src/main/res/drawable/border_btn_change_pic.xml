@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <corners
+        android:radius="@dimen/btn_capture_corner"/>
+
+    <gradient
+        android:angle="0"
+        android:endColor="@color/gradient_end_border_change_pic"
+        android:startColor="@color/gradient_start_border_change_pic"
+        android:type="linear"/>
+
+</shape>

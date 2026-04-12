@@ -2,16 +2,25 @@ package kr.baeksuk.urlbox.viewmodel.urldetail
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kr.baeksuk.urlbox.data.repository.UrlRepository
+import kr.baeksuk.urlbox.domain.DeleteImageUseCase
+import kr.baeksuk.urlbox.domain.ToggleFavoriteUseCase
+import kr.baeksuk.urlbox.domain.UpdateUrlMemoUseCase
+import kr.baeksuk.urlbox.domain.UpdateUrlNameUseCase
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
-class UrlDetailViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val _repo = UrlRepository(application)
+class UrlDetailViewModel(
+    application: Application,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val updateUrlNameUseCase: UpdateUrlNameUseCase,
+    private val updateUrlMemoUseCase: UpdateUrlMemoUseCase,
+    private val deleteImageUseCase: DeleteImageUseCase,
+    private val sessionManager : UserSessionManager
+) : AndroidViewModel(application) {
 
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
@@ -31,12 +40,20 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private val _btnEditState = MutableLiveData<Boolean>()
     val btnEditState = _btnEditState
 
-    fun btnEdit() {
-        _btnEditState.value = true
+    private val _btnImageFullState = MutableLiveData<Boolean>()
+    val btnImageFullState = _btnImageFullState
+
+    private val _isLoggedIn = MutableLiveData<Boolean>()
+    val isLoggedIn: LiveData<Boolean> = _isLoggedIn
+
+    fun loadSessionState() {
+        viewModelScope.launch {
+            _isLoggedIn.value = sessionManager.userSession.first().autoLogin ?: false
+        }
     }
 
-    fun btnLoadUrl() {
-        _btnLoadUrl.value = true
+    fun btnEdit() {
+        _btnEditState.value = true
     }
 
     fun btnClose() {
@@ -51,42 +68,44 @@ class UrlDetailViewModel(application: Application) : AndroidViewModel(applicatio
         _btnDelete.value = true
     }
 
-    fun deleteGuestData(url: String) {
-        _repo.deleteGuestData(url)
-    }
-
-    fun deleteUserData(url: String, imageKey: String) {
-
-        _repo.deleteUserData(url, imageKey)
-
-    }
-
     fun btnFavorite() {
         _btnFavoriteState.value = true
     }
 
-    fun updateFavorite(url: String, isFavorite: Boolean) {
+    fun btnImageFull() {
+        _btnImageFullState.value = true
+    }
 
-        viewModelScope.launch(Dispatchers.IO) {
+    fun deleteData(url: String, imageKey: String) {
 
-            withContext(Dispatchers.Main) {
-                _repo.updateFavorite(url, isFavorite)
-            }
+        viewModelScope.launch {
+            deleteImageUseCase(url, imageKey)
+        }
+
+    }
+
+    fun updateUrlName(url: String, urlName: String) {
+
+        viewModelScope.launch {
+            updateUrlNameUseCase(url, urlName)
+        }
+
+    }
+
+    fun updateUrlMemo(url: String, urlMemo: String) {
+
+        viewModelScope.launch {
+
+            updateUrlMemoUseCase(url, urlMemo)
 
         }
 
     }
 
-    fun updateUserFavorite(url: String, isFavorite: Boolean) {
-
-        viewModelScope.launch(Dispatchers.IO) {
-
-            withContext(Dispatchers.Main) {
-                _repo.updateUserFavorite(url, isFavorite)
-            }
-
+    fun toggleFavorite(url: String, isFavorite: Boolean) {
+        viewModelScope.launch {
+            toggleFavoriteUseCase(url, isFavorite)
         }
-
     }
 
 }

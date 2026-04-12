@@ -5,6 +5,10 @@
         android:radius="@dimen/btn_capture_corner"/>
 
     <solid
-        android:color="@color/appBar_title_01"/>
+        android:color="@color/color_url_tag"/>
+
+    <stroke
+        android:width="@dimen/stroke_width_url_tag"
+        android:color="@color/color_stroke_url_tag"/>
 
 </shape>

@@ -4,29 +4,29 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlEntity
-import kr.baeksuk.urlbox.data.repository.UrlRepository
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
+import kr.baeksuk.urlbox.domain.LoadThumbnailDataUseCase
+import kr.baeksuk.urlbox.view.nav.ThumbnailState
 
-class ThumbnailViewModel(application: Application) : AndroidViewModel(application) {
+class ThumbnailViewModel(
+    application: Application,
+    private val loadThumbnailDataUseCase: LoadThumbnailDataUseCase
+) : AndroidViewModel(application) {
 
-    private val _repo = UrlRepository(application)
-    private val url = _repo.getGuestUrl()
-    private val urlBackup = _repo.getUserUrlBackup()
+    val thumbnailState: StateFlow<ThumbnailState> = loadThumbnailDataUseCase.observeThumbnailState()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(5_000),
+            ThumbnailState.Guest(emptyList())
+        )
 
     private val _btnAddState = MutableLiveData<Boolean>()
-    val btnAddState = _btnAddState
+    val btnAddState: LiveData<Boolean> = _btnAddState
 
     fun btnAdd() {
         _btnAddState.value = true
     }
-
-    fun getGuestThumbnail() : LiveData<List<UrlEntity>>{
-        return this.url
-    }
-
-    fun getUserThumbnailBackup() : LiveData<List<UrlBackupEntity>>{
-        return this.urlBackup
-    }
-
 }

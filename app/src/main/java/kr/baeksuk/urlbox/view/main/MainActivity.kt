@@ -1,9 +1,14 @@
 package kr.baeksuk.urlbox.view.main
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +40,10 @@ class MainActivity : BaseActivity() {
             activity = this@MainActivity
         }
 
+        val bundle = Bundle()
+        bundle.putString("activity", "CaptureSave")
+        supportFragmentManager.setFragmentResult("fromCapture", bundle)
+
         lifecycleScope.launchWhenStarted {
             AppEvent.onNavigation.collect {
                 mViewModel.changeMenu(NavigationMenu.THUMBNAIL)
@@ -48,7 +57,6 @@ class MainActivity : BaseActivity() {
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
     }
-
     private fun initView() {
 
         when (intent.extras?.getString("TARGET_FRAGMENT")) {
@@ -120,6 +128,10 @@ class MainActivity : BaseActivity() {
         changeFragment(UrlFragment(), bundle)
     }
 
+    fun navigateUrlFromThumbnail(bundle: Bundle? = null) {
+        changeFragment(UrlFragment(), bundle, animated = true)
+    }
+
     private fun navigateThumbnail(bundle: Bundle? = null) {
         changeFragment(ThumbnailFragment(), bundle)
 
@@ -130,9 +142,17 @@ class MainActivity : BaseActivity() {
 
     }
 
-    fun changeFragment(fragment: Fragment, bundle: Bundle? = null) {
+    fun changeFragment(fragment: Fragment, bundle: Bundle? = null, animated: Boolean = false) {
         bundle?.let { b -> fragment.apply { arguments = b } }
-        supportFragmentManager.beginTransaction().replace(R.id.fl_main, fragment).commit()
+        supportFragmentManager.beginTransaction().apply {
+            if (animated) {
+                setCustomAnimations(
+                    R.anim.slide_in_right,
+                    R.anim.slide_out_left
+                )
+            }
+            replace(R.id.fl_main, fragment)
+        }.commit()
     }
 
     private val onBackPressedCallback = object : OnBackPressedCallback(true) {

@@ -6,13 +6,34 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.data.repository.UrlRepository
+import kr.baeksuk.urlbox.domain.DeleteImageUseCase
+import kr.baeksuk.urlbox.domain.LoadDetailDataUseCase
+import kr.baeksuk.urlbox.domain.ToggleFavoriteUseCase
+import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 
-class ImgDetailViewModel(application: Application) : AndroidViewModel(application) {
+class ImgDetailViewModel(
+    application: Application,
+    private val sessionManager: UserSessionManager,
+    private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
+    private val deleteImageUseCase: DeleteImageUseCase,
+    private val loadDetailDataUseCase: LoadDetailDataUseCase
+) : AndroidViewModel(application) {
 
-    private val _repo = UrlRepository(application)
+    val urlList: StateFlow<List<Url>> =
+        loadDetailDataUseCase.observeDetailUrls()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.WhileSubscribed(5_000),
+                emptyList()
+            )
 
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
@@ -29,13 +50,10 @@ class ImgDetailViewModel(application: Application) : AndroidViewModel(applicatio
     private val _btnFavoriteState = MutableLiveData<Boolean>()
     val btnFavoriteState = _btnFavoriteState
 
-    fun btnLoadUrl() {
-        _btnLoadUrl.value = true
-    }
-
     fun btnClose() {
         _btnCloseState.value = true
     }
+
     fun btnEdit() {
         _btnEditState.value = true
     }
@@ -44,42 +62,20 @@ class ImgDetailViewModel(application: Application) : AndroidViewModel(applicatio
         _btnDelete.value = true
     }
 
-    fun deleteGuestData(url : String){
-        _repo.deleteGuestData(url)
-    }
-
-    fun deleteUserData(url : String, imageKey : String){
-
-        _repo.deleteUserData(url, imageKey)
-
-    }
-
-    fun btnFavorite(){
+    fun btnFavorite() {
         _btnFavoriteState.value = true
     }
 
-    fun updateFavorite(url : String, isFavorite : Boolean){
-
-        viewModelScope.launch(Dispatchers.IO) {
-
-            withContext(Dispatchers.Main) {
-                _repo.updateFavorite(url, isFavorite)
-            }
-
+    fun deleteImage(url: String, imageKey: String) {
+        viewModelScope.launch {
+            deleteImageUseCase(url, imageKey)
         }
-
     }
 
-    fun updateUserFavorite(url: String, isFavorite: Boolean){
-
-        viewModelScope.launch(Dispatchers.IO) {
-
-            withContext(Dispatchers.Main) {
-                _repo.updateUserFavorite(url, isFavorite)
-            }
-
+    fun toggleFavorite(url : String, isFavorite : Boolean) {
+        viewModelScope.launch {
+            toggleFavoriteUseCase(url, isFavorite)
         }
-
     }
 
 }

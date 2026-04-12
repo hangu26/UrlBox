@@ -1,7 +1,6 @@
 package kr.baeksuk.urlbox.data.repository
 
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -21,8 +20,12 @@ import com.google.firebase.storage.StorageReference
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -39,12 +42,11 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     private val url: LiveData<List<UrlEntity>> = urlDao.getAll()
     private val urlBackup: LiveData<List<UrlBackupEntity>> = urlDao.getAllBackup()
     private val tagBackup: LiveData<List<TagBackupEntity>> = urlDao.getTagBackup()
-    private val pref = application.getSharedPreferences("User", Context.MODE_PRIVATE)
     private lateinit var databaseReference: DatabaseReference
     private var database: DatabaseReference = Firebase.database.reference
 
     /** Room에 있는 백업 데이터 url 에 태그 추가 함수 **/
-    fun insertUserTag(tag: String, urlTitle: String) {
+    fun insertUserTag(tag: String, urlTitle: String, userId: String) {
         // 현재 시간 저장
         val timeStamp = System.currentTimeMillis()
 
@@ -72,42 +74,72 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                         urlDao.updateUserTags(currentTags, urlTitle)
 
-                        insertUserTagInFirebase(userTag, urlTitle)
+                        insertUserTagInFirebase(userTag, urlTitle, userId)
 
                     }
                 }
             }
 
+
             if (tagBackupEntity != null) {
                 val urlListInTag = tagBackupEntity.urlList?.toMutableList() ?: mutableListOf()
-
                 if (urlListInTag.none { it == urlTitle }) {
-                    // URL 추가
                     urlListInTag.add(urlTitle)
 
-                    if (urlTitle.isNotEmpty()) {
-                        // List<String>을 Gson을 사용해서 String으로 변환
-                        val urlListAsString = Gson().toJson(urlListInTag)
-
-                        // 변환된 String을 사용하여 데이터베이스 업데이트
-                        urlDao.updateUserUrlInTags(urlListAsString, tag)
-                    }
+                    // DAO가 String만 받으므로 Gson으로 변환
+                    val urlListAsString = Gson().toJson(urlListInTag)
+                    urlDao.updateUserUrlInTags(urlListAsString, tag)
                 }
+            } else {
+                val newTagBackup = TagBackupEntity(
+                    tag = tag,
+                    urlList = listOf(urlTitle)
+                )
+                // insert는 List<TagBackupEntity>여야 하므로 리스트로 감싸서 호출
+                urlDao.insertTagBackup(listOf(newTagBackup))
             }
 
         }
     }
 
+    /** insertPreparationTag ?? */
+    fun insertPreparationTag(tag: String, url: String) {
+        val prepTag = PreparationTag(
+            tag = tag,
+            timeStamp = System.currentTimeMillis(),
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            urlDao.insertPreparationTag(prepTag)
+        }
+    }
+
+    /** clearPreparationTags ??? */
+    fun clearPreparationTags() {
+        viewModelScope.launch(Dispatchers.IO) {
+            urlDao.clearPreparationTags()
+        }
+    }
+
+    /** deletePreparationTag ?? */
+    fun deletePreparationTag(tag: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            urlDao.deletePreparationTag(tag)
+        }
+    }
+
+    /** getPreparationTags ??? ?? */
+    fun getPreparationTags(): LiveData<List<PreparationTag>> = urlDao.getPreparationTags()
+
     /** 파이어베이스에 있는 데이터 url 에 태그 추가 함수 **/
-    private fun insertUserTagInFirebase(userTag: UserTags, urlTitle: String) {
+    private fun insertUserTagInFirebase(userTag: UserTags, urlTitle: String, userId: String) {
 
-        val userId = pref.getString("userId", "")
-
-        val userTagRef: DatabaseReference = database.child("User").child(userId!!).child("url")
+        val userTagRef: DatabaseReference = database.child("User").child(userId).child("url")
         val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
 
         userTagRef.orderByChild("url").equalTo(urlTitle)
             .addListenerForSingleValueEvent(object : ValueEventListener {
+                /** onDataChange */
                 override fun onDataChange(snapshot: DataSnapshot) {
 
                     if (snapshot.exists()) {
@@ -129,6 +161,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 }
 
+                /** onCancelled */
                 override fun onCancelled(error: DatabaseError) {
 
                 }
@@ -140,7 +173,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     /** url 에 태그 삭제 함수 **/
 
-    fun deleteUserUrlTag(tag: String, urlTitle: String) {
+    fun deleteUserUrlTag(tag: String, urlTitle: String, userId: String) {
 
         // viewModelScope에서 비동기 작업 시작
         viewModelScope.launch(Dispatchers.IO) {
@@ -158,7 +191,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     currentTags.remove(tagToRemove)
 
                     urlDao.updateUserTags(currentTags, urlTitle)
-                    deleteUserTagInFirebase(tag, urlTitle)
+                    deleteUserTagInFirebase(tag, urlTitle, userId)
                 }
 
             }
@@ -184,89 +217,71 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun deleteUserTagInFirebase(tag: String, urlTitle: String) {
-
-        val userId = pref.getString("userId", "")
-
-        val userTagRef: DatabaseReference = database.child("User").child(userId!!).child("url")
-
+    /** deleteUserTagInFirebase ?? */
+    private fun deleteUserTagInFirebase(tag: String, urlTitle: String, userId: String) {
+        val userTagRef: DatabaseReference = database.child("User").child(userId).child("url")
         val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
 
+        // 1. [Tag] 노드에서 해당 태그를 찾고 그 안의 URL 삭제
         tagRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            /** onDataChange */
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (tagSnapshot in snapshot.children) {  // Tag 내부 순회
-                    val urlsSnapshot = tagSnapshot.child("url")  // 해당 태그의 url 리스트
+                for (tagSnapshot in snapshot.children) {
+                    // 핵심 수정: 현재 순회 중인 태그의 이름이 내가 삭제하려는 tag(A)와 같은지 확인
+                    val currentTagName = tagSnapshot.child("tag").getValue(String::class.java)
 
-                    for (urlChild in urlsSnapshot.children) {  // url 내부 순회
-                        val urlValue =
-                            urlChild.child("url").getValue(String::class.java) ?: continue
+                    if (currentTagName == tag) { // 클릭한 태그 이름과 일치할 때만 진입
+                        val urlsSnapshot = tagSnapshot.child("url")
+                        for (urlChild in urlsSnapshot.children) {
+                            val urlValue =
+                                urlChild.child("url").getValue(String::class.java) ?: continue
 
-                        if (urlValue == urlTitle) {  // urlTitle과 일치하면 삭제
-                            urlChild.ref.removeValue().addOnSuccessListener {
-                                    Log.d("삭제 완료", "해당 URL이 삭제되었습니다: $urlValue")
-                                }.addOnFailureListener {
-                                    Log.e("삭제 실패", "삭제 중 오류 발생", it)
+                            if (urlValue == urlTitle) {
+                                urlChild.ref.removeValue().addOnSuccessListener {
+                                    Log.d("삭제완료", "태그[$tag] 내에서 URL 삭제됨: $urlValue")
                                 }
+                            }
                         }
                     }
                 }
             }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase Error", "데이터 불러오기 실패", error.toException())
-            }
+            /** onCancelled */
+            override fun onCancelled(error: DatabaseError) {}
         })
 
-
+        // 2. [url] 노드에서 해당 URL을 찾고 그 안의 태그 리스트 중 해당 태그 삭제
         userTagRef.orderByChild("url").equalTo(urlTitle)
             .addListenerForSingleValueEvent(object : ValueEventListener {
+                /** onDataChange */
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    for (child in snapshot.children) {
+                        val urlKey = child.key ?: continue
 
-                    if (snapshot.exists()) {
-
-                        for (child in snapshot.children) {
-
-                            val key = child.key
-
-                            userTagRef.child(key!!).child("tags").orderByChild("tag").equalTo(tag)
-                                .addListenerForSingleValueEvent(object : ValueEventListener {
-                                    override fun onDataChange(snapshot: DataSnapshot) {
-
-                                        if (snapshot.exists()) {
-
-                                            for (data in snapshot.children) {
-
-                                                val refKey = data.key
-
-                                                if (refKey != null) {
-                                                    userTagRef.child(key).child("tags")
-                                                        .child(refKey).removeValue()
-                                                }
-
-                                            }
-
+                        // 해당 URL 내의 tags 리스트 중 이름이 tag(A)인 것만 삭제
+                        child.child("tags").ref.orderByChild("tag").equalTo(tag)
+                            .addListenerForSingleValueEvent(object : ValueEventListener {
+                                /** onDataChange */
+                                override fun onDataChange(tagInUrlSnapshot: DataSnapshot) {
+                                    for (data in tagInUrlSnapshot.children) {
+                                        data.ref.removeValue().addOnSuccessListener {
+                                            Log.d("삭제완료", "URL 내의 태그 리스트에서 [$tag] 삭제됨")
                                         }
-
                                     }
+                                }
 
-                                    override fun onCancelled(error: DatabaseError) {
-
-                                    }
-                                })
-
-                        }
-
+                                /** onCancelled */
+                                override fun onCancelled(error: DatabaseError) {}
+                            })
                     }
-
                 }
 
-                override fun onCancelled(error: DatabaseError) {
-
-                }
+                /** onCancelled */
+                override fun onCancelled(error: DatabaseError) {}
             })
     }
 
-
+    /** insert ?? */
     fun insert(urlEntity: UrlEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -277,7 +292,18 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun insertBackup(urlBackupEntity: UrlBackupEntity, file: File, tag: String) {
+    /** hasGuestUrl */
+    suspend fun hasGuestUrl(url: String): Boolean {
+        return urlDao.getUrlIsExist(url) != null
+    }
+
+    /** hasBackupUrl */
+    suspend fun hasBackupUrl(url: String): Boolean {
+        return urlDao.getBackupUrlIsExist(url) != null
+    }
+
+    /** insertBackup */
+    fun insertBackup(urlBackupEntity: UrlBackupEntity, file: File, tag: String, userId: String) {
 
         val tagData = listOf(
             TagBackupEntity(
@@ -294,11 +320,10 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 insertTagBackup(tagData, tag)
 
-                val userId = pref.getString("userId", "")
-                Log.e("유저 아이디 확인", userId!!)
+                Log.e("유저 아이디 확인", userId)
                 val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
 
-                val userRef: DatabaseReference = database.child("User").child(userId!!).child("url")
+                val userRef: DatabaseReference = database.child("User").child(userId).child("url")
                 val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
                 val urlLink = urlBackupEntity.urlLink
 
@@ -323,99 +348,11 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     tag = tag, timeStamp = urlBackupEntity.timeStamp
                 )
 
-
-                /**
-                if (tag != "") {
-
-                tagRef.orderByChild("tag").equalTo(tag)
-                .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                val urlInTag = UrlInTag(url = url.url)
-
-                if (snapshot.exists()) {
-                for (child in snapshot.children) {
-                val key = child.key
-                val timeStamp = System.currentTimeMillis()
-
-                val tagCountRef = tagRef.child(key!!).child("count")
-                tagCountRef.runTransaction(object :
-                Transaction.Handler {
-                override fun doTransaction(data: MutableData): Transaction.Result {
-                var tagCount = data.getValue(Int::class.java) ?: 0
-                tagCount++
-                data.value = tagCount
-                return Transaction.success(data)
-                }
-
-                override fun onComplete(
-                error: DatabaseError?,
-                committed: Boolean,
-                currentData: DataSnapshot?
-                ) {
-
-                }
-                })
-
-                val tagUrlRef = tagRef.child(key).child("url")
-                tagUrlRef.equalTo(url.url)
-                .addListenerForSingleValueEvent(object :
-                ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
-
-                } else {
-                tagUrlRef.child("url$timeStamp")
-                .setValue(urlInTag)
-                .addOnCompleteListener {
-                Log.e("데이터 저장 여부", "태그가 저장되었습니다.")
-                }.addOnFailureListener {
-                Log.e(
-                "데이터 저장 여부",
-                "태그가 저장되지 않았습니다."
-                )
-                }
-                }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-                })
-
-
-                Log.e("데이터 중복 여부", "중복되는 태그가 존재함")
-                }
-
-                } else {
-                val timeStamp = System.currentTimeMillis().toString()
-
-                val tagInfo = Tag(tag,"1",timeStamp)
-
-                tagRef.child("tag" + url.timeStamp).child("tag").setValue(tagInfo)
-
-                tagRef.child("tag" + url.timeStamp).child("url")
-                .child("url$timeStamp").setValue(urlInTag)
-
-                //                                    tagRef.child("tag" + url.timeStamp).child("tag").setValue(tag)
-                //
-                //                                    tagRef.child("tag" + url.timeStamp).child("timeStamp")
-                //                                        .setValue(timeStamp)
-                //
-                //                                    tagRef.child("tag" + url.timeStamp).child("count").setValue(1)
-
-                }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-
-                }
-                })
-                }
-                 **/
                 updateTagInTagFirebase(tag, tagRef, url.url)
 
                 userRef.orderByChild("url").equalTo(urlLink)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
+                        /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (snapshot.exists()) {
 
@@ -466,6 +403,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             }
                         }
 
+                        /** onCancelled */
                         override fun onCancelled(error: DatabaseError) {
 
                         }
@@ -477,6 +415,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** insertTagBackup */
     private fun insertTagBackup(tagBackupEntity: List<TagBackupEntity>, tag: String) {
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -520,12 +459,140 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** 태그 중복 저장 가능 함수 **/
+    fun insertBackupMultipleTags(
+        urlBackupEntity: UrlBackupEntity,
+        file: File,
+        tags: List<UserTags>,
+        userId: String
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.insertBackup(urlBackupEntity)
+
+                // 태그마다 TagBackupEntity 생성
+                val tagData = tags.map { userTag ->
+                    TagBackupEntity(
+                        tag = userTag.tag ?: "",
+                        count = "1",
+                        timeStamp = userTag.timeStamp.toString(),
+                        urlList = listOf(urlBackupEntity.urlLink)
+                    )
+                }
+
+                insertTagBackupMultiple(tagData)
+
+                // Firebase 저장도 태그마다 별도 처리
+                val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
+                val userRef: DatabaseReference = database.child("User").child(userId).child("url")
+                val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
+                val urlLink = urlBackupEntity.urlLink
+
+                val url = Url(
+                    url = urlBackupEntity.urlLink,
+                    imageKey = urlBackupEntity.imageKey,
+                    imgUri = urlBackupEntity.imgUri,
+                    favorite = urlBackupEntity.favorite,
+                    timeStamp = urlBackupEntity.timeStamp,
+                    urlName = urlBackupEntity.urlName,
+                    urlMemo = urlBackupEntity.urlMemo
+                )
+
+                userRef.orderByChild("url").equalTo(urlLink)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        /** onDataChange */
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (!snapshot.exists()) {
+                                userRef.child("img" + url.timeStamp).setValue(url)
+
+                                // 태그마다 별도 저장
+                                tags.forEach { tagItem ->
+                                    val userTag =
+                                        UserTags(tag = tagItem.tag, timeStamp = tagItem.timeStamp)
+                                    userRef.child("img" + url.timeStamp)
+                                        .child("tags")
+                                        .child("tag" + tagItem.timeStamp)
+                                        .setValue(userTag)
+
+                                    updateTagInTagFirebase(userTag.tag ?: "", tagRef, url.url)
+                                }
+                            }
+                        }
+
+                        /** onCancelled */
+                        override fun onCancelled(error: DatabaseError) {}
+                    })
+
+                // 이미지 업로드
+                val fileUri = Uri.fromFile(file)
+                val fileRef = storageRef.child(file.name)
+                fileRef.putFile(fileUri).addOnSuccessListener {
+                    fileRef.downloadUrl.addOnSuccessListener { uri ->
+                        viewModelScope.launch(Dispatchers.IO) {
+                            urlDao.insertImgUri(uri.toString(), urlLink)
+                        }
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e("데이터 삽입 처리", e.toString())
+            }
+        }
+    }
+
+    /** insertTagBackupMultiple */
+    private fun insertTagBackupMultiple(tagBackupEntityList: List<TagBackupEntity>) {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            if (tagBackupEntityList.isNotEmpty()) {
+
+                // 1️⃣ 저장하려는 태그 리스트 가져오기
+                val urlTagList = tagBackupEntityList.map { it.tag }
+
+                // 2️⃣ 이미 존재하는 태그 가져오기 (DB에서 조회)
+                val existingTags = urlDao.getTagBackupByTags(urlTagList).associateBy { it.tag }
+
+                // 3️⃣ 새로운 태그 & 업데이트할 태그 분리
+                val newTags = mutableListOf<TagBackupEntity>()
+                val tagsToUpdate = mutableListOf<TagBackupEntity>()
+
+                for (tagEntity in tagBackupEntityList) {
+                    val existingTag = existingTags[tagEntity.tag]
+
+                    if (existingTag != null) {
+                        // 이미 존재하는 태그 → urlList 업데이트
+                        val updatedUrls =
+                            (existingTag.urlList.orEmpty() + tagEntity.urlList.orEmpty()).distinct()
+                        val updatedTagEntity = existingTag.copy(urlList = updatedUrls)
+                        tagsToUpdate.add(updatedTagEntity)
+                    } else {
+                        // 없는 태그 → 새로 추가
+                        newTags.add(tagEntity)
+                    }
+                }
+
+                // 4️⃣ 중복되지 않은 태그만 삽입
+                if (newTags.isNotEmpty()) {
+                    urlDao.insertTagBackup(newTags)
+                }
+
+                // 5️⃣ 기존 태그는 URL 리스트만 업데이트
+                if (tagsToUpdate.isNotEmpty()) {
+                    urlDao.updateUrlInTags(tagsToUpdate)
+                }
+            }
+
+        }
+    }
+
+    /** updateTagInTagFirebase */
     private fun updateTagInTagFirebase(tag: String, tagRef: DatabaseReference, urlLink: String) {
 
         if (tag.isNotBlank()) {
 
             tagRef.orderByChild("tag").equalTo(tag)
                 .addListenerForSingleValueEvent(object : ValueEventListener {
+                    /** onDataChange */
                     override fun onDataChange(snapshot: DataSnapshot) {
                         val urlInTag = UrlInTag(url = urlLink)
 
@@ -536,6 +603,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                                 val tagCountRef = tagRef.child(key!!).child("count")
                                 tagCountRef.runTransaction(object : Transaction.Handler {
+                                    /** doTransaction */
                                     override fun doTransaction(data: MutableData): Transaction.Result {
                                         var tagCount = data.getValue(Int::class.java) ?: 0
                                         tagCount++
@@ -543,6 +611,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                         return Transaction.success(data)
                                     }
 
+                                    /** onComplete */
                                     override fun onComplete(
                                         error: DatabaseError?,
                                         committed: Boolean,
@@ -555,6 +624,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                 val tagUrlRef = tagRef.child(key).child("url")
                                 tagUrlRef.equalTo(urlLink)
                                     .addListenerForSingleValueEvent(object : ValueEventListener {
+                                        /** onDataChange */
                                         override fun onDataChange(snapshot: DataSnapshot) {
                                             if (snapshot.exists()) {
 
@@ -570,6 +640,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                             }
                                         }
 
+                                        /** onCancelled */
                                         override fun onCancelled(error: DatabaseError) {
 
                                         }
@@ -601,6 +672,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                         }
                     }
 
+                    /** onCancelled */
                     override fun onCancelled(error: DatabaseError) {
 
                     }
@@ -610,11 +682,12 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun updateGuestUrlInfo(url: String, urlName: String, urlMemo: String) {
+    /** updateGuestUrlName */
+    fun updateGuestUrlName(url: String, urlName: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                urlDao.updateGuestUrlInfo(url, urlName, urlMemo)
+                urlDao.updateGuestUrlName(url, urlName)
             } catch (e: java.lang.Exception) {
                 Log.e("데이터 업데이트 처리", e.toString())
             }
@@ -622,22 +695,33 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun updateUrlInfo(url: String, urlName: String, urlMemo: String) {
+    /** updateGuestUrlMemo */
+    fun updateGuestUrlMemo(url: String, urlMemo: String) {
 
-        val userId = pref.getString("userId", "")
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.updateGuestUrlMemo(url, urlMemo)
+            } catch (e: java.lang.Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
+            }
+        }
 
+    }
+
+    /** updateUrlInfo */
+    fun updateUrlInfo(url: String, urlName: String, urlMemo: String, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
 
             try {
-
                 urlDao.updateUrlInfo(url, urlName, urlMemo)
 
                 databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
+                    FirebaseDatabase.getInstance().reference.child("User").child(userId)
                         .child("url")
 
                 databaseReference.orderByChild("url").equalTo(url)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
+                        /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
 
                             if (snapshot.exists()) {
@@ -670,6 +754,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                         }
 
+                        /** onCancelled */
                         override fun onCancelled(error: DatabaseError) {
 
                         }
@@ -683,6 +768,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
+    /** update */
     fun update(urlEntity: UrlEntity) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -693,13 +779,13 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateBackup(urlBackupEntity: UrlBackupEntity, file: File) {
-
-        val userId = pref.getString("userId", "") ?: return
-        val storageRef = FirebaseStorage.getInstance().reference.child("images/$userId/")
+    /** updateBackup */
+    fun updateBackup(urlBackupEntity: UrlBackupEntity, file: File, userId: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                val storageRef = FirebaseStorage.getInstance().reference.child("images/$userId/")
+
                 urlDao.updateBackup(urlBackupEntity.urlLink, urlBackupEntity.imageKey)
 
                 val databaseReference =
@@ -708,6 +794,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 databaseReference.orderByChild("url").equalTo(urlBackupEntity.urlLink)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
+                        /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
                             val child = snapshot.children.firstOrNull() ?: run {
                                 Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
@@ -720,10 +807,10 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                             // 기존 이미지 삭제
                             storageRef.child("${oldImageKey}.png").delete().addOnCompleteListener {
-                                    Log.e("중복 이미지 삭제 여부", "성공")
-                                }.addOnFailureListener {
-                                    Log.e("중복 이미지 삭제 여부", "실패")
-                                }
+                                Log.e("중복 이미지 삭제 여부", "성공")
+                            }.addOnFailureListener {
+                                Log.e("중복 이미지 삭제 여부", "실패")
+                            }
 
                             // 새 이미지 key 저장
                             databaseReference.child(key).child("imageKey")
@@ -737,29 +824,30 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             val fileRef = storageRef.child(file.name)
 
                             fileRef.putFile(fileUri).addOnSuccessListener {
-                                    fileRef.downloadUrl.addOnSuccessListener { uri ->
-                                        viewModelScope.launch(Dispatchers.IO) {
+                                fileRef.downloadUrl.addOnSuccessListener { uri ->
+                                    viewModelScope.launch(Dispatchers.IO) {
 
-                                            try {
-                                                urlDao.insertImgUri(
-                                                    uri.toString(), urlBackupEntity.urlLink
-                                                )
-                                            } catch (e: Exception) {
-                                                Log.e("Room 업데이트 실패", e.toString())
-                                            }
+                                        try {
+                                            urlDao.insertImgUri(
+                                                uri.toString(), urlBackupEntity.urlLink
+                                            )
+                                        } catch (e: Exception) {
+                                            Log.e("Room 업데이트 실패", e.toString())
                                         }
-
-                                        Log.i("FirebaseStorage", "Image uploaded. URI: $uri")
                                     }
-                                    Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                                }.addOnFailureListener {
-                                    Log.e(
-                                        "Storage Upload",
-                                        "파일 업로드 실패: ${file.name}, 오류: ${it.message}"
-                                    )
+
+                                    Log.i("FirebaseStorage", "Image uploaded. URI: $uri")
                                 }
+                                Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
+                            }.addOnFailureListener {
+                                Log.e(
+                                    "Storage Upload",
+                                    "파일 업로드 실패: ${file.name}, 오류: ${it.message}"
+                                )
+                            }
                         }
 
+                        /** onCancelled */
                         override fun onCancelled(error: DatabaseError) {
                             Log.e("Firebase 에러", error.message)
                         }
@@ -774,14 +862,109 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     private fun deleteOldImage(storageRef: StorageReference, imageKey: String) {
         val oldImageRef = storageRef.child(imageKey)
         oldImageRef.delete().addOnSuccessListener {
-                Log.d("FirebaseStorage", "기존 이미지 삭제 성공: $imageKey")
-            }.addOnFailureListener {
-                Log.e("FirebaseStorage", "기존 이미지 삭제 실패: $imageKey, 오류: ${it.message}")
+            Log.d("FirebaseStorage", "기존 이미지 삭제 성공: $imageKey")
+        }.addOnFailureListener {
+            Log.e("FirebaseStorage", "기존 이미지 삭제 실패: $imageKey, 오류: ${it.message}")
+        }
+    }
+
+    /** urldetail 액티비티에서 이름 수정 함수 **/
+    fun updateUrlName(url: String, urlName: String, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (userId.isEmpty()) return@launch
+
+                // 1. 로컬 DB 업데이트 (기존 코드 유지)
+                urlDao.updateUrlName(url, urlName)
+
+                // 2. Firebase 업데이트를 위한 참조 설정
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                // 3. url 필드가 매개변수 url과 일치하는 노드 찾기
+                userUrlRef.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        /** onDataChange */
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+                                    // 일치하는 노드의 urlName 필드만 업데이트
+                                    childSnapshot.ref.child("urlName").setValue(urlName)
+                                        .addOnSuccessListener {
+                                            Log.d("데이터 업데이트", "Firebase 업데이트 성공")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("데이터 업데이트", "Firebase 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            } else {
+                                Log.d("데이터 업데이트", "일치하는 URL을 찾을 수 없습니다.")
+                            }
+                        }
+
+                        /** onCancelled */
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("데이터 업데이트", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+
+            } catch (e: Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
             }
+        }
+    }
+
+    /** urldetail 액티비티에서 메모 수정 함수 **/
+    fun updateUrlMemo(url: String, urlMemo: String, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (userId.isEmpty()) return@launch
+
+                // 1. 로컬 DB 업데이트
+                urlDao.updateUrlMemo(url, urlMemo)
+
+                // 2. Firebase 참조
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                // 3. url이 같은 노드 찾기
+                userUrlRef.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+
+                        /** onDataChange */
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+
+                                    // urlMemo 필드만 업데이트
+                                    childSnapshot.ref.child("urlMemo").setValue(urlMemo)
+                                        .addOnSuccessListener {
+                                            Log.d("메모 업데이트", "Firebase 업데이트 성공")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("메모 업데이트", "Firebase 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            } else {
+                                Log.d("메모 업데이트", "일치하는 URL을 찾을 수 없습니다.")
+                            }
+                        }
+
+                        /** onCancelled */
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("메모 업데이트", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+
+            } catch (e: Exception) {
+                Log.e("메모 업데이트 처리", e.toString())
+            }
+        }
     }
 
 
-    fun updateFavorite(url: String, isFavorite: Boolean) {
+    /** updateFavorite */
+    suspend fun updateFavorite(url: String, isFavorite: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 urlDao.updateFavorite(url, isFavorite)
@@ -791,54 +974,42 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun updateUserFavorite(url: String, isFavorite: Boolean) {
-
-        val userId = pref.getString("userId", "")
-
-        viewModelScope.launch(Dispatchers.IO) {
+    /** updateUserFavorite */
+    suspend fun updateUserFavorite(url: String, isFavorite: Boolean, userId: String) {
+        withContext(Dispatchers.IO) {
             try {
+                // Room 먼저 업데이트
                 urlDao.updateUserFavorite(url, isFavorite)
 
-                databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
-                        .child("url")
+                // Firebase Query
+                val query = FirebaseDatabase.getInstance().reference
+                    .child("User")
+                    .child(userId)
+                    .child("url")
+                    .orderByChild("url")
+                    .equalTo(url)
 
-                databaseReference.orderByChild("url").equalTo(url)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
+                // 1회 조회를 suspend로 대기
+                val snapshot = query.get().await()
 
-                                for (child in snapshot.children) {
-                                    val key = child.key
+                if (!snapshot.exists()) {
+                    Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
+                    return@withContext
+                }
 
-                                    if (key != null) {
-                                        databaseReference.child(key).child("favorite")
-                                            .setValue(isFavorite).addOnCompleteListener {
-                                                Log.e("업데이트 성공", "Firebase favorite 업데이트 완료")
-                                            }.addOnFailureListener { e ->
-                                                Log.e("업데이트 실패", e.toString())
-                                            }
-                                    }
+                // 즐겨찾기 값 업데이트
+                snapshot.children.forEach { child ->
+                    child.ref.child("favorite").setValue(isFavorite).await()
+                }
 
-                                }
-
-                            } else {
-
-                                Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.e("Firebase 에러", error.message)
-                        }
-                    })
-
-            } catch (e: java.lang.Exception) {
+                Log.e("업데이트 성공", "Firebase favorite 업데이트 완료")
+            } catch (e: Exception) {
                 Log.e("데이터 업데이트 처리", e.toString())
             }
         }
     }
 
+    /** deleteGuestData */
     fun deleteGuestData(url: String) {
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -851,101 +1022,166 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    /** 룸에 저장된 백업 데이터와 파이어베이스에 존재하는 데이터 두개 모두 삭제 **/
+    /** 전체 태그 삭제 시, 게시물에 따른 태그들 삭제 함수(TagActivity)
+     * 룸에 저장된 백업 데이터와 파이어베이스에 존재하는 데이터 두개 모두 삭제 **/
 
-    fun deleteUserTag(tag: String) {
-        val userId = pref.getString("userId", "")
-
+    /** deleteUserTag */
+    fun deleteUserTag(tag: String, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
 
                 urlDao.deleteTag(tag)
+                val rootRef = FirebaseDatabase.getInstance().reference.child("User").child(userId)
+                val tagRef = rootRef.child("Tag")
+                val urlMainRef = rootRef.child("url")
 
-                databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
-                        .child("Tag")
-
-                databaseReference.orderByChild("tag").equalTo(tag)
+                tagRef.orderByChild("tag").equalTo(tag)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
+                        /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
+                            for (tagSnapshot in snapshot.children) {
+                                val linkedUrlsNode = tagSnapshot.child("url")
 
-                                for (child in snapshot.children) {
+                                linkedUrlsNode.children.forEach { urlChild ->
 
-                                    child.ref.removeValue().addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            Log.i("deleteTag", "success delete tag")
-                                        } else {
-                                            Log.e("deleteTag", "fail delete tag")
-                                        }
+                                    val realUrlString =
+                                        urlChild.child("url").getValue(String::class.java)
+
+                                    if (realUrlString != null) {
+                                        deleteUserUrlTag(tag, realUrlString, userId)
+
+                                        urlMainRef.orderByChild("url").equalTo(realUrlString)
+                                            .addListenerForSingleValueEvent(object :
+                                                ValueEventListener {
+                                                /** onDataChange */
+                                                override fun onDataChange(imgSnapshot: DataSnapshot) {
+                                                    imgSnapshot.children.forEach { matchingImg ->
+
+                                                        val tagsNode = matchingImg.child("tags")
+                                                        tagsNode.children.forEach { bTag ->
+                                                            if (bTag.child("tag").value == tag) {
+                                                                bTag.ref.removeValue()
+                                                                    .addOnSuccessListener {
+                                                                        Log.i(
+                                                                            "deleteTag",
+                                                                            "B태그 삭제 완료: ${matchingImg.key}"
+                                                                        )
+                                                                    }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                /** onCancelled */
+                                                override fun onCancelled(error: DatabaseError) {}
+                                            })
                                     }
-
                                 }
 
+                                tagSnapshot.ref.removeValue().addOnSuccessListener {
+                                    Log.i("deleteTag", "A태그(수탉) 삭제 성공")
+                                }
                             }
                         }
 
-                        override fun onCancelled(error: DatabaseError) {
-
-                        }
+                        /** onCancelled */
+                        override fun onCancelled(error: DatabaseError) {}
                     })
-
-            } catch (e: java.lang.Exception) {
-
+            } catch (e: Exception) {
+                Log.e("deleteTag", e.toString())
             }
         }
-
     }
 
-    fun deleteUserData(url: String, imageKey: String) {
-        val userId = pref.getString("userId", "")
+    /** deleteUserData */
+    fun deleteUserData(url: String, imageKey: String, userId: String) {
         val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
+        val databaseRef = FirebaseDatabase.getInstance().reference
+        val urlRef = databaseRef.child("User").child(userId).child("url")
+        val tagRef = databaseRef.child("User").child(userId).child("Tag")
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
+                // 1️⃣ 로컬 DB에서 URL 삭제
                 urlDao.deleteUserUrl(url)
 
-                databaseReference =
-                    FirebaseDatabase.getInstance().reference.child("User").child(userId!!)
-                        .child("url")
+                // 2️⃣ Firebase URL 노드에서 삭제
+                withContext(Dispatchers.Main) {
+                    urlRef.orderByChild("url").equalTo(url)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            /** onDataChange */
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                if (snapshot.exists()) {
+                                    for (child in snapshot.children) {
+                                        child.ref.removeValue().addOnCompleteListener { task ->
+                                            if (task.isSuccessful) {
+                                                Log.i("deleteKeyword", "URL 삭제 완료: $url")
 
-                databaseReference.orderByChild("url").equalTo(url)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (snapshot.exists()) {
-                                for (child in snapshot.children) {
-                                    child.ref.removeValue().addOnCompleteListener { task ->
-                                        if (task.isSuccessful) {
-                                            Log.i("deleteKeyword", "success delete keyword")
-                                        } else {
-                                            Log.e("deleteKeyword fail", "fail delete keyword")
+                                                // 3️⃣ URL 삭제 후 전체 Tag에서도 해당 URL 제거
+                                                deleteUrlFromTags(tagRef, url)
+
+                                                // 4️⃣ 스토리지 이미지 삭제
+                                                storageRef.child("$imageKey.png").delete()
+                                                    .addOnSuccessListener {
+                                                        Log.d("스토리지 삭제", "성공: $imageKey.png")
+                                                    }
+                                                    .addOnFailureListener {
+                                                        Log.e("스토리지 삭제", "실패: $imageKey.png")
+                                                    }
+                                            } else {
+                                                Log.e("deleteKeyword fail", "URL 삭제 실패")
+                                            }
                                         }
                                     }
+                                } else {
+                                    Log.e("deleteKeyword", "URL Firebase에 존재하지 않음: $url")
                                 }
-                            } else {
-                                Log.e("deleteKeyword", "URL not found in Firebase")
                             }
-                        }
 
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.e("Firebase Error", "Failed to read data: ${error.message}")
-                        }
-                    })
+                            /** onCancelled */
+                            override fun onCancelled(error: DatabaseError) {
+                                Log.e("Firebase Error", "Failed to read data: ${error.message}")
+                            }
+                        })
+                }
 
-                storageRef.child("${imageKey}.png").delete().addOnCompleteListener {
-                        Log.e("스토리지 이미지 삭제 여부", "성공")
-                    }.addOnFailureListener {
-                        Log.e("스토리지 이미지 삭제 여부", "실패")
-                    }
-
-
-            } catch (e: java.lang.Exception) {
-                Log.e("삭제 처리", e.toString())
+            } catch (e: Exception) {
+                Log.e("삭제 처리 예외", e.toString())
             }
         }
-
     }
 
+    /** 전체 Tag에서 해당 URL 제거 **/
+    private fun deleteUrlFromTags(tagRef: DatabaseReference, urlTitle: String) {
+        tagRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            /** onDataChange */
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (tagSnapshot in snapshot.children) {
+                    val urlsSnapshot = tagSnapshot.child("url")
+                    if (!urlsSnapshot.exists()) continue
+
+                    for (urlChild in urlsSnapshot.children) {
+                        val urlValue = urlChild.child("url").getValue(String::class.java)
+                        if (urlValue == urlTitle) {
+                            // URL 값이 정확히 일치하면 삭제
+                            urlChild.ref.removeValue()
+                                .addOnSuccessListener {
+                                    Log.d("삭제완료", "Tag[${tagSnapshot.child("tag").value}]에서 URL 삭제됨: $urlTitle")
+                                }
+                                .addOnFailureListener {
+                                    Log.e("삭제실패", "Tag[${tagSnapshot.child("tag").value}] 삭제 실패: $urlTitle")
+                                }
+                        }
+                    }
+                }
+            }
+
+            /** onCancelled */
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    /** deleteUserBackup */
     fun deleteUserBackup() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -956,6 +1192,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** deleteUserTagBackup */
     fun deleteUserTagBackup() {
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -968,18 +1205,25 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
-    fun getGuestUrl(): LiveData<List<UrlEntity>> {
-        return url
-    }
+    /** getGuestUrlFlow */
+    fun getGuestUrlFlow(): Flow<List<UrlEntity>> = urlDao.getAllFlow()
 
-    fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> {
-        return urlBackup
-    }
+    /** getUserUrlBackupFlow */
+    fun getUserUrlBackupFlow(): Flow<List<UrlBackupEntity>> = urlDao.getAllBackupFlow()
 
-    fun getUserTagBackup(): LiveData<List<TagBackupEntity>> {
-        return tagBackup
-    }
+    /** getUserTagBackupFlow */
+    fun getUserTagBackupFlow(): Flow<List<TagBackupEntity>> = urlDao.getTagBackupFlow()
 
+    /** getGuestUrl */
+    fun getGuestUrl(): LiveData<List<UrlEntity>> = url
+
+    /** getUserUrlBackup */
+    fun getUserUrlBackup(): LiveData<List<UrlBackupEntity>> = urlBackup
+
+    /** getUserTagBackup */
+    fun getUserTagBackup(): LiveData<List<TagBackupEntity>> = tagBackup
+
+    /** hasBackupData */
     suspend fun hasBackupData(): Boolean {
         return urlDao.hasBackupData() // suspend 함수 호출
     }

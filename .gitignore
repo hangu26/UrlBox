@@ -59,3 +59,7 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
+/app/google-services.json
+/app/release/*.apk
+/app/release/*.zip
+/app/release/output-metadata.json

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#A1824A">
+
+    <!-- Ripple 마스크 -->
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+            <corners android:radius="16dp"/>
+        </shape>
+    </item>
+
+    <!-- 실제 배경 (상태별) -->
+    <item>
+        <selector>
+            <!-- 눌렀을 때 -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="#F5F0E5"/>
+                    <corners android:radius="16dp"/>
+                    <stroke android:width="2dp" android:color="#E8E3D8"/>
+                </shape>
+            </item>
+
+            <!-- 기본 상태 -->
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="#FFFFFF"/>
+                    <corners android:radius="16dp"/>
+                    <stroke android:width="2dp" android:color="#E8E3D8"/>
+                </shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

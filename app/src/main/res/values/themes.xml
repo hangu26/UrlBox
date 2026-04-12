@@ -1,10 +1,23 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.LinkBox" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:windowActivityTransitions">true</item>
-    </style>
 
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:fitsSystemWindows">true</item>
+    </style>
     <style name="Theme.LinkBox" parent="Base.Theme.LinkBox" />
+
+    <style name="Theme.LinkBox.ShareReceiver" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 
     <style name="ImageButton"> <!-- 이미지 버튼에 대한 스타일 -->
         <item name="android:scaleType">fitCenter</item> <!--ScaleType 요소 중 fitCenter : 이미지가 뷰의 영역을 완전히 채우고 중앙정렬, 비율 유지한다.-->

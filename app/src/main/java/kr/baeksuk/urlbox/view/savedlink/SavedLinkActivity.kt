@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -18,45 +19,50 @@ import kr.baeksuk.urlbox.util.adapter.RvClipAdapter
 import kr.baeksuk.urlbox.util.adapter.RvThumbnailAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
+import kr.baeksuk.urlbox.util.util.OnClipItemClickListener
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.savedlink.SavedLinkViewModel
+import kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel
 import org.koin.android.ext.android.inject
 
-class SavedLinkActivity : BaseActivity() {
+class SavedLinkActivity : BaseActivity(), OnClipItemClickListener {
 
     private lateinit var sBinding: ActivitySavedLinkBinding
     private val sViewModel: SavedLinkViewModel by inject()
     private lateinit var adapter: RvClipAdapter
     private val backPressedCallback = BackPressedCallback(this)
+    private val uViewModel: UrlDetailViewModel by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sBinding =
             DataBindingUtil.setContentView(this@SavedLinkActivity, R.layout.activity_saved_link)
-        adapter = RvClipAdapter(this, this@SavedLinkActivity)
+        adapter = RvClipAdapter(this, this@SavedLinkActivity, this@SavedLinkActivity)
 
         sBinding.apply {
             activity = this@SavedLinkActivity
             viewmodel = sViewModel
             lifecycleOwner = this@SavedLinkActivity
-            rvUrl.layoutManager = FlexboxLayoutManager(this@SavedLinkActivity).apply {
-                flexWrap = FlexWrap.WRAP
-                flexDirection = FlexDirection.ROW
-            }
+            rvUrl.layoutManager = LinearLayoutManager(this@SavedLinkActivity)
             rvUrl.adapter = adapter
         }
 
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
-        observe()
+        sViewModel.loadSessionState()
 
+        observeSessionState()
+    }
+
+    private fun observeSessionState() {
+        sViewModel.isLoggedIn.observe(this@SavedLinkActivity) { isLoggedIn ->
+            observe(isLoggedIn)
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    private fun observe() = sViewModel.let { vm ->
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+    private fun observe(autoLogin : Boolean) = sViewModel.let { vm ->
 
         if (autoLogin) {
 
@@ -84,6 +90,9 @@ class SavedLinkActivity : BaseActivity() {
 
     }
 
+    override fun onDeleteClick(url: String, imageKey: String, position: Int) {
+        uViewModel.deleteData(url, imageKey)
+    }
 
 
 }

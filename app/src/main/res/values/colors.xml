@@ -2,8 +2,37 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="color_tx_delete">#FF3B30</color>
     <color name="appBar_title_01">#F5F0E5</color>
+    <color name="color_url_tag">#FAFAF8</color>
+    <color name="color_tx_tags">#C9A86A</color>
+    <color name="color_btn_skip">#282727</color>
+    <color name="gradient_thumbnail_detail_start">#020201</color>
+    <color name="gradient_thumbnail_detail_end">#130F0A</color>
+    <color name="black_70">#B3000000</color>
     <color name="appBar_title_02">#A1824A</color>
+    <color name="color_stroke_url_tag">#C9A86A</color>
+    <color name="background_frag_info">#F9FAFB</color>
+    <color name="gradient_start_border_change_pic">#C9A86A</color>
+    <color name="gradient_end_border_change_pic">#A1824A</color>
+    <color name="color_cl_btn_capture">#0A0805</color>
+    <color name="color_btn_delete_thumbnail">#494948</color>
+    <color name="color_dotsIndicator">#D1D5DC</color>
+    <color name="color_selected_dotsIndicator">#A1824A</color>
+    <color name="gradient_start_tuto_01">#332B7FFF</color>
+    <color name="gradient_end_tuto_01">#339810FA</color>
+    <color name="gradient_start_tuto_02">#33AD46FF</color>
+    <color name="gradient_end_tuto_02">#33E60076</color>
+    <color name="gradient_start_tuto_03">#33FF6900</color>
+    <color name="gradient_end_tuto_03">#33D08700</color>
+    <color name="gradient_start_btn_next_tutorial">#364153</color>
+    <color name="gradient_end_btn_next_tutorial">#101828</color>
+    <color name="color_tv_tutorial_detail">#4A5565</color>
+    <color name="color_tx_app_info_tutorial_01">#99A1AF</color>
+    <color name="color_tv_swipe_tutorial">#99A1AF</color>
+    <color name="color_border_ll_refresh">#F2EDE1</color>
+    <color name="color_stroke_ll_refresh">#DCCFB7</color>
+
     <color name="appBar_title_03">#D6C4B1</color>
     <color name="bottom_border">#E8E8E8</color>
     <color name="main_color">#A1824A</color>
@@ -17,5 +46,12 @@
     <color name="color_btn_tag_clicked">#E8D9C9</color>
     <color name="color_hint_edt_tag">#E3DAC9</color>
     <color name="dialog_btn_cancel">#F1F1F9</color>
-
+    <color name="gradient_cl_add_link_01">#EDE7DB</color>
+    <color name="gradient_cl_add_link_02">#F5F0E5</color>
+    <color name="color_tx_login_detail">#8B8B8B</color>
+    <color name="color_tx_checkbox_synchronization">#8B8B8B</color>
+    <color name="color_ll_space_or">#E5E5E5</color>
+    <color name="color_tx_or">#BFBFBF</color>
+    <color name="background_ic_close">#F5F0E8</color>
+    <color name="stroke_ic_close">#A1824A</color>
 </resources>

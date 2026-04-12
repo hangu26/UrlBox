@@ -19,15 +19,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <androidx.core.widget.NestedScrollView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginStart="@dimen/my_page_constraint_margin_size"
             android:layout_marginTop="@dimen/my_page_constraint_margin_top"
             android:layout_marginEnd="@dimen/my_page_constraint_margin_size"
+            android:fillViewport="true"
+            android:clipToPadding="false"
             android:paddingBottom="@dimen/padding_bottom_scrollview_my_page"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -276,13 +279,13 @@
                     android:orientation="vertical"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/linear_box">
+                    app:layout_constraintTop_toBottomOf="@+id/linear_box"
+                    android:paddingBottom="@dimen/padding_bottom_my_page_linear">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/btn_saved_link"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
                         android:onClick="@{() -> viewmodel.btnSavedLink()}">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -308,7 +311,7 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/btn_go_saved"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/margin_tx_saved_start"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -352,9 +355,8 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/btn_my_folder"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                        android:layout_weight="1"
                         android:onClick="@{() -> viewmodel.btnTag()}">
 
                     <androidx.constraintlayout.widget.ConstraintLayout
@@ -380,7 +382,7 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/btn_go_folder"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/margin_tx_saved_start"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -424,9 +426,8 @@
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/btn_my_favorite"
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                        android:layout_weight="1"
                         android:onClick="@{() -> viewmodel.btnFavorite()}">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -452,7 +453,7 @@
                         <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/btn_go_favorite"
                             android:layout_width="0dp"
-                            android:layout_height="0dp"
+                            android:layout_height="wrap_content"
                             android:layout_marginStart="@dimen/margin_tx_saved_start"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
@@ -495,9 +496,8 @@
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
-                        android:layout_height="0dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/my_page_margin_constraint_text_top"
-                        android:layout_weight="1"
                         android:visibility="gone">
 
                         <androidx.constraintlayout.widget.ConstraintLayout
@@ -570,7 +570,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-        </ScrollView>
+        </androidx.core.widget.NestedScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

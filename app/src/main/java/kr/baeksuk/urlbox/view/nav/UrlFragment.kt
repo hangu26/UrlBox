@@ -1,301 +1,301 @@
 package kr.baeksuk.urlbox.view.nav
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.animation.AnimationUtils
-import androidx.lifecycle.Observer
+import android.widget.ImageView
+import android.widget.Toast
+import androidx.core.app.ActivityOptionsCompat
+import androidx.core.util.Pair
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdSize
-import com.google.android.gms.ads.AdView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
-import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvTagAdapter
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
+import kr.baeksuk.urlbox.util.base.BaseFragment
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.OnTagFilterSelectedListener
-import kr.baeksuk.urlbox.util.util.OnTagTouchHelperListener
-import kr.baeksuk.urlbox.util.util.StartActivityAnimation
 import kr.baeksuk.urlbox.util.util.TagTouchCallback
-import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
-import kr.baeksuk.urlbox.view.main.MainActivity
+import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
+import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
+import kr.baeksuk.urlbox.viewmodel.nav.StartMode
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
+import kotlin.getValue
 
-class UrlFragment : Fragment(), OnTagFilterSelectedListener {
+class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
+    OnTagFilterSelectedListener {
 
     private lateinit var uBinding: FragmentUrlBinding
     private val uViewModel: UrlViewModel by inject()
     private lateinit var adapter: RvUrlAdapter
     private lateinit var tagAdapter: RvTagAdapter
-    private val startActivityAnimation = StartActivityAnimation()
+
+    private var urlBackupObserved = false
+    private var tagBackupObserved = false
     private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-
-        uBinding = FragmentUrlBinding.inflate(inflater, container, false)
-        adapter = RvUrlAdapter(requireContext(), requireActivity()) // adapter 초기화
+    @SuppressLint("NotifyDataSetChanged")
+    override fun initView() {
+        uBinding = binding
+        adapter = RvUrlAdapter(
+            requireContext(),
+            onDetailClick = { url, txUrl, imgView -> openUrlDetail(url, txUrl, imgView) }
+        )
         tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this)
 
-        uBinding.apply {
-            viewModel = uViewModel
-            rvUrl.layoutManager = GridLayoutManager(context, 2, GridLayoutManager.VERTICAL, false)
-            rvUrl.adapter = adapter // adapter 할당
+        uBinding.viewModel = uViewModel
 
-            rvUrl.layoutAnimation =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation)
-            rvUrl.scheduleLayoutAnimation()
+        postponeEnterTransition()
 
-            rvTags.layoutManager =
-                LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-            rvTags.adapter = tagAdapter
+        binding.rvUrl.viewTreeObserver.addOnPreDrawListener {
+            startPostponedEnterTransition()
+            true
+        }
+
+        initViewType()
+        setupRecyclerViews()
+        observeLoading()
+        observeViewModel()
+
+        val beforeActivity = activity?.intent?.extras?.getString("activity") ?: ""
+        uViewModel.prepareStartMode(beforeActivity)
+        if (beforeActivity == "CaptureSave" || beforeActivity == "Login_refresh") {
+            activity?.intent?.removeExtra("activity")
+        }
+
+    }
+
+    private fun initViewType() {
+
+        binding.ivTwoType.setOnClickListener {
+            selectViewType(binding.ivTwoType)
+            changeGrid(2)
+        }
+
+        binding.ivThreeType.setOnClickListener {
+            selectViewType(binding.ivThreeType)
+            changeGrid(3)
+
+        }
+
+        binding.ivFourType.setOnClickListener {
+            selectViewType(binding.ivFourType)
+            changeGrid(4)
+
+        }
+
+        // 기본 선택
+        selectViewType(binding.ivTwoType)
+    }
+
+    private fun selectViewType(selected: ImageView) {
+
+        binding.ivTwoType.isSelected = false
+        binding.ivThreeType.isSelected = false
+        binding.ivFourType.isSelected = false
+
+        selected.isSelected = true
+    }
+
+    /** 새로고침 **/
+    private fun swipeRefresh(isLoggedIn: Boolean?) {
+
+        if (isLoggedIn == null) {
+            uBinding.swipeRefreshLayout.isEnabled = false
+            return
+        }
+
+        uBinding.swipeRefreshLayout.isEnabled = isLoggedIn
+
+        if (isLoggedIn) {
+            uBinding.swipeRefreshLayout.setOnRefreshListener {
+                uBinding.swipeRefreshLayout.isRefreshing = false
+                uViewModel.btnRefresh()
+            }
+        }
+    }
+
+    /** Url 행 개수 설정 함수 **/
+    private fun changeGrid(spanCount: Int) {
+        val rv = binding.rvUrl
+        val lm = rv.layoutManager as? GridLayoutManager ?: return
+
+        // 1. 칸 수 변경
+        lm.spanCount = spanCount
+
+        // 2. 중요: 아이템들이 새로운 너비(1/3 또는 1/4)에 맞춰 다시 계산되도록 함
+        rv.requestLayout()
+
+        // 3. 만약 여백 계산 로직(ItemDecoration)이 있다면 갱신
+        rv.invalidateItemDecorations()
+
+        // 4. 애니메이션 (생략 가능)
+        rv.scheduleLayoutAnimation()
+    }
+
+    /** 리사이클러뷰 연결 **/
+    private fun setupRecyclerViews() {
+        uBinding.rvUrl.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = this@UrlFragment.adapter
+            layoutAnimation = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation)
+            scheduleLayoutAnimation()
+        }
+
+        uBinding.rvTags.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            adapter = tagAdapter
         }
 
         tagTouchHelper.attachToRecyclerView(uBinding.rvTags)
-
-        initView()
-        observe()
-        return uBinding.root
-
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun initView() {
+    /** 로딩 상태 observe **/
+    private fun observeLoading() {
+        uViewModel.isLoading.observe(viewLifecycleOwner) { updateLoadingState() }
+        uViewModel.isTagLoading.observe(viewLifecycleOwner) { updateLoadingState() }
+    }
 
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
-        val vm = uViewModel
+    private fun updateLoadingState() {
+        val show = uViewModel.isLoading.value == true || uViewModel.isTagLoading.value == true
+        uBinding.loadingBarSkeleton.visibility = if (show) View.VISIBLE else View.GONE
+        uBinding.skeletonLayout.visibility = if (show) View.VISIBLE else View.GONE
+        uBinding.mainLayout.visibility = if (show) View.GONE else View.VISIBLE
+    }
 
-        if (autoLogin) {
+    /** 로그인 모드 렌더 **/
+    private fun renderLoggedInMode(syncMode: UrlViewModel.RemoteSyncMode?) {
+        uBinding.linearRefresh.visibility = View.VISIBLE
+        uBinding.rvTags.visibility = View.VISIBLE
 
-            uBinding.linearRefresh.visibility = View.VISIBLE
+        swipeRefresh(true)
+        observeUserUrlBackup()
+        observeUserTagBackup()
 
-            val beforeActivity = activity?.intent?.extras?.getString("activity")
-
-            if (beforeActivity == "CaptureSave") {
-                vm.isLoading.value = true
-                vm.isTagLoading.value = true
-
-                getUserUrlBackup(vm)
-                getUserTagBackup(vm)
-
-                Handler(Looper.getMainLooper()).postDelayed({
-
-                    vm.isTagLoading.value = false
-                    vm.isLoading.value = false
-                    activity?.intent?.putExtra("activity", "")
-
-
-                }, 700)
-
-            }else{
-                getUserUrlBackup(vm)
-                getUserTagBackup(vm)
+        when (syncMode) {
+            UrlViewModel.RemoteSyncMode.REFRESH -> {
+                uViewModel.isLoading.value = true
+                uViewModel.isTagLoading.value = true
+                uViewModel.loadUserData(UrlViewModel.RemoteSyncMode.REFRESH)
             }
 
+            UrlViewModel.RemoteSyncMode.INSERT -> {
+                uViewModel.isLoading.value = true
+                uViewModel.isTagLoading.value = true
+                uViewModel.loadUserData(UrlViewModel.RemoteSyncMode.INSERT)
+            }
 
-
-        } else {
-
-            uBinding.linearRefresh.visibility = View.GONE
-            uBinding.rvTags.visibility = View.GONE
-
+            null -> Unit
         }
-
     }
 
+    /** 게스트 모드 렌더 **/
     @SuppressLint("NotifyDataSetChanged")
-    private fun observe() = uViewModel.let { vm ->
+    private fun renderGuestMode() {
+        uBinding.linearRefresh.visibility = View.GONE
+        uBinding.rvTags.visibility = View.GONE
+        swipeRefresh(false)
 
-        val pref = requireContext().getSharedPreferences("User", Context.MODE_PRIVATE)
-        val isFirst = pref.getInt("isFirst", 0)
-        val autoLogin = pref.getBoolean("auto login", false)
-        Log.e("처음인지 확인", isFirst.toString())
+        uViewModel.getGuestUrl().observe(viewLifecycleOwner) { url ->
+            val urlDataViewModel =
+                ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
+            urlDataViewModel.sendUrlCount(url)
 
-        if (autoLogin) {
+            InitUrlDataCount.linkCount = url.size
+            InitUrlDataCount.favorite = url.count { it.favorite }
 
-            if (isFirst == 1) {
+            adapter.setGuestData(url)
+            adapter.notifyDataSetChanged()
 
-                getUrlData(vm)
-                getTagData(vm)
-                pref.edit().putInt("isFirst", 0).commit()
-                Log.e("모든 데이터 받아오기", "앱 시작 시 데이터 받아오기 성공")
-            }
-
-            vm.isLoading.observe(viewLifecycleOwner) { isLoading ->
-
-                vm.isTagLoading.observe(viewLifecycleOwner) { isTagLoading ->
-                    uBinding.loadingBarSkeleton.visibility =
-                        if (isLoading || isTagLoading) View.VISIBLE else View.GONE
-                    uBinding.skeletonLayout.visibility =
-                        if (isLoading || isTagLoading) View.VISIBLE else View.GONE
-                    uBinding.mainLayout.visibility =
-                        if (isLoading || isTagLoading) View.GONE else View.VISIBLE
-
-                }
-
-            }
-
-
-            vm.hasBackupData().observe(viewLifecycleOwner) { hasData ->
-                if (hasData && isFirst != 1) {
-                    Log.e("모든 데이터 받아오기", "이미 데이터가 받아와져있음")
-                } else if (isFirst == 1) {
-
-                    getUrlData(vm)
-//                    getTagData(vm)
-                    Log.e("모든 데이터 받아오기", "성공")
-                }
-            }
-
-
-        } else {
-
-            vm.getGuestUrl().observe(viewLifecycleOwner, Observer<List<UrlEntity>> { url ->
-
-                val urlDataViewModel =
-                    ViewModelProvider(requireActivity())[UrlDataViewModel::class.java]
-                urlDataViewModel.sendUrlCount(url)
-
-                InitUrlDataCount.linkCount = url.size
-                InitUrlDataCount.favorite = url.filter { it.favorite }.size
-
-                adapter.setGuestData(url)
-                adapter.notifyDataSetChanged()
-
-                tagAdapter.setTagData(url.map {
+            tagAdapter.setTagData(
+                url.map {
                     Tag(
                         it.tag,
-                        timeStamp = it.timeStamp.toString(),
+                        timeStamp = it.timeStamp.toString()
                     )
-                })
+                }
+            )
+            tagAdapter.notifyDataSetChanged()
+        }
+    }
 
-                tagAdapter.notifyDataSetChanged()
-            })
+    /** 백업 데이터 가져오기 **/
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeUserUrlBackup() {
+        if (urlBackupObserved) return
+        urlBackupObserved = true
 
+        uViewModel.getUserUrlBackup().observe(viewLifecycleOwner) { url ->
+            adapter.setUserBackupData(url, true)
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    /** 백업 데이터 가져오기 **/
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeUserTagBackup() {
+        if (tagBackupObserved) return
+        tagBackupObserved = true
+
+        uViewModel.getUserTagBackup().observe(viewLifecycleOwner) { tag ->
+            Log.e("백업 태그 데이터", tag.toString())
+            tagAdapter.setTagBackupData(tag, true)
+            tagAdapter.notifyDataSetChanged()
+        }
+    }
+
+    /** ViewModel 상태 observe **/
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeViewModel() = uViewModel.let { vm ->
+        vm.startMode.observe(viewLifecycleOwner) { mode ->
+            when (mode) {
+                StartMode.GUEST -> renderGuestMode()
+                StartMode.LOGIN_REFRESH -> renderLoggedInMode(UrlViewModel.RemoteSyncMode.REFRESH)
+                StartMode.LOGIN_ONLY -> renderLoggedInMode(null)
+                null -> Unit
+            }
         }
 
         vm.btnAddState.observe(viewLifecycleOwner) {
             if (it) {
-                val intent = Intent(requireContext(), AddLinkActivity::class.java)
-                startActivityAnimation.startActivityAnimation(intent, requireContext())
-                requireActivity().finish()
+                val url = uBinding.edtUrl.text.toString()
+                if (url.isBlank()) {
+                    Toast.makeText(requireContext(), "URL을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    return@observe
+                } else {
+                    val intent = Intent(requireActivity(), CaptureActivity::class.java)
+                    intent.putExtra("url", url)
+                    startActivityAnimation(intent, requireContext())
+                }
             }
         }
 
         vm.btnRefreshState.observe(viewLifecycleOwner) {
             if (it) {
-
-                getUrlData(vm)
-
-                getTagData(vm)
-
-                getUserUrlBackup(vm)
-
-                getUserTagBackup(vm)
-
+                vm.loadUserData(UrlViewModel.RemoteSyncMode.REFRESH)
+                tagAdapter.clearSelection()
                 Log.e("모든 데이터 받아오기", "성공")
-
             }
         }
 
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getUserUrlBackup(vm: UrlViewModel) {
-
-        vm.getUserUrlBackup()
-            .observe(viewLifecycleOwner, Observer<List<UrlBackupEntity>> { url ->
-
-                adapter.setUserBackupData(url, true)
-                adapter.notifyDataSetChanged()
-
-            })
-
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getUserTagBackup(vm: UrlViewModel) {
-
-        vm.getUserTagBackup()
-            .observe(viewLifecycleOwner, Observer<List<TagBackupEntity>> { tag ->
-
-                tagAdapter.setTagBackupData(tag, true)
-                tagAdapter.notifyDataSetChanged()
-
-            })
-
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getUrlData(vm: UrlViewModel) {
-        vm.getUrlData(viewLifecycleOwner).observe(viewLifecycleOwner) { listPair ->
-
-            val urlDataList: List<Url> = listPair.first
-            val imgUriList: List<String> = listPair.second
-
-            val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
-                UrlBackupEntity(
-                    urlLink = url.url,
-                    imageKey = url.imageKey,
-                    imgUri = imgUri, // ✅ 해당 URL에 맞는 이미지 URI를 할당
-                    favorite = url.favorite,
-                    timeStamp = url.timeStamp,
-                    urlName = url.urlName,
-                    urlMemo = url.urlMemo,
-                    tag = url.tag
-                )
-            }
-            Log.e("uri 리스트 데이터", imgUriList.toString())
-
-            /** 데이터를 파이어베이스에서 받아오고 룸에 저장해서 매번 받아오지도 않게 만듦 **/
-
-            vm.insertUrlBackup(urlBackupEntity)
+        vm.urlData.observe(viewLifecycleOwner) { listPair ->
+            val urlDataList = listPair.first
+            val imgUriList = listPair.second
 
             adapter.setLoginData(urlDataList, imgUriList, false)
             adapter.notifyDataSetChanged()
-
         }
-    }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun getTagData(vm: UrlViewModel) {
-        vm.getTagData(viewLifecycleOwner).observe(viewLifecycleOwner) { tag ->
-
-            val tagBackupEntity = tag
-                .map {
-                    TagBackupEntity(
-                        tag = it.tag!!,
-                        timeStamp = it.timeStamp,
-                        urlList = it.urlList
-                    )
-                }
-
-            vm.insertTagBackup(tagBackupEntity)
+        vm.tagData.observe(viewLifecycleOwner) { tag ->
 
             tagAdapter.setTagData(tag.map {
                 Tag(
@@ -306,8 +306,38 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
             })
             tagAdapter.notifyDataSetChanged()
         }
+
+        vm.urlInputDoneState.observe(viewLifecycleOwner) {
+            if (it) {
+                val intent = Intent(requireActivity(), CaptureActivity::class.java)
+                intent.putExtra("url", uBinding.edtUrl.text.toString())
+                startActivityAnimation(intent, requireContext())
+                activity?.finish()
+            }
+        }
     }
 
+    private fun openUrlDetail(url: Url, txUrl: View, imgView: View) {
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+            requireActivity(),
+            Pair.create(txUrl, "titleTran"),
+            Pair.create(imgView, "imageTran")
+        )
+
+        val intent = Intent(requireContext(), UrlDetailActivity::class.java).apply {
+            putExtra("title", url.url)
+            putExtra("imgUri", url.imgUri)
+            putExtra("imageKey", url.imageKey)
+            putExtra("isFavorite", url.favorite)
+            putExtra("timeStamp", url.timeStamp.toString())
+            putExtra("urlName", url.urlName)
+            putExtra("urlMemo", url.urlMemo)
+        }
+
+        startActivity(intent, options.toBundle())
+    }
+
+    /** 태그 필터링 **/
     @SuppressLint("NotifyDataSetChanged")
     override fun onTagFiltered(url: List<String>, tag: String) {
         adapter.filterByTag(url, tag, uBinding.rvUrl)
@@ -315,5 +345,4 @@ class UrlFragment : Fragment(), OnTagFilterSelectedListener {
         adapter.notifyDataSetChanged()
         tagAdapter.notifyDataSetChanged()
     }
-
 }

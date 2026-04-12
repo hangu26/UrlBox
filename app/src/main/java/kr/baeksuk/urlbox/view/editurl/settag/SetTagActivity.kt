@@ -40,7 +40,7 @@ class SetTagActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelecte
         sBinding = DataBindingUtil.setContentView(this@SetTagActivity, R.layout.activity_set_tag)
 
         tagListAdapter = RvTagInSetTagAdapter(this, this, this)
-        currentTagAdapter = RvCurrentTagAdapter(this, this, this)
+        currentTagAdapter = RvCurrentTagAdapter(this, supportFragmentManager, this)
 
         sBinding.apply {
             activity = this@SetTagActivity

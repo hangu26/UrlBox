@@ -1,37 +1,38 @@
 package kr.baeksuk.urlbox.util.adapter
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.util.Log
-import android.util.Pair
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import kr.baeksuk.urlBox.databinding.ItemThumbnailListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
-import kr.baeksuk.urlbox.model.GuestModeHandler
-import kr.baeksuk.urlbox.model.LoggedInModeHandler
-import kr.baeksuk.urlbox.model.ModeHandler
 import kr.baeksuk.urlbox.model.Url
-import kr.baeksuk.urlbox.util.util.ImgUriListData
-import kr.baeksuk.urlbox.util.util.UrlData
-import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
-import java.io.File
 
-class RvThumbnailAdapter(ctx: Context, act: Activity) :
+class RvThumbnailAdapter(
+    ctx: Context,
+    private val onItemClick: (Url, View, Int) -> Unit,
+    private val imageLoader: (Context, Url, ImageView, Int, Boolean, List<String>) -> Unit =
+        ThumbnailImageLoader::load
+) :
     RecyclerView.Adapter<RvThumbnailAdapter.MyViewHolder>() {
 
     private val context = ctx
-    private val activity = act
     private var thumbnailList = listOf<Url>()
     private var imgUriList = listOf<String>()
     private var isBackup = false
+
+    init {
+        setHasStableIds(true)
+    }
+
+    private fun transitionNameFor(url: Url): String {
+        val key = if (url.imageKey.isNotBlank()) url.imageKey else url.url
+        return "imageTran_$key"
+    }
 
     @SuppressLint("NotifyDataSetChanged")
     fun setGuestData(url: List<UrlEntity>) {
@@ -49,7 +50,7 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setUserBackupData(url: List<UrlBackupEntity>, isLoginBackup: Boolean){
+    fun setUserBackupData(url: List<UrlBackupEntity>, isLoginBackup: Boolean) {
 
         isBackup = isLoginBackup
         thumbnailList = url.sortedByDescending { it.timeStamp }
@@ -70,6 +71,12 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
 
     }
 
+    override fun getItemId(position: Int): Long {
+        val item = thumbnailList.getOrNull(position) ?: return RecyclerView.NO_ID
+        val key = if (item.imageKey.isNotBlank()) item.imageKey else item.url
+        return key.hashCode().toLong()
+    }
+
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
@@ -78,9 +85,8 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
         return MyViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: RvThumbnailAdapter.MyViewHolder, position: Int) {
-        holder.bind(thumbnailList[position])
-        holder.thumbnail.transitionName = "imageTran_$position"
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+        holder.bind(thumbnailList[position], position)
     }
 
     override fun getItemCount(): Int {
@@ -91,60 +97,24 @@ class RvThumbnailAdapter(ctx: Context, act: Activity) :
         RecyclerView.ViewHolder(binding.root) {
 
         var thumbnail = binding.imgThumbnail
-        private var imageKey = ""
-        private var txUrl = ""
-        private var isFavorite = false
         private val iconFavorite = binding.iconFavorite
-        val pref = context.getSharedPreferences("User", Context.MODE_PRIVATE)
-        private val autoLogin = pref.getBoolean("auto login", false)
 
-        fun bind(url: Url) {
-            imageKey = url.imageKey
-            txUrl = url.url
-            isFavorite = url.favorite
+        fun bind(url: Url, position: Int) {
+            thumbnail.transitionName = transitionNameFor(url)
+            iconFavorite.visibility = if (url.favorite) View.VISIBLE else View.GONE
 
-            if (isFavorite){
-                iconFavorite.visibility = View.VISIBLE
-            }else{
-                iconFavorite.visibility = View.GONE
-            }
-
-            val modeHandler: ModeHandler = if (autoLogin) {
-                LoggedInModeHandler(imgUriList, layoutPosition)
-            } else {
-                GuestModeHandler(imageKey, context)
-            }
-
-            modeHandler.loadImage(url.imgUri, thumbnail, context, isBackup)
-
-        }
-
-        init {
-
-            val itemPosition = UrlData.selectedPosition
-
-            thumbnail.transitionName = "imageTran_$itemPosition"
+            imageLoader(
+                context,
+                url,
+                thumbnail,
+                position,
+                isBackup,
+                imgUriList
+            )
 
             thumbnail.setOnClickListener {
-                Log.e("데이터 있는지 확인", imgUriList.toString())
-
-                val options = ActivityOptions.makeSceneTransitionAnimation(
-                    activity,
-                    Pair.create(thumbnail, "imageTran_$layoutPosition")
-                )
-                val intent = Intent(context, ImgDetailActivity::class.java)
-                intent.putExtra("title", txUrl)
-                intent.putExtra("image", imageKey)
-                intent.putExtra("isFavorite", isFavorite)
-
-                ImgUriListData.imgUriListData = imgUriList
-
-                UrlData.urlList = thumbnailList
-                UrlData.selectedPosition = layoutPosition
-
-                context.startActivity(intent, options.toBundle())
+                onItemClick(url, thumbnail, position)
             }
-
         }
 
     }

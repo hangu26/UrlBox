@@ -22,7 +22,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -76,23 +76,15 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/appBar_margin"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/appbar_margin_constraint_height"
-            android:background="@color/appBar_title_01"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
-
         <FrameLayout
             android:id="@+id/fl_main"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="@color/white"
             app:layout_constraintBottom_toTopOf="@+id/bottom_nav"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBar_margin" />
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
 
         <LinearLayout
             android:id="@+id/bottom_nav"

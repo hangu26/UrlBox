@@ -12,6 +12,8 @@ import android.os.Bundle
 import android.os.PersistableBundle
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
@@ -27,7 +29,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
 
-        viewModel.state.observe(this) { state ->
+        networkStatusViewModel.state.observe(this) { state ->
             when (state) {
                 MyState.Error -> networkDialog()
                 MyState.Fetched -> networkDialog()
@@ -35,9 +37,11 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    fun backToMain(activity: Context) {
-        val intent = Intent(activity, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+    fun backToMain(activity: Context, targetFragment: String? = null) {
+        val intent = Intent(activity, MainActivity::class.java).apply {
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            targetFragment?.let { putExtra("TARGET_FRAGMENT", it) }
+        }
         startActivityAnimation(intent, activity)
         finish()
 
@@ -78,7 +82,7 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
-    private val viewModel: NetworkStatusViewModel by lazy {
+    private val networkStatusViewModel: NetworkStatusViewModel by lazy {
         ViewModelProvider(
             this,
             object : ViewModelProvider.Factory {
@@ -116,6 +120,19 @@ abstract class BaseActivity : AppCompatActivity() {
             }
         }
         return result
+    }
+
+    fun setTouchAnimation(view: View, event: MotionEvent?) {
+        event?.let {
+            when (it.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    view.animate().scaleX(0.97f).scaleY(0.97f).translationZ(5f).setDuration(100).start()
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    view.animate().scaleX(1f).scaleY(1f).translationZ(20f).setDuration(100).start()
+                }
+            }
+        }
     }
 
     private fun networkDialog() {

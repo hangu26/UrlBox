@@ -18,7 +18,16 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:fitsSystemWindows="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -58,61 +67,70 @@
 
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/appBar_margin"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="0dp"
-            android:layout_height="@dimen/appbar_margin_constraint_height"
-            android:background="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_height="0dp"
+            android:fillViewport="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
+            app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/ll_login"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBar_margin">
+            android:layout_marginTop="@dimen/margin_top_ll_login"
+            android:paddingBottom="50dp">
 
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.5" />
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieAnimationView"
+                android:layout_width="148dp"
+                android:layout_height="148dp"
+                android:layout_gravity="center"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_fileName="anim_login.json"
+                />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_gravity="center"
-                android:layout_weight="1">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center">
 
                 <TextView
                     android:id="@+id/tx_login_main"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/margin_top_tx_login_main"
                     android:layout_weight="1"
-                    android:fontFamily="@font/pretendard_semibold"
+                    android:fontFamily="@font/pretendard_bold"
                     android:gravity="center"
-                    android:lineSpacingMultiplier="1.3"
+                    android:lineSpacingMultiplier="1"
                     android:text="@string/tx_save_through_login"
                     android:textColor="@color/black"
                     android:textSize="@dimen/tx_save_through_login_size"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <CheckBox
+                <TextView
+                    android:id="@+id/tx_login_detail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="@{viewmodel.isDataSyncEnabled}"
-                    android:onCheckedChanged="@{(button, isChecked) -> viewmodel.onCheckChanged(isChecked)}"
-                    android:text="@string/tx_backup_to_account"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/margin_top_tx_login_main"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:gravity="center"
+                    android:lineSpacingMultiplier="1"
+                    android:text="@string/tx_login_detail"
+                    android:textColor="@color/color_tx_login_detail"
+                    android:textSize="@dimen/size_tx_login_detail"
+                    app:layout_constraintEnd_toEndOf="@id/tx_login_main"
+                    app:layout_constraintStart_toStartOf="@+id/tx_login_main"
                     app:layout_constraintTop_toBottomOf="@+id/tx_login_main" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -127,9 +145,10 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/signInGoogle"
-                    android:layout_width="@dimen/width_btn_login"
+                    android:layout_width="0dp"
                     android:layout_height="@dimen/border_google_login_height"
                     android:layout_marginStart="@dimen/border_google_login_margin_side"
+                    android:layout_marginTop="@dimen/margin_top_constraint_google"
                     android:layout_marginEnd="@dimen/border_google_login_margin_side"
                     android:background="@drawable/border_google_login"
                     android:onClick="@{() -> viewmodel.btnGoogleLogin()}"
@@ -174,7 +193,7 @@
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/signInKakao"
-                    android:layout_width="@dimen/width_btn_login"
+                    android:layout_width="0dp"
                     android:layout_height="@dimen/border_google_login_height"
                     android:layout_gravity="center"
                     android:layout_marginStart="@dimen/border_google_login_margin_side"
@@ -221,9 +240,84 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <CheckBox
+                    android:id="@+id/chk_sync"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_top_chk_login"
+                    android:checked="@{viewmodel.isDataSyncEnabled}"
+                    android:fontFamily="@font/pretendard_medium"
+                    android:onCheckedChanged="@{(button, isChecked) -> viewmodel.onCheckChanged(isChecked)}"
+                    android:text="@string/tx_backup_to_account"
+                    android:textColor="@color/color_tx_checkbox_synchronization"
+                    android:textSize="@dimen/size_tx_checkbox_synchronization"
+                    android:layout_marginStart="@dimen/margin_side_chk_sync"
+                    android:layout_marginEnd="@dimen/margin_side_chk_sync"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/signInKakao" />
+
+                <LinearLayout
+                    android:id="@+id/ll_space_or"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_top_space_or"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="@+id/chk_sync"
+                    app:layout_constraintStart_toStartOf="@+id/chk_sync"
+                    app:layout_constraintTop_toBottomOf="@+id/chk_sync">
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="@color/color_ll_space_or" />
+
+                    <Space
+                        android:layout_width="@dimen/space_tx_or"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/pretendard_medium"
+                        android:text="@string/tx_or"
+                        android:textColor="@color/color_tx_or"
+                        android:textSize="@dimen/size_tx_or" />
+
+                    <Space
+                        android:layout_width="@dimen/space_tx_or"
+                        android:layout_height="wrap_content" />
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="1"
+                        android:background="@color/color_ll_space_or" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tx_guest_continue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_top_tx_guest_continue"
+                    android:fontFamily="@font/pretendard_semibold"
+                    android:text="@string/tx_guest_continue"
+                    android:textColor="@color/appBar_title_02"
+                    android:textSize="@dimen/size_tx_guest_continue"
+                    android:onClick="@{() -> viewmodel.btnGuestContinue()}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/ll_space_or" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/loading_bar_skeleton"
@@ -254,6 +348,54 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loading_bar_lottie"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- 배경을 위한 레이아웃 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.5"
+                android:background="@android:color/black" />
+
+            <!-- 로딩바 -->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/anim_lottie_upload"
+                android:layout_width="@dimen/size_anim_lottie_upload"
+                android:layout_height="@dimen/size_anim_lottie_upload"
+                app:lottie_fileName="anim_upload.json"
+                android:layout_gravity="center"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <TextView
+                android:id="@+id/tx_is_uploading"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tx_syncing"
+                android:textColor="@color/white"
+                android:textSize="@dimen/size_tx_syncing"
+                android:fontFamily="@font/pretendard_bold"
+                app:layout_constraintTop_toBottomOf="@+id/anim_lottie_upload"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

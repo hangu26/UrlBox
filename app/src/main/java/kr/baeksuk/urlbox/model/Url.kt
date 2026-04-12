@@ -7,7 +7,7 @@ data class Url(
     val favorite : Boolean = false,
     val timeStamp : Long = 0,
     val urlName : String? = null,
-    val urlMemo : String? = null,
+    val urlMemo : String? = "",
     val tag : List<UserTags>? = null
 
 )

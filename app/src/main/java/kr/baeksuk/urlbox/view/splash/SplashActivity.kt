@@ -9,56 +9,52 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.lifecycleScope
 import com.kakao.sdk.common.util.Utility
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
+import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.SessionCache
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import kr.baeksuk.urlbox.view.main.MainActivity
+import kr.baeksuk.urlbox.view.tutorial.TutorialActivity
+import org.koin.android.ext.android.inject
+import kotlin.getValue
 
-class SplashActivity : AppCompatActivity() {
+@SuppressLint("CustomSplashScreen")
+class SplashActivity : BaseActivity() {
+
+    private val sessionManager: UserSessionManager by inject()
+
     @SuppressLint("PrivateResource")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        val isTutorialClear = 1
+        lifecycleScope.launch {
 
+            val session = sessionManager.userSession.first()
+            SessionCache.current = session
 
-        Handler(Looper.getMainLooper()).postDelayed({
+            delay(2000)
 
-            if (isTutorialClear == 0) {
-//                intent.putExtra("isClearIntent", 0)
-//                val intent = Intent(this@SplashActivity, TutorialActivity::class.java)
-//                val options = ActivityOptions.makeCustomAnimation(
-//                    this@SplashActivity,
-//                    androidx.appcompat.R.anim.abc_fade_in,
-//                    androidx.appcompat.R.anim.abc_fade_out
-//                )
-//                startActivity(intent, options.toBundle())
-//
-//                // 액세스 토큰을 가져와서 Constants에 설정
-//
-//                finish()
+            val isTutorialClear = sessionManager.isTutorialClear.first()
 
-            } else {
-                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-                pref.edit().putInt("isFirst", 1).apply()
-
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
-
-                val options = ActivityOptions.makeCustomAnimation(
-                    this@SplashActivity,
-                    androidx.appcompat.R.anim.abc_fade_in,
-                    androidx.appcompat.R.anim.abc_fade_out
+            if (isTutorialClear) {
+                startActivityAnimation(
+                    Intent(this@SplashActivity, MainActivity::class.java),
+                    this@SplashActivity
                 )
-                startActivity(intent, options.toBundle())
-
-                // 액세스 토큰을 가져와서 Constants에 설정
-
-                finish()
+            } else {
+                startActivityAnimation(
+                    Intent(this@SplashActivity, TutorialActivity::class.java),
+                    this@SplashActivity
+                )
             }
+            finish()
+        }
 
-
-        }, 2000)
     }
-
-
 }

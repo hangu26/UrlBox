@@ -1,7 +1,6 @@
 package kr.baeksuk.urlbox.view.tag
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
@@ -10,6 +9,8 @@ import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityTagBinding
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -29,9 +30,14 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
     private lateinit var adapter : RvTagInTagAdapter
     private val backPressedCallback = BackPressedCallback(this)
 
+    private var autoLogin = false
+
+    companion object {
+        private var adView: AdView? = null  // 광고 뷰를 재사용
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tag)
         adapter = RvTagInTagAdapter(this,this, this)
 
         tBinding = DataBindingUtil.setContentView(this@TagActivity, R.layout.activity_tag)
@@ -45,39 +51,42 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
             }
             rvTags.adapter = adapter
         }
-        requestAd()
+        setupAdView()
         backPressedCallback.addCallbackFragment(this, MainActivity::class.java)
 
+        observeSessionState()
         observe()
+        tViewModel.loadSessionState()
 
+    }
+
+    private fun observeSessionState() {
+        tViewModel.isLoggedIn.observe(this@TagActivity) { isLoggedIn ->
+            autoLogin = isLoggedIn
+
+            if (autoLogin) {
+                tViewModel.getUserTagBackup().observe(this@TagActivity, Observer<List<TagBackupEntity>> { tag ->
+
+                    adapter.setUserTagData(tag)
+
+                })
+            }
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
     private fun observe() = tViewModel.let { vm ->
 
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+        vm.btnCloseState.observe(this@TagActivity){
+            if (it){
 
-        if (autoLogin) {
+                finishToMyPage(this)
 
-            vm.getUserTagBackup().observe(this, Observer<List<TagBackupEntity>> { tag ->
-
-                adapter.setUserTagData(tag)
-                adapter.notifyDataSetChanged()
-
-            })
-
-            vm.btnCloseState.observe(this@TagActivity){
-                if (it){
-
-                    finishToMyPage(this)
-
-                }
             }
-
         }
 
     }
+
 
     override fun onTagLongTouched(tag: String) {
 
@@ -93,16 +102,38 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
         tViewModel.deleteTag(tag)
     }
 
-    private fun requestAd(){
+    private fun setupAdView() {
+        adView?.destroy()
 
-        val adRequest = AdRequest.Builder().build() // 광고 요청 생성
-        tBinding.adView.loadAd(adRequest) // 광고 로드
+        adView = AdView(this).apply {
+            adUnitId = "ca-app-pub-6498037779961709/3085641605"
 
+            val adSize = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                this@TagActivity,
+                AdSize.FULL_WIDTH
+            )
+            setAdSize(adSize)
+
+            loadAd(AdRequest.Builder().build())
+        }
+
+        tBinding.adView.removeAllViews()
+        tBinding.adView.addView(adView)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adView?.resume()
+    }
+
+    override fun onPause() {
+        adView?.pause()
+        super.onPause()
     }
 
     override fun onDestroy() {
+        adView?.destroy()
         super.onDestroy()
-        tBinding.adView.destroy()
     }
 
 }

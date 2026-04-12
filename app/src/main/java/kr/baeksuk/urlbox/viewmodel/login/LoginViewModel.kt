@@ -2,6 +2,7 @@ package kr.baeksuk.urlbox.viewmodel.login
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -12,12 +13,15 @@ import kr.baeksuk.urlbox.data.repository.GoogleLoginRepository
 import kr.baeksuk.urlbox.data.repository.KakaoLoginRepository
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.UserRepository
+import kr.baeksuk.urlbox.domain.LoginRequest
+import kr.baeksuk.urlbox.domain.LoginResult
+import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import java.io.File
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
+class LoginViewModel(application: Application,private val loginUseCase: LoginUseCase) : AndroidViewModel(application) {
     private val _repo = UserRepository(application)
     private val _kakaoRepo = KakaoLoginRepository(application)
     private val _googleRepo = GoogleLoginRepository(application)
@@ -38,7 +42,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     val insertComplete: LiveData<Boolean> = _insertComplete
 
     private val _loadingBar = MutableLiveData<Boolean>()
-    val loadingBar : LiveData<Boolean> = _loadingBar
+    val loadingBar: LiveData<Boolean> = _loadingBar
 
     private val _isDataSyncEnabled = MutableLiveData(false)
     val isDataSyncEnabled = _isDataSyncEnabled
@@ -52,28 +56,42 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _userData = MutableLiveData<User>()
     val userData: LiveData<User> get() = _userData
 
+    private val _btnGuestState = MutableLiveData<Boolean>()
+    val btnGuestState: LiveData<Boolean> = _btnGuestState
+
+    private val _loginSelectLoading = MutableLiveData<Boolean>()
+    val loginSelectLoading: LiveData<Boolean> = _loginSelectLoading
+
+    private val _loginError = MutableLiveData<String>()
+    val loginError: LiveData<String> = _loginError
+
     fun setKakaoUserData(user: User) {
         _userData.value = user
     }
 
-    fun setLoadingBar(isLoad : Boolean){
+    fun setLoadingBar(isLoad: Boolean) {
         _loadingBar.value = isLoad
     }
 
     fun kakaoLogin(context: Context) {
-        _loadingBar.value = true
-        _kakaoRepo.kakaoLogin(context,this@LoginViewModel) { success ->
+        _loadingBar.value = true // 버튼 클릭 시 기존 로딩바
+        _kakaoRepo.kakaoLogin(context, this) { success ->
+            changeLoadingBar()
             _kakaoLoginState.postValue(success)
         }
     }
 
-    fun googleLogin(context: Context){
-        _googleRepo.signGoogle(context){ success ->
-            _googleLoginState.postValue(success)
-        }
+    fun changeLoadingBar() {
+        _loadingBar.value = false
+        _loginSelectLoading.value = true // 계정 선택 후 로티
     }
 
-    fun getGuestUrl() : LiveData<List<UrlEntity>>{
+
+    fun btnGuestContinue() {
+        _btnGuestState.value = true
+    }
+
+    fun getGuestUrl(): LiveData<List<UrlEntity>> {
         return this.url
     }
 
@@ -81,38 +99,51 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         _isDataSyncEnabled.value = isChecked
     }
 
-    fun insertUserId(userId: User) {
+    fun submitLogin(
+        user: User,
+        isUpload: Boolean,
+        url: List<UrlToLogin>,
+        imgFileList: List<File>
+    ) {
         viewModelScope.launch {
-            // Room DB 또는 Repository의 suspend 함수 실행
-            _repo.insertUserId(userId)
-            _loadingBar.postValue(false)
-            _insertComplete.postValue(true) // 완료되었음을 알림
+            _loadingBar.value = true
+
+            when (
+                val result = loginUseCase(
+                    LoginRequest(
+                        user = user,
+                        isUpload = isUpload,
+                        urlList = url,
+                        imgFileList = imgFileList,
+                        autoLogin = true
+                    )
+                )
+            ) {
+                is LoginResult.Success -> {
+                    _insertComplete.value = true
+                    _loadingBar.value = false
+                }
+
+                is LoginResult.Failure -> {
+                    Log.e("LoginViewModel", "login 실패", result.throwable)
+                    _loginError.value = result.throwable.message ?: "로그인 처리 실패"
+                    _loadingBar.value = false
+
+                }
+            }
         }
     }
 
-    fun insertAllData(userId: User, url: List<UrlToLogin>, imgFileList : List<File>){
-        viewModelScope.launch {
-            _repo.insertAllData(userId, url , imgFileList)
-            _loadingBar.postValue(false)
-            _insertComplete.postValue(true) // 완료되었음을 알림
+        fun btnClose() {
+            _btnCloseState.value = true
         }
+
+        fun btnGoogleLogin() {
+            _btnGoogleState.value = true
+        }
+
+        fun btnKakaoLogin() {
+            _btnKakaoState.value = true
+        }
+
     }
-
-    fun btnClose() {
-        _btnCloseState.value = true
-    }
-
-    fun btnGoogleLogin() {
-        _btnGoogleState.value = true
-    }
-
-    fun btnKakaoLogin(){
-        _btnKakaoState.value = true
-    }
-
-    /** 구글 로그인 시, db에 아이디 저장 함수 **/
-//    fun insertUserId(userId: User) {
-//        _repo.insertUserId(userId)
-//    }
-
-}

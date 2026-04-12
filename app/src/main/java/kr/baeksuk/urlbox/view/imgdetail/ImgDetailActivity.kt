@@ -1,27 +1,25 @@
 package kr.baeksuk.urlbox.view.imgdetail
 
-import android.app.ActivityOptions
-import android.content.Context
+import android.annotation.SuppressLint
+import android.app.SharedElementCallback
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.util.Pair
-import android.view.ViewTreeObserver
+import android.view.View
 import android.widget.Toast
-import androidx.core.view.ViewCompat
+import androidx.core.view.doOnPreDraw
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityImgDetailBinding
-import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.ImgPagerRvAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
-import kr.baeksuk.urlbox.util.util.InitUrlDataCount
-import kr.baeksuk.urlbox.util.util.UrlData
-import kr.baeksuk.urlbox.util.util.ViewPagerPosition
-import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
+import kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.imgdetail.ImgDetailViewModel
 import org.koin.android.ext.android.inject
@@ -30,75 +28,118 @@ class ImgDetailActivity : BaseActivity() {
 
     private lateinit var iBinding: ActivityImgDetailBinding
     private val iViewModel: ImgDetailViewModel by inject()
-    private val urlList = UrlData.urlList ?: emptyList()
-    private val startPosition = UrlData.selectedPosition
+    private var urlList: List<Url> = emptyList()
+    private val startPosition by lazy { intent.getIntExtra("startPosition", 0) }
     private var favoriteClicked = false
     private lateinit var adapter: ImgPagerRvAdapter
+    private var initialPageSet = false
+
+    private fun transitionNameFor(position: Int): String {
+        val url = urlList.getOrNull(position)
+        val key = if (url?.imageKey?.isNotBlank() == true) url.imageKey else url?.url.orEmpty()
+        return "imageTran_$key"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         iBinding =
             DataBindingUtil.setContentView(this@ImgDetailActivity, R.layout.activity_img_detail)
 
-        postponeEnterTransition() // 트랜지션 시작을 지연
+        postponeEnterTransition()
 
-        adapter = ImgPagerRvAdapter(urlList, this@ImgDetailActivity, this@ImgDetailActivity)
+        setEnterSharedElementCallback(object : SharedElementCallback() {
+            override fun onMapSharedElements(
+                names: MutableList<String>,
+                sharedElements: MutableMap<String, View>
+            ) {
+                val recyclerView = iBinding.viewPager.getChildAt(0) as? RecyclerView ?: return
+                val viewHolder = recyclerView.findViewHolderForAdapterPosition(startPosition)
+                    as? ImgPagerRvAdapter.MyViewHolder ?: return
+
+                val mappedTransitionName = intent.getStringExtra("transitionName")
+                    ?: transitionNameFor(startPosition)
+
+                names.clear()
+                names.add(mappedTransitionName)
+                sharedElements.clear()
+                sharedElements[mappedTransitionName] = viewHolder.thumbnail
+            }
+        })
+
+        adapter = ImgPagerRvAdapter(urlList, startPosition, this@ImgDetailActivity) { imageView ->
+            imageView.doOnPreDraw {
+                startPostponedEnterTransition()
+            }
+        }
 
         iBinding.apply {
             activity = this@ImgDetailActivity
             viewmodel = iViewModel
             lifecycleOwner = this@ImgDetailActivity
             viewPager.adapter = adapter
-            viewPager.setCurrentItem(startPosition, false)
         }
 
-        initViewPager(iBinding.viewPager)
+        observeUrlList()
 
+        initViewPager(iBinding.viewPager)
+        initButton()
         initView()
         observe()
 
     }
 
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initButton() {
+
+        iBinding.btnCapture.setOnTouchListener { v, motionEvent ->
+
+            setTouchAnimation(v, motionEvent)
+
+            false
+
+        }
+
+        iBinding.btnDelete.setOnTouchListener { v, motionEvent ->
+
+            setTouchAnimation(v, motionEvent)
+
+            false
+
+        }
+
+    }
+
     private fun initViewPager(viewPager: ViewPager2) {
-
-        // 트랜지션을 ViewPager2 내부의 ImageView와 연결
-        viewPager.viewTreeObserver.addOnPreDrawListener(object :
-            ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                iBinding.viewPager.viewTreeObserver.removeOnPreDrawListener(this)
-                startPostponedEnterTransition() // ViewPager가 준비되면 트랜지션 시작
-                return true
-            }
-        })
-
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 favoriteClicked = getCurrentUrl().favorite
 
-                UrlData.selectedPosition = position // 현재 위치 업데이트
-
-                // ✅ ViewPager2 내부 RecyclerView 가져오기
-                val recyclerView = viewPager.getChildAt(0) as? RecyclerView
-                val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position)
-                        as? ImgPagerRvAdapter.MyViewHolder
-
-                viewHolder?.updateTransitionName(position) // ✅ ViewHolder가 존재하면 transitionName 업데이트
-
-
                 if (favoriteClicked) {
-
                     iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
-
                 } else {
-
                     iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
-
                 }
-
             }
         })
 
+    }
+
+    private fun observeUrlList() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    iViewModel.urlList.collect { urls ->
+                        urlList = urls
+                        adapter.updateData(urls)
+                        if (!initialPageSet && urls.isNotEmpty()) {
+                            iBinding.viewPager.setCurrentItem(startPosition, false)
+                            initialPageSet = true
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private fun initView() {
@@ -131,28 +172,14 @@ class ImgDetailActivity : BaseActivity() {
         vm.btnEditState.observe(this@ImgDetailActivity) {
             if (it) {
 
-                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-                val autoLogin = pref.getBoolean("auto login", false)
-
                 val url = getCurrentUrl()
 
-                if (autoLogin) {
-
-                    val intent = Intent(this@ImgDetailActivity, CaptureActivity::class.java)
-                    intent.putExtra("url", url.url)
-                    intent.putExtra("edit", true)
-                    startActivityAnimation(intent, this)
-                    finish()
-
-                } else {
-
-                    val intent = Intent(this@ImgDetailActivity, CaptureActivity::class.java)
-                    intent.putExtra("url", url.url)
-                    intent.putExtra("edit", true)
-                    startActivityAnimation(intent, this)
-                    finish()
-
-                }
+                val intent = Intent(this@ImgDetailActivity, ReCaptureActivity::class.java)
+                intent.putExtra("url", url.url)
+                intent.putExtra("edit", true)
+                intent.putExtra("TARGET_FRAGMENT", "Thumbnail")
+                startActivityAnimation(intent, this)
+                finish()
 
             }
         }
@@ -160,74 +187,38 @@ class ImgDetailActivity : BaseActivity() {
         vm.btnDelete.observe(this@ImgDetailActivity) {
             if (it) {
 
-                val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-                val autoLogin = pref.getBoolean("auto login", false)
-
                 val url = getCurrentUrl()
 
-                Log.e("로그인 상태", autoLogin.toString())
-                if (autoLogin) {
+                vm.deleteImage(url.url, url.imageKey)
 
-                    vm.deleteUserData(url.url, url.imageKey)
-                    val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
-
-                } else {
-
-                    vm.deleteGuestData(url.url)
-                    val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
-                    startActivityAnimation(intent, this)
-                    finishAffinity()
-
-                }
+                val intent = Intent(this@ImgDetailActivity, MainActivity::class.java)
+                intent.putExtra("TARGET_FRAGMENT", "Thumbnail")
+                startActivityAnimation(intent, this)
+                finishAffinity()
 
             }
         }
 
         vm.btnFavoriteState.observe(this@ImgDetailActivity) {
-            val url = getCurrentUrl()
-
-            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-            val autoLogin = pref.getBoolean("auto login", false)
 
             if (it) {
 
-                if (!favoriteClicked) {
+                val url = getCurrentUrl()
 
-                    favoriteClicked = true
+                    favoriteClicked = !favoriteClicked
 
-                    iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_corral)
-                    Toast.makeText(this, "즐겨찾기가 설정되었습니다.", Toast.LENGTH_SHORT).show()
+                    iBinding.iconFavorite.setImageResource(
+                        if (favoriteClicked) R.drawable.icon_favorite_corral
+                        else R.drawable.icon_favorite_app_color
+                    )
 
-                    if (autoLogin) {
+                    Toast.makeText(
+                        this@ImgDetailActivity,
+                        if (favoriteClicked) "즐겨찾기가 설정되었습니다." else "즐겨찾기가 해제되었습니다.",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
-                        vm.updateUserFavorite(url.url, favoriteClicked)
-
-                    } else {
-
-                        vm.updateFavorite(url.url, favoriteClicked)
-
-                    }
-
-                } else {
-
-                    favoriteClicked = false
-
-                    iBinding.iconFavorite.setImageResource(R.drawable.icon_favorite_app_color)
-                    Toast.makeText(this, "즐겨찾기가 해제되었습니다.", Toast.LENGTH_SHORT).show()
-
-                    if (autoLogin) {
-
-                        vm.updateUserFavorite(url.url, favoriteClicked)
-
-                    } else {
-
-                        vm.updateFavorite(url.url, favoriteClicked)
-
-                    }
-
-                }
+                    vm.toggleFavorite(url.url, favoriteClicked)
 
             }
         }

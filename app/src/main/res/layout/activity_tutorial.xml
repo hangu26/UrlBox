@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="activity"
+            type="kr.baeksuk.urlbox.view.tutorial.TutorialActivity" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white">
+
+        <FrameLayout
+            android:id="@+id/rootLayout"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:minHeight="457dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:id="@+id/bgPage1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/border_tuto_background_01" />
+
+            <View
+                android:id="@+id/bgPage2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0"
+                android:background="@drawable/border_tuto_background_02" />
+
+            <View
+                android:id="@+id/bgPage3"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0"
+                android:background="@drawable/border_tuto_background_03" />
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/view_pager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent" />
+
+        </FrameLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_next_btn"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <TextView
+                android:id="@+id/tx_app_info_tutorial_01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/mg_top_tx_app_info_tutorial_01"
+                android:fontFamily="@font/pretendard_regular"
+                android:text="@string/tx_app_info_tutorial_01"
+                android:textColor="@color/color_tx_app_info_tutorial_01"
+                android:textSize="@dimen/size_tx_app_info_tutorial_01"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/tx_swipe_tutorial"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_start_tx_swipe_tutorial"
+                android:layout_marginBottom="@dimen/margin_bottom_tx_swipe_tutorial"
+                android:fontFamily="@font/pretendard_regular"
+                android:text="@string/tx_swipe_tutorial"
+                android:textColor="@color/color_tv_swipe_tutorial"
+                android:textSize="@dimen/size_tx_swipe_tutorial"
+                app:layout_constraintBottom_toTopOf="@+id/tx_app_info_tutorial_01"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btn_next_tutorial"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/height_btn_next_tutorial"
+                android:layout_marginStart="@dimen/margin_side_btn_next_tutorial"
+                android:layout_marginEnd="@dimen/margin_side_btn_next_tutorial"
+                android:layout_marginBottom="@dimen/margin_bottom_btn_next_tutorial"
+                android:background="@drawable/border_btn_next_tutorial"
+                app:layout_constraintBottom_toTopOf="@+id/tx_swipe_tutorial"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <TextView
+                    android:id="@+id/tx_next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_semibold"
+                    android:text="@string/tx_next"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/size_tx_next"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+                android:id="@+id/dots_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_bottom_dots_indicator"
+                app:dotsColor="@color/color_dotsIndicator"
+                app:dotsSize="@dimen/size_dots_indicator"
+                app:dotsSpacing="@dimen/space_dots_indicator"
+                app:layout_constraintBottom_toTopOf="@+id/btn_next_tutorial"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:progressMode="false"
+                app:selectedDotColor="@color/appBar_title_02" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

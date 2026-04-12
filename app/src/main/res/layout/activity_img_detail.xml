@@ -18,7 +18,17 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:fitsSystemWindows="true">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@drawable/background_thumbnail_detail">
+
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appBarLayout"
@@ -33,7 +43,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/white"
+                android:background="@drawable/background_thumbnail_detail"
                 app:contentInsetStart="0dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -49,7 +59,7 @@
                         android:layout_gravity="center"
                         android:fontFamily="@font/pretendard_bold"
                         android:text="@string/tx_url_detail"
-                        android:textColor="@color/appBar_title_02"
+                        android:textColor="@color/white"
                         android:textSize="@dimen/appbar_tx_title_chat"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -84,22 +94,12 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/appBar_margin"
-            android:layout_width="0dp"
-            android:layout_height="@dimen/appbar_margin_constraint_height"
-            android:background="@color/appBar_title_01"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBarLayout" />
-
-        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="@dimen/url_detail_image_margin_top"
             app:layout_constraintBottom_toTopOf="@+id/linearLayout"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appBar_margin">
+            app:layout_constraintTop_toBottomOf="@+id/appBarLayout">
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
@@ -134,6 +134,8 @@
                 android:layout_height="@dimen/btn_capture_height"
                 android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
                 android:layout_gravity="start"
+                android:elevation="2dp"
+                android:translationZ="2dp"
                 android:background="@drawable/border_btn_capture"
                 android:onClick="@{() -> viewmodel.btnEdit()}">
 
@@ -156,13 +158,15 @@
                 android:layout_height="match_parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/btn_cancel"
+                android:id="@+id/btn_delete"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="@dimen/btn_capture_height"
                 android:layout_marginBottom="@dimen/btn_capture_margin_bottom"
                 android:layout_gravity="end"
-                android:background="@drawable/border_btn_delete"
+                android:elevation="2dp"
+                android:translationZ="2dp"
+                android:background="@drawable/border_btn_delete_thumbnail"
                 android:onClick="@{() -> viewmodel.btnDelete()}">
 
                 <TextView
@@ -170,7 +174,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/pretendard_medium"
                     android:text="@string/tx_delete"
-                    android:textColor="@color/black"
+                    android:textColor="@color/white"
                     android:textSize="@dimen/text_btn_capture"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -181,6 +185,7 @@
 
         </LinearLayout>
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

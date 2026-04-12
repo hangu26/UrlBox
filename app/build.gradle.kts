@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 4
+        versionCode = 27
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -62,8 +62,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+        }
     }
 
     /** BaseActivity 에서 댓글 알림을 위한 GoogleCredential 의존성 추가를 위한 코드 -> com.google.api-client:google-api-client:1.34.0 **/
@@ -71,14 +73,30 @@ android {
         resources {
             excludes += mutableSetOf("META-INF/DEPENDENCIES")
         }
+        jniLibs {
+            // 16KB 페이지 크기 정렬 활성화
+            useLegacyPackaging = false
+        }
     }
 
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
+
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
+
+    /** 새로고침 라이브러리 **/
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+
+    /** 튜토리얼 뷰페이져 관련 라이브러리 **/
+    implementation("com.tbuonomo:dotsindicator:5.1.0")
+
+    /** 로티 애니메이션 **/
+    implementation ("com.airbnb.android:lottie:6.0.0")
+    
     implementation ("com.google.android.play:review-ktx:2.0.2")
 
-    implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
     implementation("com.google.android.gms:play-services-ads:23.4.0")
 
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
@@ -100,27 +118,25 @@ dependencies {
     implementation("androidx.credentials:credentials:1.5.0-alpha05")
     implementation("androidx.credentials:credentials-play-services-auth:1.5.0-alpha05")
     implementation ("com.google.api-client:google-api-client:1.34.0")
-
+    implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
-
     implementation("com.google.firebase:firebase-auth-ktx")
-
+    implementation("com.google.firebase:firebase-database-ktx:21.0.0")
+    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 
     implementation ("androidx.viewpager2:viewpager2:1.1.0")
     implementation ("com.google.android.flexbox:flexbox:3.0.0")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("com.google.firebase:firebase-database-ktx:21.0.0")
-    implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    kapt("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation("androidx.room:room-runtime:2.8.4")
+    annotationProcessor("androidx.room:room-compiler:2.8.4")
+    kapt("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.room:room-ktx:2.8.4")
 
     implementation("com.vanniktech:android-image-cropper:4.6.0")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 
-    implementation ("io.insert-koin:koin-android:3.1.6")
+    implementation ("io.insert-koin:koin-android:3.5.0")
 
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -128,5 +144,5 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 }

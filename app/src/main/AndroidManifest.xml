@@ -6,20 +6,31 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
         android:name="kr.baeksuk.urlbox.util.base.MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_main"
+        android:icon="@mipmap/ic_new_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_main_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.LinkBox"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <activity
+            android:name="kr.baeksuk.urlbox.view.urldetail.ImageFullActivity"
+            android:exported="false" />
+        <activity
+            android:name="kr.baeksuk.urlbox.view.tutorial.TutorialActivity"
+            android:exported="false" />
+        <activity
+            android:name="kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${ad_mob_app_id}" />
@@ -38,7 +49,8 @@
             android:exported="false" />
         <activity
             android:name="kr.baeksuk.urlbox.view.editurl.EditInfoActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name="kr.baeksuk.urlbox.view.myfolder.MyFolderActivity"
             android:exported="false" />
@@ -48,6 +60,28 @@
         <activity
             android:name="kr.baeksuk.urlbox.view.setting.SettingActivity"
             android:exported="false" /> <!-- 카카오 로그인, 인가코드를 받기 위한 액티비티 -->
+        <activity
+            android:name="kr.baeksuk.urlbox.view.admin.FeedbackAdminActivity"
+            android:exported="false" />
+        <activity
+            android:name="kr.baeksuk.urlbox.util.base.ShareReceiverActivity"
+            android:exported="true"
+            android:theme="@style/Theme.LinkBox.ShareReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/*" /> <!-- 텍스트 공유용 -->
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="image/*" /> <!-- 이미지 공유용 -->
+            </intent-filter>
+        </activity>
         <activity
             android:name="com.kakao.sdk.auth.AuthCodeHandlerActivity"
             android:exported="true">
@@ -90,7 +124,8 @@
 
         <activity
             android:name="kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name="kr.baeksuk.urlbox.view.addlink.AddLinkActivity"
             android:exported="false" />

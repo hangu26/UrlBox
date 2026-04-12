@@ -23,6 +23,7 @@ import org.koin.android.ext.android.inject
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.lifecycle.lifecycleScope
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.google.firebase.auth.FirebaseAuth
@@ -30,17 +31,24 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.withContext
+import kr.baeksuk.urlbox.domain.LoginRequest
+import kr.baeksuk.urlbox.domain.LoginResult
+import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.UrlToLogin
 import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.UrlData
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import java.io.File
+import kotlin.getValue
 
 class LoginActivity : BaseActivity() {
 
     private lateinit var lBinding: ActivityLoginBinding
     private val lViewModel: LoginViewModel by inject()
+
+    private val sessionManager: UserSessionManager by inject()
     private val backPressedCallback = BackPressedCallback(this)
     private lateinit var auth: FirebaseAuth
     private var isUpload = false
@@ -104,40 +112,37 @@ class LoginActivity : BaseActivity() {
 
         }
 
-        vm.btnGoogleState.observe(this@LoginActivity) {
+        vm.btnGuestState.observe(this@LoginActivity) {
 
             if (it) {
-                vm.setLoadingBar(true)
-                signGoogle()
+
+                val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                startActivityAnimation(intent, this@LoginActivity)
+                finish()
+
             }
+
         }
 
-        /**
-        vm.googleLoginState.observe(this@LoginActivity) { isSuccess ->
-
-        if (isSuccess){
-        uploadData(isSuccess)
-        restartApp(this@LoginActivity)
-        }else{
-        Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show()
+        vm.loadingBar.observe(this) { show ->
+            lBinding.loadingBarSkeleton.visibility = if (show) View.VISIBLE else View.GONE
         }
-        }
-         **/
 
-        vm.loadingBar.observe(this@LoginActivity){
-            if (it){
-                lBinding.loadingBarSkeleton.visibility = View.VISIBLE
-            }else{
-                lBinding.loadingBarSkeleton.visibility = View.GONE
-            }
+        vm.loginSelectLoading.observe(this@LoginActivity) { show ->
+            lBinding.loadingBarLottie.visibility = if (show) View.VISIBLE else View.GONE
         }
 
         vm.kakaoLoginState.observe(this@LoginActivity) { isSuccess ->
+            val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
 
             if (isSuccess) {
 
-                vm.userData.observe(this@LoginActivity){
-                    uploadData(isUpload,it)
+                vm.userData.observe(this@LoginActivity) {
+                    uploadData(isUpload, it)
+                }
+
+                lifecycleScope.launch {
+                    sessionManager.setFirst()
                 }
 
                 InitUrlDataCount.clear()
@@ -162,19 +167,31 @@ class LoginActivity : BaseActivity() {
 
         }
 
-        vm.insertComplete.observe(this@LoginActivity) {
+        vm.btnGoogleState.observe(this@LoginActivity) {
+
             if (it) {
+                vm.setLoadingBar(true)
+                signGoogle()
+            }
+        }
 
-                val intent = Intent(this@LoginActivity, MainActivity::class.java)
-                startActivityAnimation(intent, this@LoginActivity)
+        vm.insertComplete.observe(this) { complete ->
+            if (complete) {
+                // 데이터 모두 동기화 완료 → MainActivity로 이동
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    putExtra("activity", "Login_refresh")
+                }
+                startActivityAnimation(intent, this)
                 finish()
-
             }
         }
 
         vm.isDataSyncEnabled.observe(this@LoginActivity) {
 
             isUpload = it
+
+            val message = if (isUpload) "계정에 동기화 중입니다.." else "로그인 중입니다"
+            lBinding.txIsUploading.text = message
 
         }
 
@@ -202,6 +219,11 @@ class LoginActivity : BaseActivity() {
                     context = this@LoginActivity,
                 )
                 Log.d("SignIn", "Credentials received")
+
+                withContext(Dispatchers.Main) {
+                    lViewModel.changeLoadingBar()
+                }
+
                 handleSignIn(result)
             } catch (e: GetCredentialException) {
                 Log.e("SignIn", "Error getting credentials", e)
@@ -250,6 +272,9 @@ class LoginActivity : BaseActivity() {
                                     InitUrlDataCount.clear()
                                     UrlData.clear()
 
+                                    lifecycleScope.launch {
+                                        sessionManager.setFirst()
+                                    }
                                     Log.e("SignIn", "Firebase 로그인 성공")
 
                                 } else {
@@ -283,28 +308,13 @@ class LoginActivity : BaseActivity() {
         }
     }
 
-    private fun uploadData(isUpload: Boolean, user : User) {
-
-        if (isUpload) {
-
-            lViewModel.insertAllData(userId = user, url = url, imgFileList = imgFileList)
-
-        } else {
-
-            lViewModel.insertUserId(userId = user)
-
-        }
-
-        getSharedPreferences("User", Context.MODE_PRIVATE).edit()
-            .apply {
-                putString("userId", user.userId)
-                putString("userEmail", user.userEmail)
-                putString("userName", user.userName)
-                putString("userProfile", user.profileImage)
-                putBoolean("auto login", true)
-                apply()
-            }
-
+    private fun uploadData(isUpload: Boolean, user: User) {
+        lViewModel.submitLogin(
+            user = user,
+            isUpload = isUpload,
+            url = url,
+            imgFileList = imgFileList
+        )
     }
 
 }

@@ -7,6 +7,8 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
+import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -21,6 +23,12 @@ interface UrlDao{
     @Insert
     suspend fun insertBackup(urlBackupEntity: UrlBackupEntity)
 
+    @Query("DELETE FROM url_backup_history")
+    suspend fun deleteAllUrlBackup()
+
+    @Query("DELETE FROM tag_backup_history")
+    suspend fun deleteAllTagBackup()
+
     @Insert
     suspend fun insertUrlBackup(urlBackupEntity: List<UrlBackupEntity>)
 
@@ -28,7 +36,13 @@ interface UrlDao{
     suspend fun insertImgUri(newUri : String, url: String)
 
     @Query("SELECT * FROM url_backup_history ORDER BY id DESC")
+    fun getAllBackupFlow(): Flow<List<UrlBackupEntity>>
+
+    @Query("SELECT * FROM url_backup_history ORDER BY id DESC")
     fun getAllBackup(): LiveData<List<UrlBackupEntity>>
+
+    @Query("SELECT * FROM tag_backup_history ORDER BY id DESC")
+    fun getTagBackupFlow(): Flow<List<TagBackupEntity>>
 
     @Query("SELECT * FROM tag_backup_history ORDER BY id DESC")
     fun getTagBackup(): LiveData<List<TagBackupEntity>>
@@ -39,11 +53,20 @@ interface UrlDao{
     @Query("UPDATE url_backup_history SET urlName = :newUrlName, urlMemo = :newUrlMemo WHERE urlLink = :url")
     suspend fun updateUrlInfo(url: String, newUrlName: String, newUrlMemo :String)
 
-    @Query("UPDATE url_history SET urlName = :newUrlName, urlMemo = :newUrlMemo WHERE urlLink = :url")
-    suspend fun updateGuestUrlInfo(url: String, newUrlName: String, newUrlMemo :String)
+    @Query("UPDATE url_history SET urlName = :newUrlName WHERE urlLink = :url")
+    suspend fun updateGuestUrlName(url: String, newUrlName: String)
+
+    @Query("UPDATE url_history SET urlMemo = :newUrlMemo WHERE urlLink = :url")
+    suspend fun updateGuestUrlMemo(url: String, newUrlMemo :String)
 
     @Query("UPDATE url_backup_history SET imageKey = :newImageKey WHERE urlLink = :url")
     suspend fun updateBackup(url:String, newImageKey : String)
+
+    @Query("UPDATE url_backup_history SET urlName = :urlName WHERE urlLink = :url")
+    suspend fun updateUrlName(url: String,urlName : String)
+
+    @Query("UPDATE url_backup_history SET urlMemo = :urlMemo WHERE urlLink = :url")
+    suspend fun updateUrlMemo(url: String,urlMemo : String)
 
     @Query("UPDATE url_history SET favorite = :newFavorite WHERE urlLink = :url")
     suspend fun updateFavorite(url:String, newFavorite : Boolean)
@@ -69,6 +92,9 @@ interface UrlDao{
 
     @Insert(onConflict = OnConflictStrategy.IGNORE) // 중복 저장 방지
     suspend fun insertTagBackup(tagBackupEntities: List<TagBackupEntity>) // 리스트 저장 지원
+
+    @Query("SELECT * FROM url_history ORDER BY id DESC")
+    fun getAllFlow(): Flow<List<UrlEntity>>
 
     @Query("SELECT * FROM url_history ORDER BY id DESC")
     fun getAll(): LiveData<List<UrlEntity>>
@@ -106,5 +132,22 @@ interface UrlDao{
     @Update
     suspend fun updateUrlInTags(tagBackupEntities: List<TagBackupEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPreparationTag(prepTag: PreparationTag)
+
+    // 기존 전체 삭제
+    @Query("DELETE FROM tag_prepare_history")
+    suspend fun clearPreparationTags()
+
+    // 특정 태그만 삭제
+    @Query("DELETE FROM tag_prepare_history WHERE tag = :tagName")
+    suspend fun deletePreparationTag(tagName: String)
+
+    @Query("SELECT * FROM tag_prepare_history")
+    fun getPreparationTagsFlow(): Flow<List<PreparationTag>>
+
+    @Query("SELECT * FROM tag_prepare_history")
+    fun getPreparationTags(): LiveData<List<PreparationTag>>
 
 }
+

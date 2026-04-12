@@ -1,54 +1,75 @@
 package kr.baeksuk.urlbox.view.addlink.capture
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
+import android.view.PixelCopy
 import android.view.View
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityCaptureBinding
-import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
-import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Tag
 import kr.baeksuk.urlbox.model.UserTags
+import kr.baeksuk.urlbox.domain.CaptureContentAction
+import kr.baeksuk.urlbox.util.adapter.RvCurrentTagAdapter
 import kr.baeksuk.urlbox.util.adapter.RvTagInCaptureAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.AddTagDialogFragment
 import kr.baeksuk.urlbox.util.util.BackPressedCallback
+import kr.baeksuk.urlbox.util.util.OnTagDeleteSelectedListener
 import kr.baeksuk.urlbox.util.util.OnTagSelectedListener
 import kr.baeksuk.urlbox.view.addlink.AddLinkActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
+import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureUiState
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
+import kr.baeksuk.urlbox.viewmodel.editurl.settag.SetTagViewModel
 import org.koin.android.ext.android.inject
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
 
-class CaptureActivity : BaseActivity(), OnTagSelectedListener {
+class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelectedListener {
     private lateinit var cBinding: ActivityCaptureBinding
     private val cViewModel: CaptureViewModel by inject()
+    private val sViewModel: SetTagViewModel by inject()
     private lateinit var adapter: RvTagInCaptureAdapter
     private val backPressedCallback = BackPressedCallback(this)
+    var prepTags: List<UserTags> = emptyList()
+    private var isAutoLogin = false
+    private val albumLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                cViewModel.onAlbumImageSelected(it)
+            }
+        }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cBinding = DataBindingUtil.setContentView(this@CaptureActivity, R.layout.activity_capture)
-        adapter = RvTagInCaptureAdapter(this@CaptureActivity, this@CaptureActivity, this)
+        adapter = RvTagInCaptureAdapter(this@CaptureActivity)
         cBinding.apply {
             activity = this@CaptureActivity
             lifecycleOwner = this@CaptureActivity
@@ -63,78 +84,133 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
 
         val edit = intent.extras?.getBoolean("edit")
 
-        if (edit == true){
-
+        if (edit == true) {
             backPressedCallback.finishActivity(this)
-
-        }else{
-
-            backPressedCallback.addCallbackActivity(this, AddLinkActivity::class.java)
-
+            sViewModel.deletePreparationTagAll()
+        } else {
+            backPressedCallback.addCallbackActivity(this, MainActivity::class.java)
+            sViewModel.deletePreparationTagAll()
         }
-
-        initView()
+        observeSetTag()
+        initFragmentResult()
         initWebView()
+        observeSessionState()
+        observeSaveState()
         observe()
+        cViewModel.loadSessionState()
+    }
+
+    private fun renderTagSection(isLoggedIn: Boolean) {
+        val visibility = if (isLoggedIn) View.VISIBLE else View.GONE
+        cBinding.txTag.visibility = visibility
+        cBinding.clBtnAddTags.visibility = visibility
+        cBinding.rvTags.visibility = visibility
 
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun initView() {
-
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
-
-        if (autoLogin) {
-
-            cViewModel.getTagData(this).observe(this, Observer<List<Tag>> { url ->
-
-                adapter.setTagData(url.map {
-                    Tag(
-                        it.tag
-                    )
-                })
-
-                adapter.notifyDataSetChanged()
-            })
-
+    private fun observeSessionState() {
+        cViewModel.isLoggedIn.observe(this@CaptureActivity) { isLoggedIn ->
+            isAutoLogin = isLoggedIn
+            renderTagSection(isLoggedIn)
         }
+    }
 
+    private fun observeSaveState() {
+        cViewModel.saveState.observe(this@CaptureActivity) { state ->
+            when (state) {
+                is CaptureUiState.Idle -> Unit
+                is CaptureUiState.Loading -> Unit
+                is CaptureUiState.Success -> {
+                    sViewModel.deletePreparationTagAll()
+                    navigateToMain()
+                    cViewModel.clearSaveState()
+                }
 
+                is CaptureUiState.Duplicate -> {
+                    Toast.makeText(this, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
+                    cViewModel.clearSaveState()
+                }
+
+                is CaptureUiState.Error -> {
+                    Toast.makeText(this, state.message, Toast.LENGTH_SHORT).show()
+                    cViewModel.clearSaveState()
+                }
+            }
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun initWebView() {
         val url = intent.getStringExtra("url")
-        if (url != null) {
-            cBinding.webView.loadUrl(url)
-            cBinding.webView.settings.apply {
-                javaScriptEnabled = true // JavaScript 활성화
-                domStorageEnabled = true // DOM 스토리지 활성화
-                useWideViewPort = true // Viewport 설정
-                loadWithOverviewMode = true // 콘텐츠가 화면 크기에 맞게 조정되도록 설정
-                allowContentAccess = true // 콘텐츠 접근 허용
-                mediaPlaybackRequiresUserGesture = false // 미디어 재생 제스처 허용
+
+        cBinding.webView.settings.apply {
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            allowContentAccess = true
+            mediaPlaybackRequiresUserGesture = false
+        }
+
+        cBinding.webView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest
+            ): Boolean {
+                val requestUrl = request.url.toString()
+
+                if (requestUrl.startsWith("http://") || requestUrl.startsWith("https://")) {
+                    return false
+                }
+
+                try {
+                    val intent = Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME)
+
+                    // 실행 가능한 앱이 있는지 체크
+                    if (intent.resolveActivity(view.context.packageManager) != null) {
+                        view.context.startActivity(intent)
+                        return true // 앱 실행 성공
+                    }
+                } catch (e: Exception) {
+                    Log.e("WebView", "딥링크 해석 실패: ${e.message}")
+                }
+
+                return true
             }
         }
 
+        if (url != null) {
+            cBinding.webView.loadUrl(url)
+        }
     }
 
-    @SuppressLint("UseCompatLoadingForDrawables")
-    private fun observe() = cViewModel.let { vm ->
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeSetTag() = sViewModel.let { vm ->
+        vm.getPreparationTags().observe(this) { tags ->
+            adapter.setTagData(tags.map { Tag(tag = it.tag) })
+            adapter.notifyDataSetChanged()
+            prepTags = tags
+        }
+    }
 
-        val pref = getSharedPreferences("User", Context.MODE_PRIVATE)
-        val autoLogin = pref.getBoolean("auto login", false)
+    @SuppressLint("UseCompatLoadingForDrawables", "NotifyDataSetChanged")
+    private fun observe() = cViewModel.let { vm ->
         val txMemo = resources.getString(R.string.tx_memo)
 
-        vm.btnShowTagsState.observe(this@CaptureActivity) {
-            if (it) {
+        vm.btnAddTagsStage.observe(this@CaptureActivity) {
 
-                cBinding.rvTags.visibility = View.VISIBLE
+            if (isAutoLogin) {
+
+                val dlg = AddTagDialogFragment()
+                dlg.show(supportFragmentManager, "AddTagDialog")
 
             } else {
 
-                cBinding.rvTags.visibility = View.GONE
+                Toast.makeText(
+                    this@CaptureActivity,
+                    "태그 기능은 로그인 시에만 사용할 수 있습니다.",
+                    Toast.LENGTH_SHORT
+                ).show()
 
             }
 
@@ -143,28 +219,67 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
         vm.btnCloseState.observe(this@CaptureActivity) {
             if (it) {
                 val edit = intent.extras?.getBoolean("edit")
-
-                if (edit == true){
-
+                if (edit == true) {
                     finish()
-
-                }else{
-
-                    val intent = Intent(this@CaptureActivity, AddLinkActivity::class.java)
+                } else {
+                    val intent = Intent(this@CaptureActivity, MainActivity::class.java)
                     startActivityAnimation(intent, this@CaptureActivity)
+                    sViewModel.deletePreparationTagAll()
                     finish()
-
                 }
+            }
+        }
+
+        /** 앨범에서 이미지 선택 시 **/
+        vm.selectedImageUri.observe(this) { uri ->
+            if (uri != null) {
+                // 1. UI 상태 변경 (캡처 때와 동일하게)
+                cBinding.btnCapture.visibility = View.GONE
+                cBinding.btnSave.visibility = View.VISIBLE
+                cBinding.btnSkip.visibility = View.GONE
+                cBinding.btnCancel.visibility = View.VISIBLE
+
+                cBinding.cropImageView.setImageUriAsync(uri)
+                cBinding.webView.visibility = View.INVISIBLE
+            }
+        }
+
+        vm.btnAlbumState.observe(this@CaptureActivity) {
+            if (it) {
+                albumLauncher.launch("image/*")
             }
         }
 
         vm.btnCaptureState.observe(this) {
             if (it) {
 
-                if (autoLogin) {
-                    cBinding.constraintTag.visibility = View.VISIBLE
-                } else {
-                    cBinding.constraintTag.visibility = View.GONE
+                cBinding.btnCapture.visibility = View.GONE
+                cBinding.btnSave.visibility = View.VISIBLE
+                cBinding.btnSkip.visibility = View.GONE
+                cBinding.btnCancel.visibility = View.VISIBLE
+
+                // 변경된 캡처 방식 호출
+                captureWebViewWithPixelCopy { uri ->
+                    if (uri != null) {
+                        cBinding.cropImageView.setImageUriAsync(uri)
+                    } else {
+                        Toast.makeText(this, "캡처 실패", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        vm.btnSaveState.observe(this@CaptureActivity) {
+            if (it) {
+                val croppedBitmap = cBinding.cropImageView.getCroppedImage()
+                val url = intent.getStringExtra("url") ?: return@observe
+                val directory = this.filesDir
+                val imageKey = UUID.randomUUID().toString()
+                val file = File(directory, "$imageKey.png")
+                val isEditUrl = intent.extras?.getBoolean("edit")
+
+                if (croppedBitmap != null) {
+                    saveBitmapToFile(croppedBitmap, file)
                 }
 
                 cBinding.btnCapture.visibility = View.GONE
@@ -172,133 +287,19 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                 cBinding.btnSkip.visibility = View.GONE
                 cBinding.btnCancel.visibility = View.VISIBLE
 
-                val uri = captureWebView()
-                if (uri != null) {
-                    // CropImageView에 캡처한 이미지 설정
-                    cBinding.cropImageView.setImageUriAsync(uri)
-
-                } else {
-                    Toast.makeText(this, "캡처 실패", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        vm.btnSaveState.observe(this@CaptureActivity) {
-            if (it) {
-                // 크롭된 이미지를 동기적으로 가져오기
-                val croppedBitmap = cBinding.cropImageView.getCroppedImage()
-                if (croppedBitmap != null) {
-                    // 크롭된 이미지를 저장
-                    val url = intent.getStringExtra("url")
-                    val directory = this.filesDir
-                    val imageKey = UUID.randomUUID().toString()
-                    val file = File(directory, "$imageKey.png")
-                    val isEditUrl = intent.extras?.getBoolean("edit")
-
-                    if (autoLogin) {
-
-                        if (isEditUrl == true) {
-
-                            val urlBackupEntity = UrlBackupEntity(
-                                urlLink = url.toString(),
-                                imageKey = imageKey,
-                                favorite = false,
-                                imgUri = "",
-                                timeStamp = System.currentTimeMillis(),
-                            )
-
-                            val outputStream = FileOutputStream(file)
-                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                            outputStream.flush()
-                            outputStream.close()
-
-                            vm.updateBackupUrl(urlBackupEntity, this, file)
-
-                            val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-                            intent.putExtra("activity","CaptureSave")
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivityAnimation(intent,this@CaptureActivity)
-                            finish()
-
-                        } else {
-
-                            val urlBackupEntity = UrlBackupEntity(
-                                urlLink = url.toString(),
-                                imageKey = imageKey,
-                                favorite = false,
-                                imgUri = "",
-                                timeStamp = System.currentTimeMillis(),
-                                urlName = url.toString(),
-                                urlMemo = txMemo,
-                                tag = listOf(UserTags(tag = cBinding.edtTag.text.toString(), timeStamp = System.currentTimeMillis()))
-                            )
-
-                            val outputStream = FileOutputStream(file)
-                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                            outputStream.flush()
-                            outputStream.close()
-
-                            vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file, cBinding.edtTag.text.toString())
-
-                            val intent = Intent(this@CaptureActivity, MainActivity::class.java)
-                            intent.putExtra("activity","CaptureSave")
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                            startActivityAnimation(intent,this@CaptureActivity)
-                            finish()
-                        }
-
-                    } else {
-                        val urlEntity = UrlEntity(
-                            urlLink = url.toString(),
-                            imageKey = imageKey,
-                            favorite = false,
-                            timeStamp = System.currentTimeMillis(),
-                            urlName = url.toString(),
-                            urlMemo = txMemo,
-                            tag = cBinding.edtTag.text.toString()
-                        )
-
-                        if (isEditUrl == true) {
-                            vm.updateUrl(urlEntity, url.toString(), this)
-
-                            backToMain(this@CaptureActivity)
-
-                        } else {
-                            vm.insertUrl(urlEntity, url.toString(), this)
-
-                            backToMain(this@CaptureActivity)
-
-                        }
-
-                        try {
-                            val outputStream = FileOutputStream(file)
-                            croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                            outputStream.flush()
-                            outputStream.close()
-
-                            // 저장 완료 후 UI 초기화
-                            cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
-                            cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
-
-                            cBinding.btnSkip.visibility = View.VISIBLE
-                            cBinding.btnCancel.visibility = View.GONE
-
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
-                        }
-
-                    }
-
-                } else {
-                    Toast.makeText(this, "크롭된 이미지를 가져올 수 없습니다.", Toast.LENGTH_SHORT).show()
-                }
-
+                cViewModel.saveCapture(
+                    action = CaptureContentAction.SAVE,
+                    url = url,
+                    imageKey = imageKey,
+                    file = file,
+                    tags = prepTags,
+                    isEdit = isEditUrl == true,
+                    txMemo = txMemo
+                )
             }
         }
 
         vm.btnSkipState.observe(this@CaptureActivity) {
-
             if (it) {
                 val url = intent.getStringExtra("url")
                 val isEditUrl = intent.extras?.getBoolean("edit")
@@ -306,150 +307,164 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener {
                 val imageKey = UUID.randomUUID().toString()
                 val file = File(directory, "$imageKey.png")
 
-                val drawable =
-                    getDrawable(R.drawable.urlbox_icon)  // 이미 Drawable 리소스를 가져온 상태라 가정
+                val drawable = getDrawable(R.drawable.urlbox_icon)
                 val bitmap = (drawable as BitmapDrawable).bitmap
 
-                if (autoLogin) {
+                saveBitmapToFile(bitmap, file)
 
-                    val urlBackupEntity = UrlBackupEntity(
-                        urlLink = url.toString(),
-                        imageKey = imageKey,
-                        favorite = false,
-                        imgUri = "",
-                        timeStamp = System.currentTimeMillis(),
-                        urlName = url.toString(),
-                        urlMemo = txMemo,
-                        tag = listOf(UserTags(tag = cBinding.edtTag.text.toString(), timeStamp = System.currentTimeMillis()))
+                cBinding.btnCapture.visibility = View.GONE
+                cBinding.btnSave.visibility = View.VISIBLE
+                cBinding.btnSkip.visibility = View.GONE
+                cBinding.btnCancel.visibility = View.VISIBLE
 
-                    )
+                cViewModel.saveCapture(
+                    action = CaptureContentAction.SKIP,
+                    url = url.toString(),
+                    imageKey = imageKey,
+                    file = file,
+                    tags = emptyList(),
+                    isEdit = isEditUrl == true,
+                    txMemo = txMemo
+                )
 
-                    if (isEditUrl == true) {
-
-                        val outputStream = FileOutputStream(file)
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                        outputStream.flush()
-                        outputStream.close()
-
-                        vm.updateBackupUrl(urlBackupEntity, this, file)
-
-                        backToMain(this@CaptureActivity)
-
-                    } else {
-
-                        val outputStream = FileOutputStream(file)
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                        outputStream.flush()
-                        outputStream.close()
-
-                        vm.insertBackupUrl(urlBackupEntity, url.toString(), this, file, cBinding.edtTag.text.toString())
-
-                        backToMain(this@CaptureActivity)
-
-                    }
-
-                } else {
-
-                    val urlEntity = UrlEntity(
-                        urlLink = url.toString(),
-                        imageKey = imageKey,
-                        favorite = false,
-                        timeStamp = System.currentTimeMillis(),
-                        urlName = url.toString(),
-                        urlMemo = txMemo,
-                        tag = cBinding.edtTag.text.toString()
-
-                    )
-
-                    try {
-                        val outputStream = FileOutputStream(file)
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-                        outputStream.flush()
-                        outputStream.close()
-
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Toast.makeText(this, "이미지 저장 실패", Toast.LENGTH_SHORT).show()
-                    }
-
-                    vm.insertUrl(urlEntity, url.toString(), this)
-
-                    backToMain(this@CaptureActivity)
-
-                }
-
-            }
-        }
-
-        vm.btnCancelState.observe(this@CaptureActivity) {
-            if (it) {
-
-                cBinding.cropImageView.clearImage()
-                cBinding.btnCapture.visibility = View.VISIBLE // Capture 버튼 보이기
-                cBinding.btnSave.visibility = View.GONE // Save 버튼 숨기기
-                cBinding.constraintTag.visibility = View.GONE
-                cBinding.rvTags.visibility = View.GONE
-
+                cBinding.btnCapture.visibility = View.VISIBLE
+                cBinding.btnSave.visibility = View.GONE
                 cBinding.btnSkip.visibility = View.VISIBLE
                 cBinding.btnCancel.visibility = View.GONE
             }
         }
 
+        vm.btnCancelState.observe(this@CaptureActivity) {
+            if (it) {
+                cBinding.cropImageView.clearImage()
+                cBinding.btnCapture.visibility = View.VISIBLE
+                cBinding.btnSave.visibility = View.GONE
+//                cBinding.constraintTag.visibility = View.GONE
+                cBinding.btnSkip.visibility = View.VISIBLE
+                cBinding.btnCancel.visibility = View.GONE
+                cBinding.webView.visibility = View.VISIBLE
+
+                vm.clearSelectedImage()
+            }
+        }
     }
 
-    private fun captureWebView(): Uri? {
-        // 웹뷰를 캡처하기 위해 Bitmap 생성
+    // --- 핵심 수정 부분: PixelCopy를 이용한 동영상 캡처 지원 ---
+    private fun captureWebViewWithPixelCopy(callback: (Uri?) -> Unit) {
         val webView = cBinding.webView
+        if (webView.width <= 0 || webView.height <= 0) {
+            callback(null)
+            return
+        }
+
         val bitmap = Bitmap.createBitmap(webView.width, webView.height, Bitmap.Config.ARGB_8888)
+        val location = IntArray(2)
+        webView.getLocationInWindow(location)
 
-        // 캔버스에 현재 스크롤 위치 반영
-        val canvas = Canvas(bitmap)
-        canvas.translate(-webView.scrollX.toFloat(), -webView.scrollY.toFloat())
-        webView.draw(canvas)
-
-        // Bitmap을 파일로 저장
-        val file = File(cacheDir, "captured_image.png")
-        return try {
-            val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-            outputStream.flush()
-            outputStream.close()
-            FileProvider.getUriForFile(this, "$packageName.provider", file)
+        try {
+            PixelCopy.request(
+                window,
+                Rect(
+                    location[0],
+                    location[1],
+                    location[0] + webView.width,
+                    location[1] + webView.height
+                ),
+                bitmap,
+                { result ->
+                    if (result == PixelCopy.SUCCESS) {
+                        val file = File(cacheDir, "captured_image.jpg")
+                        saveBitmapToFile(bitmap, file)
+                        val uri = FileProvider.getUriForFile(this, "$packageName.provider", file)
+                        callback(uri)
+                    } else {
+                        callback(null)
+                    }
+                },
+                Handler(Looper.getMainLooper())
+            )
         } catch (e: Exception) {
             e.printStackTrace()
-            null
+            callback(null)
         }
     }
 
-    fun getDrawableFile(context: Context, drawableResId: Int, fileName: String): File {
-        val bitmap =
-            BitmapFactory.decodeResource(context.resources, drawableResId) // drawable → Bitmap
-        val file = File(context.filesDir, fileName) // 내부 저장소에 저장할 파일 경로
+    // 중복 코드 정리를 위한 파일 저장 헬퍼 함수
+    private fun saveBitmapToFile(bitmap: Bitmap, file: File) {
+        var outputStream: FileOutputStream? = null
+        try {
 
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out) // Bitmap을 PNG로 변환 후 저장
+            val resizedBitmap = if (bitmap.width > 1080) {
+                val aspectRatio = bitmap.height.toDouble() / bitmap.width.toDouble()
+                Bitmap.createScaledBitmap(bitmap, 1080, (1080 * aspectRatio).toInt(), true)
+            } else {
+                bitmap
+            }
+
+            outputStream = FileOutputStream(file)
+
+            // 2. 압축 포맷 변경: PNG -> JPEG (압축률이 훨씬 좋음)
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 80, outputStream)
+
+            outputStream.flush()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.e("CaptureActivity", "이미지 압축 및 저장 실패: ${e.message}")
+        } finally {
+            outputStream?.close()
         }
+    }
 
-        return file // 변환된 File 반환
+    private fun navigateToMain() {
+        val intent = Intent(this@CaptureActivity, MainActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivityAnimation(intent, this@CaptureActivity)
+        finish()
     }
 
     override fun onTagSelected(tag: String) {
-        cBinding.edtTag.setText(tag.toString())
-        cBinding.rvTags.visibility = View.GONE
-        cViewModel.isClicked = 0
     }
 
     override fun finish() {
         super.finish()
-
         if (Build.VERSION.SDK_INT >= 34) {
             overrideActivityTransition(
-                Activity.OVERRIDE_TRANSITION_CLOSE, R.anim.slide_in_left, R.anim.slide_out_right
+                Activity.OVERRIDE_TRANSITION_CLOSE,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
             )
         } else {
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right)
         }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    override fun onTagDeleteClicked(tag: String) {
+        val urlLink = intent.getStringExtra("url")
+
+        urlLink?.let {
+            sViewModel.deletePreparationTag(tag)
+            adapter.notifyDataSetChanged()
+            Log.e("확인용", "$tag, $it")
+        }
 
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun initFragmentResult() {
+        val urlLink = intent.getStringExtra("url")
+
+        supportFragmentManager.setFragmentResultListener(
+            AddTagDialogFragment.TAG_RESULT,
+            this
+        ) { _, bundle ->
+            val tag = bundle.getString(AddTagDialogFragment.KEY_TAG)
+            if (!tag.isNullOrBlank() && urlLink != null) {
+                // DB에 추가 (LiveData가 자동으로 반영)
+                sViewModel.insertPreparationTag(tag, urlLink)
+                adapter.notifyDataSetChanged()
+                Log.e("확인용", "추가된 태그: $tag")
+            }
+        }
+    }
 }

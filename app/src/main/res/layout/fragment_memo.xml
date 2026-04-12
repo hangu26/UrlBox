@@ -1,0 +1,104 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="kr.baeksuk.urlbox.viewmodel.urldetail.UrlDetailViewModel" />
+
+        <variable
+            name="fragment"
+            type="kr.baeksuk.urlbox.view.urldetail.fragment.MemoFragment" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_frag_info">
+
+        <FrameLayout
+            android:id="@+id/fl_dot_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_side_img_url_detail"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:background="@drawable/border_dot"
+            app:layout_constraintBottom_toBottomOf="@+id/tx_memo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tx_memo" />
+
+        <TextView
+            android:id="@+id/tx_memo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_start_tx_url_name"
+            android:layout_marginTop="@dimen/margin_top_url_name"
+            android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_memo"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/size_tx_url_name_title"
+            app:layout_constraintStart_toEndOf="@+id/fl_dot_01"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/cl_url_memo_info_01"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_url_memo_info_01"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingBottom="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tx_memo">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_url_memo_info_02"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/height_edt_url_memo"
+                android:layout_marginStart="@dimen/margin_side_img_url_detail"
+                android:layout_marginTop="@dimen/margin_top_edt_url_name"
+                android:layout_marginEnd="@dimen/margin_side_img_url_detail"
+                android:background="@drawable/border_btn_link"
+                android:elevation="2dp"
+                android:paddingStart="@dimen/padding_start_edt_url_name"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingEnd="@dimen/padding_start_edt_url_name"
+                android:translationZ="2dp"
+                android:layout_marginBottom="@dimen/margin_bottom_cl_url_memo_info"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <EditText
+                    android:id="@+id/edt_memo"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="@dimen/margin_side_tx_url_name_info"
+                    android:layout_marginBottom="@dimen/margin_side_tx_url_name_info"
+                    android:background="@android:color/transparent"
+                    android:fontFamily="@font/pretendard_light"
+                    android:gravity="start|top"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:textColor="@color/black"
+                    android:selectAllOnFocus="true"
+                    android:textSize="@dimen/size_tx_url_name"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</layout>

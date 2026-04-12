@@ -1,0 +1,75 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="fragment"
+            type="kr.baeksuk.urlbox.view.tutorial.fragment.SecondTutoFragment" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent">
+
+        <FrameLayout
+            android:id="@+id/fl_ic_tutorial_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="@dimen/margin_top_fl_ic_tutorial_01"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- 그림자 -->
+            <View
+                android:layout_width="@dimen/size_anim_url"
+                android:layout_height="@dimen/size_anim_url"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_lottie_shadow_02" />
+
+            <!-- Lottie -->
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/anim_url"
+                android:layout_width="@dimen/size_anim_url"
+                android:layout_height="@dimen/size_anim_url"
+                android:layout_gravity="center"
+                app:lottie_autoPlay="true"
+                app:lottie_fileName="anim_tutorial_02.json"
+                app:lottie_loop="true" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_tutorial_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tv_tutorial_02"
+            android:textColor="@color/black"
+            android:textSize="@dimen/size_tv_tutorial"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fl_ic_tutorial_01" />
+
+        <TextView
+            android:id="@+id/tv_tutorial_detail_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_top_tv_tutorial_detail_01"
+            android:fontFamily="@font/pretendard_regular"
+            android:gravity="center"
+            android:text="@string/tv_tutorial_detail_02"
+            android:textColor="@color/color_tv_tutorial_detail"
+            android:textSize="@dimen/size_tv_tutorial_detail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_tutorial_01" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
