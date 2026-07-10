@@ -19,7 +19,7 @@ android {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
         targetSdk = 35
-        versionCode = 27
+        versionCode = 28
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -120,6 +120,7 @@ dependencies {
     implementation ("com.google.api-client:google-api-client:1.34.0")
     implementation("com.google.firebase:firebase-functions-ktx:20.1.0")
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.android.recaptcha:recaptcha:18.4.0")
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database-ktx:21.0.0")
     implementation("com.google.firebase:firebase-storage-ktx:21.0.1")
