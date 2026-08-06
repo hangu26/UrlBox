@@ -13,6 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.OnBackPressedCallback
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -39,6 +40,7 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
     private var urlName: String? = null
     private var urlLink: String? = null
     private var isEditingLink = false
+    private lateinit var backPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,6 +94,7 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
         observeSessionState()
         observeTag()
         initButton()
+        initBackPressedHandler()
     }
 
     private fun observeSessionState() {
@@ -288,6 +291,22 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
     private fun showKeyboard(view: View) {
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    private fun initBackPressedHandler() {
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (isEditingLink) {
+                    disableLinkEditMode()
+                    return
+                }
+
+                isEnabled = false
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+                isEnabled = true
+            }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
     }
 
     private fun observeTag() {

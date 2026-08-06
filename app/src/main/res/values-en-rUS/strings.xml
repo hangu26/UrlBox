@@ -51,6 +51,9 @@
     <string name="tx_version">App Version</string>
     <string name="tx_version_detail">1.0.0</string>
     <string name="tx_language_setting">Language Selection</string>
+    <string name="tx_korean" translatable="false">한국어</string>
+    <string name="tx_english" translatable="false">English</string>
+    <string name="tx_japanese" translatable="false">日本語</string>
     <string name="tx_thumbnail">Thumbnail</string>
     <string name="tx_my_page">Mypage</string>
     <string name="tx_url">URL</string>
@@ -79,25 +82,37 @@
     <string name="tx_or">Or</string>
     <string name="tx_guest_continue">Continue as Guest</string>
     <string name="tx_syncing">Syncing to your account…</string>
-    <string name="tx_admin_feedback_title">Feedback Management</string>
-    <string name="tx_admin_feedback_subtitle">This is a list of Google Form responses stored in Firebase.</string>
-    <string name="tx_feedback_admin_empty">No feedback yet.</string>
-    <string name="tx_feedback_admin_change_status">Change Status</string>
+    <string name="tx_admin_feedback_title" translatable="false">Feedback Management</string>
+    <string name="tx_admin_feedback_subtitle" translatable="false">This is a list of Google Form responses stored in Firebase.</string>
+    <string name="tx_feedback_admin_empty" translatable="false">No feedback yet.</string>
+    <string name="tx_feedback_admin_change_status" translatable="false">Change Status</string>
     <string name="tx_link_english">LINK</string>
     <string name="tx_tags">Tags</string>
     <string name="tx_add_tag">Add Tag</string>
     <string name="tx_my_tags">My Tags</string>
     <string name="tx_input_tag">Enter a tag</string>
     <string name="tx_change_pic">Change Photo</string>
+    <string name="feedback_form_url" translatable="false">https://docs.google.com/forms/d/e/1FAIpQLScjRcS880D_OBJ29SwAaCrMaaJgyclTJey7Lj99RiZRrZYzmQ/viewform?usp=publish-editor</string>
+    <string name="tx_example_link" translatable="false">https://www.youtube.com/wersadfasdgwear</string>
     <string name="tv_tutorial_01">Keep links in one place</string>
     <string name="tv_tutorial_detail_01">Save scattered bookmarks neatly as thumbnails \nfor easy viewing</string>
     <string name="tx_app_info_tutorial_01">UrlBox - A new way to manage links</string>
     <string name="tx_swipe_tutorial"><![CDATA[> Swipe or tap the Next button]]></string>
     <string name="tx_next">Next</string>
+    <string name="tx_start">Get Started</string>
     <string name="tv_tutorial_02">Thumbnail capture screen</string>
     <string name="tv_tutorial_detail_02">Enter a URL to open the screen for thumbnail capture \n</string>
     <string name="tv_tutorial_03">Organize by tags</string>
     <string name="tv_tutorial_detail_03">Add tags freely to classify and find links easily \n</string>
     <string name="tx_chose_album">Select from album</string>
     <string name="tx_ad_label">Ad</string>
+    <string name="tx_update_info">What\'s New</string>
+    <string name="tx_ex_url_link"><![CDATA[https://www.youtube.com/watch?v=KifSefVEdBs&list=RDKifSefVEdBs&start_radio=1]]></string>
+    <string name="tx_update_link_edt_01">Link Edit Feature Added!</string>
+    <string name="tx_update_link_edt_02">You can now edit saved links directly. On the link detail \nscreen, press and hold the Link field.</string>
+    <string name="tx_update_link_edt_03">Press Enter after editing</string>
+    <string name="tx_update_link_edt_04">When edit mode is enabled, edit the link and press \nDone (Enter) on the keyboard to save it.</string>
+    <string name="tx_enter_put">Press Done (Enter)</string>
+    <string name="tx_update_link_edt_finish">Done!</string>
+    <string name="tx_update_link_edt_05">Your link is now updated immediately. You can \neasily fix incorrectly saved URLs.</string>
 </resources>

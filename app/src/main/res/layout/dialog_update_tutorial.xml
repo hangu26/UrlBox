@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/update_tuto_dialog_padding_horizontal"
+    android:paddingTop="@dimen/update_tuto_dialog_padding_top"
+    android:paddingEnd="@dimen/update_tuto_dialog_padding_horizontal"
+    android:paddingBottom="@dimen/update_tuto_dialog_padding_bottom">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_tutorial_dialog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_dialog_add_tag"
+        android:clipToPadding="false"
+        android:elevation="@dimen/update_tuto_dialog_container_elevation"
+        android:paddingStart="@dimen/update_tuto_dialog_container_padding_horizontal"
+        android:paddingTop="@dimen/update_tuto_dialog_container_padding_top"
+        android:paddingEnd="@dimen/update_tuto_dialog_container_padding_horizontal"
+        android:paddingBottom="@dimen/update_tuto_dialog_container_padding_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/ll_tuto_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/update_tuto_page01_header_margin_horizontal"
+            android:layout_marginTop="@dimen/update_tuto_page01_header_margin_top"
+            android:layout_marginEnd="@dimen/update_tuto_page01_header_margin_horizontal"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/update_tuto_page01_header_icon_size"
+                android:layout_height="@dimen/update_tuto_page01_header_icon_size"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_link_edit" />
+
+            <Space
+                android:layout_width="@dimen/update_tuto_page01_header_space"
+                android:layout_height="match_parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/tx_update_info"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/update_tuto_page01_header_text_size" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="@dimen/update_tuto_page01_header_flex_space_height"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/btn_close_tutorial"
+                android:layout_width="@dimen/update_tuto_page01_close_icon_size"
+                android:layout_height="@dimen/update_tuto_page01_close_icon_size"
+                android:layout_gravity="center"
+                android:background="@drawable/ripple"
+                android:contentDescription="@string/tx_cancel"
+                android:padding="@dimen/update_tuto_dialog_close_padding"
+                android:src="@drawable/ic_tuto_close" />
+
+        </LinearLayout>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager_tutorial"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/update_tuto_dialog_pager_margin_top"
+            android:clipToOutline="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_tuto_info" />
+
+        <com.tbuonomo.viewpagerdotsindicator.DotsIndicator
+            android:id="@+id/dots_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/update_tuto_dialog_indicator_margin_top"
+            app:dotsColor="@color/color_dotsIndicator"
+            app:dotsSize="@dimen/update_tuto_dialog_indicator_dot_size"
+            app:dotsSpacing="@dimen/update_tuto_dialog_indicator_dot_spacing"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_pager_tutorial"
+            app:progressMode="false"
+            app:selectedDotColor="@color/appBar_title_02" />
+
+        <TextView
+            android:id="@+id/btn_skip_tutorial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/update_tuto_dialog_skip_margin_top"
+            android:fontFamily="@font/pretendard_medium"
+            android:text="@string/tx_skip"
+            android:textColor="@color/color_tv_swipe_tutorial"
+            android:textSize="@dimen/update_tuto_dialog_skip_text_size"
+            app:layout_constraintBottom_toBottomOf="@id/btn_next_tutorial"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btn_next_tutorial" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/btn_next_tutorial"
+            android:layout_width="@dimen/update_tuto_dialog_next_width"
+            android:layout_height="@dimen/update_tuto_dialog_next_height"
+            android:layout_marginTop="@dimen/update_tuto_dialog_next_margin_top"
+            android:background="@drawable/border_btn_next_tutorial"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dots_indicator">
+
+            <TextView
+                android:id="@+id/tx_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendard_semibold"
+                android:text="@string/tx_next"
+                android:textColor="@color/white"
+                android:textSize="@dimen/update_tuto_dialog_next_text_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

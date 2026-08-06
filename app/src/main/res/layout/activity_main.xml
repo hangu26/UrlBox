@@ -61,6 +61,17 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageView
+                        android:id="@+id/img_new_update"
+                        android:layout_width="@dimen/width_btn_new_update"
+                        android:layout_height="@dimen/height_btn_new_update"
+                        android:src="@drawable/ic_new_update"
+                        app:layout_constraintBottom_toBottomOf="@+id/img_setting"
+                        app:layout_constraintEnd_toStartOf="@+id/img_setting"
+                        app:layout_constraintTop_toTopOf="@+id/img_setting"
+                        android:layout_marginEnd="@dimen/margin_end_btn_new_update"/>
+
+                    <ImageView
+                        android:id="@+id/img_setting"
                         android:layout_width="@dimen/img_setting_width"
                         android:layout_height="@dimen/img_setting_height"
                         android:layout_marginEnd="@dimen/img_setting_margin_end"

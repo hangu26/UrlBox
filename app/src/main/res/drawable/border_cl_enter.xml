@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <solid android:color="@color/color_border_cl_tuto_link_edt" />
+
+    <corners android:radius="@dimen/corner_radius_edt_link_tutorial" />
+
+    <stroke
+        android:width="0.5dp"
+        android:color="@color/appBar_title_02" />
+
+</shape>

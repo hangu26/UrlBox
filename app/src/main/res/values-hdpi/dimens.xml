@@ -38,6 +38,7 @@
     <dimen name="constraint_url_margin_bottom">6dp</dimen>
     <dimen name="frame_recyclerview_padding_bottom">21dp</dimen>
     <dimen name="border_url_stroke">1dp</dimen>
+    <dimen name="border_url_stroke_02">2dp</dimen>
     <dimen name="edt_url_margin_top">11dp</dimen>
     <dimen name="margin_side_in_capture_page">19dp</dimen>
     <dimen name="btn_capture_margin_bottom">31dp</dimen>
@@ -311,5 +312,77 @@
     <dimen name="width_app_splash_logo">242dp</dimen>
     <dimen name="height_app_splash_logo">203dp</dimen>
     <dimen name="margin_top_ad_view">10dp</dimen>
+    
+    <!-- update tutorial page 01 -->
+    <dimen name="update_tuto_page01_header_margin_horizontal">22dp</dimen>
+    <dimen name="update_tuto_page01_header_margin_top">22dp</dimen>
+    <dimen name="update_tuto_page01_header_icon_size">33dp</dimen>
+    <dimen name="update_tuto_page01_header_space">8dp</dimen>
+    <dimen name="update_tuto_page01_header_text_size">13sp</dimen>
+    <dimen name="update_tuto_page01_header_flex_space_height">1dp</dimen>
+    <dimen name="update_tuto_page01_close_icon_size">31dp</dimen>
+    <dimen name="update_tuto_page01_content_margin_horizontal">32dp</dimen>
+    <dimen name="update_tuto_page01_content_margin_top">17dp</dimen>
+    <dimen name="update_tuto_page01_dot_size">8dp</dimen>
+    <dimen name="update_tuto_page01_dot_margin_start">17dp</dimen>
+    <dimen name="update_tuto_page01_dot_margin_top">17dp</dimen>
+    <dimen name="update_tuto_page01_label_margin_start">6dp</dimen>
+    <dimen name="update_tuto_page01_label_text_size">11sp</dimen>
+    <dimen name="update_tuto_page01_link_height">40dp</dimen>
+    <dimen name="update_tuto_page01_link_margin_start">0dp</dimen>
+    <dimen name="update_tuto_page01_link_margin_top">8dp</dimen>
+    <dimen name="update_tuto_page01_link_margin_end">14dp</dimen>
+    <dimen name="update_tuto_page01_link_margin_bottom">14dp</dimen>
+    <dimen name="update_tuto_page01_link_elevation">2dp</dimen>
+    <dimen name="update_tuto_page01_link_translation_z">2dp</dimen>
+    <dimen name="update_tuto_page01_link_padding_horizontal">8dp</dimen>
+    <dimen name="update_tuto_page01_link_icon_size">20dp</dimen>
+    <dimen name="update_tuto_page01_link_text_margin_start">8dp</dimen>
+    <dimen name="update_tuto_page01_link_text_size">12sp</dimen>
+    <dimen name="update_tuto_page01_title_margin_top">17dp</dimen>
+    <dimen name="update_tuto_page01_title_text_size">17sp</dimen>
+    <dimen name="update_tuto_page01_description_margin_top">6dp</dimen>
+
+    <!-- update tutorial page 02 -->
+    <dimen name="update_tuto_page02_cursor_width">2dp</dimen>
+    <dimen name="update_tuto_page02_cursor_margin_start">3dp</dimen>
+    <dimen name="update_tuto_page02_enter_container_margin_vertical">8dp</dimen>
+    <dimen name="update_tuto_page02_enter_icon_width">22dp</dimen>
+    <dimen name="update_tuto_page02_enter_icon_height">17dp</dimen>
+    <dimen name="update_tuto_page02_enter_icon_margin_vertical">6dp</dimen>
+    <dimen name="update_tuto_page02_enter_icon_margin_start">13dp</dimen>
+    <dimen name="update_tuto_page02_enter_text_size">11sp</dimen>
+    <dimen name="update_tuto_page02_enter_text_margin_start">8dp</dimen>
+    <dimen name="update_tuto_page02_enter_text_margin_end">13dp</dimen>
+
+    <!-- update tutorial page 03 -->
+    <dimen name="update_tuto_page03_done_icon_size">19dp</dimen>
+    <dimen name="update_tuto_page03_done_icon_margin_start">8dp</dimen>
+
+    <!-- update tutorial dialog -->
+    <dimen name="update_tuto_dialog_padding_horizontal">20dp</dimen>
+    <dimen name="update_tuto_dialog_padding_top">24dp</dimen>
+    <dimen name="update_tuto_dialog_padding_bottom">24dp</dimen>
+    <dimen name="update_tuto_dialog_container_elevation">10dp</dimen>
+    <dimen name="update_tuto_dialog_container_padding_horizontal">14dp</dimen>
+    <dimen name="update_tuto_dialog_container_padding_top">14dp</dimen>
+    <dimen name="update_tuto_dialog_container_padding_bottom">16dp</dimen>
+    <dimen name="update_tuto_dialog_close_padding">4dp</dimen>
+    <dimen name="update_tuto_dialog_pager_margin_top">8dp</dimen>
+    <dimen name="update_tuto_dialog_indicator_margin_top">16dp</dimen>
+    <dimen name="update_tuto_dialog_indicator_dot_size">8dp</dimen>
+    <dimen name="update_tuto_dialog_indicator_dot_spacing">6dp</dimen>
+    <dimen name="update_tuto_dialog_skip_margin_top">16dp</dimen>
+    <dimen name="update_tuto_dialog_skip_text_size">13sp</dimen>
+    <dimen name="update_tuto_dialog_next_width">140dp</dimen>
+    <dimen name="update_tuto_dialog_next_height">48dp</dimen>
+    <dimen name="update_tuto_dialog_next_margin_top">16dp</dimen>
+    <dimen name="update_tuto_dialog_next_text_size">14sp</dimen>
+
+    <dimen name="corner_radius_edt_link_tutorial">26dp</dimen>
+
+    <dimen name="width_btn_new_update">46dp</dimen>
+    <dimen name="height_btn_new_update">25dp</dimen>
+    <dimen name="margin_end_btn_new_update">5dp</dimen>
 
 </resources>
