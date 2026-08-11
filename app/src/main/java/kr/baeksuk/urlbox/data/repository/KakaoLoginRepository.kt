@@ -65,8 +65,7 @@ class KakaoLoginRepository(private val application: Application) : AndroidViewMo
     private fun handleKakaoLoginSuccess(accessToken: String, viewModel: LoginViewModel, callback: (Boolean) -> Unit) {
         getCustomToken(accessToken) { success ->
             if (success) {
-                fetchKakaoUserData(viewModel)
-                callback(true)
+                fetchKakaoUserData(viewModel, callback)
             } else {
                 callback(false)
             }
@@ -84,19 +83,30 @@ class KakaoLoginRepository(private val application: Application) : AndroidViewMo
     }
 
     // 카카오 사용자 정보 가져오기
-    private fun fetchKakaoUserData(viewModel: LoginViewModel) {
+    private fun fetchKakaoUserData(viewModel: LoginViewModel, callback: (Boolean) -> Unit) {
         UserApiClient.instance.me { user, error ->
             if (error != null) {
                 Log.e("카카오 회원정보 가져오기", "실패", error)
+                callback(false)
             } else if (user != null) {
+                val firebaseUid = FirebaseAuth.getInstance().currentUser?.uid
+                if (firebaseUid.isNullOrBlank()) {
+                    Log.e("카카오 회원정보 가져오기", "Firebase uid가 없어 사용자 데이터를 만들 수 없음")
+                    callback(false)
+                    return@me
+                }
+
                 Log.i("카카오 회원정보 가져오기", "성공")
                 userData = User(
-                    userId = user.id.toString(),
+                    userId = firebaseUid,
                     userEmail = user.kakaoAccount?.email.toString(),
                     userName = user.kakaoAccount?.profile?.nickname.toString(),
                     profileImage = user.kakaoAccount?.profile?.thumbnailImageUrl
                 )
                 viewModel.setKakaoUserData(userData)
+                callback(true)
+            } else {
+                callback(false)
             }
         }
     }

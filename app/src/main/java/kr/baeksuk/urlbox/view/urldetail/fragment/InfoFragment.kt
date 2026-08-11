@@ -223,15 +223,13 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
             return
         }
 
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl))
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(normalizedUrl)).apply {
+            addCategory(Intent.CATEGORY_BROWSABLE)
+        }
         try {
-            if (intent.resolveActivity(requireContext().packageManager) != null) {
-                startActivity(intent)
-            } else {
-                showLinkMessage("링크를 열 수 있는 앱이 없습니다.")
-            }
+            startActivity(intent)
         } catch (_: ActivityNotFoundException) {
-            showLinkMessage("유효한 URL이 아닙니다.")
+            showLinkMessage("링크를 열 수 있는 앱이 없습니다.")
         }
     }
 

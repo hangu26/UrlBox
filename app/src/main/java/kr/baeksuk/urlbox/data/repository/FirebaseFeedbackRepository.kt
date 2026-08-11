@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.data.repository
 
+import android.util.Log
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -13,6 +14,10 @@ import kr.baeksuk.urlbox.domain.feedback.FeedbackRepository
 import kr.baeksuk.urlbox.model.FeedbackReport
 
 class FirebaseFeedbackRepository : FeedbackRepository {
+
+    private companion object {
+        private const val TAG = "FirebaseFeedbackRepo"
+    }
 
     private val feedbackRef = FirebaseDatabase.getInstance()
         .reference
@@ -33,7 +38,13 @@ class FirebaseFeedbackRepository : FeedbackRepository {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                close(error.toException())
+                if (error.code == DatabaseError.PERMISSION_DENIED) {
+                    Log.i(TAG, "Feedback listener closed after permission was revoked")
+                } else {
+                    Log.w(TAG, "Feedback listener cancelled: ${error.message}")
+                }
+
+                close()
             }
         }
 
@@ -46,4 +57,3 @@ class FirebaseFeedbackRepository : FeedbackRepository {
         feedbackRef.child(reportId).child("status").setValue(status).await()
     }
 }
-

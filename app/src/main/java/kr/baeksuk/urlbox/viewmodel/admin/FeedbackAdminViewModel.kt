@@ -1,7 +1,11 @@
 package kr.baeksuk.urlbox.viewmodel.admin
 
 import androidx.lifecycle.ViewModel
+import com.google.firebase.auth.FirebaseAuth
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,15 +29,27 @@ class FeedbackAdminViewModel(
     private val updateFeedbackStatusUseCase: UpdateFeedbackStatusUseCase
 ) : ViewModel() {
 
+    private val auth = FirebaseAuth.getInstance()
+    private var observeJob: Job? = null
+
     private val _uiState = MutableStateFlow<AdminFeedbackUiState>(AdminFeedbackUiState.Loading)
     val uiState: StateFlow<AdminFeedbackUiState> = _uiState.asStateFlow()
 
+    private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+        if (firebaseAuth.currentUser == null) {
+            observeJob?.cancel()
+            observeJob = null
+        }
+    }
+
     init {
+        auth.addAuthStateListener(authStateListener)
         loadFeedbackReports()
     }
 
     fun loadFeedbackReports() {
-        viewModelScope.launch {
+        observeJob?.cancel()
+        observeJob = viewModelScope.launch {
             _uiState.value = AdminFeedbackUiState.Loading
 
             if (!checkAdminAccessUseCase()) {
@@ -41,13 +57,20 @@ class FeedbackAdminViewModel(
                 return@launch
             }
 
-            observeFeedbackReportsUseCase().collect { reports ->
-                _uiState.value = if (reports.isEmpty()) {
-                    AdminFeedbackUiState.Empty
-                } else {
-                    AdminFeedbackUiState.Success(reports)
+            observeFeedbackReportsUseCase()
+                .catch { throwable ->
+                    if (throwable is CancellationException) throw throwable
+                    _uiState.value = AdminFeedbackUiState.Error(
+                        throwable.message ?: "피드백 데이터를 불러오지 못했습니다."
+                    )
                 }
-            }
+                .collect { reports ->
+                    _uiState.value = if (reports.isEmpty()) {
+                        AdminFeedbackUiState.Empty
+                    } else {
+                        AdminFeedbackUiState.Success(reports)
+                    }
+                }
         }
     }
 
@@ -68,5 +91,11 @@ class FeedbackAdminViewModel(
             updateFeedbackStatusUseCase(report.id, nextStatus)
         }
     }
-}
 
+    override fun onCleared() {
+        auth.removeAuthStateListener(authStateListener)
+        observeJob?.cancel()
+        observeJob = null
+        super.onCleared()
+    }
+}

@@ -49,7 +49,7 @@
     <string name="tx_feedback_detail">Send feedback via web form</string>
     <string name="tx_terms">Privacy Policy</string>
     <string name="tx_version">App Version</string>
-    <string name="tx_version_detail">1.0.0</string>
+    <string name="tx_version_detail">1.1</string>
     <string name="tx_language_setting">Language Selection</string>
     <string name="tx_korean" translatable="false">한국어</string>
     <string name="tx_english" translatable="false">English</string>
