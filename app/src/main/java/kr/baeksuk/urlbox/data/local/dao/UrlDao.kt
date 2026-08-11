@@ -59,6 +59,12 @@ interface UrlDao{
     @Query("UPDATE url_history SET urlMemo = :newUrlMemo WHERE urlLink = :url")
     suspend fun updateGuestUrlMemo(url: String, newUrlMemo :String)
 
+    @Query("UPDATE url_history SET urlLink = :newUrl WHERE urlLink = :oldUrl")
+    suspend fun updateGuestUrlLink(oldUrl: String, newUrl: String)
+
+    @Query("UPDATE url_backup_history SET urlLink = :newUrl WHERE urlLink = :oldUrl")
+    suspend fun updateUrlLink(oldUrl: String, newUrl: String)
+
     @Query("UPDATE url_backup_history SET imageKey = :newImageKey WHERE urlLink = :url")
     suspend fun updateBackup(url:String, newImageKey : String)
 
@@ -126,6 +132,9 @@ interface UrlDao{
     @Query("SELECT * FROM tag_backup_history WHERE tag = :tag LIMIT 1")
     suspend fun getTagBackupByTitle(tag: String): TagBackupEntity?
 
+    @Query("SELECT * FROM tag_backup_history")
+    suspend fun getAllTagBackups(): List<TagBackupEntity>
+
     @Query("UPDATE tag_backup_history SET urlList = :urls WHERE tag = :tag")
     suspend fun updateUserUrlInTags(urls: String, tag: String)
 
@@ -150,4 +159,3 @@ interface UrlDao{
     fun getPreparationTags(): LiveData<List<PreparationTag>>
 
 }
-

@@ -708,6 +708,19 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     }
 
+    /** updateGuestUrlLink */
+    fun updateGuestUrlLink(oldUrl: String, newUrl: String) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                urlDao.updateGuestUrlLink(oldUrl, newUrl)
+            } catch (e: java.lang.Exception) {
+                Log.e("데이터 업데이트 처리", e.toString())
+            }
+        }
+
+    }
+
     /** updateUrlInfo */
     fun updateUrlInfo(url: String, urlName: String, urlMemo: String, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -897,6 +910,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                             Log.e("데이터 업데이트", "Firebase 업데이트 실패: ${e.message}")
                                         }
                                 }
+
                             } else {
                                 Log.d("데이터 업데이트", "일치하는 URL을 찾을 수 없습니다.")
                             }
@@ -945,6 +959,7 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                             Log.e("메모 업데이트", "Firebase 업데이트 실패: ${e.message}")
                                         }
                                 }
+
                             } else {
                                 Log.d("메모 업데이트", "일치하는 URL을 찾을 수 없습니다.")
                             }
@@ -962,7 +977,90 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** urldetail 액티비티에서 링크 수정 함수 **/
+    fun updateUrlLink(oldUrl: String, newUrl: String, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (userId.isEmpty()) return@launch
 
+                urlDao.updateUrlLink(oldUrl, newUrl)
+                updateTagBackupUrlLink(oldUrl, newUrl)
+
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                userUrlRef.orderByChild("url").equalTo(oldUrl)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+                                    childSnapshot.ref.child("url").setValue(newUrl)
+                                        .addOnSuccessListener {
+                                            Log.d("링크 업데이트", "Firebase URL 업데이트 성공")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("링크 업데이트", "Firebase URL 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("링크 업데이트", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+
+                updateTagUrlInFirebase(userId, oldUrl, newUrl)
+            } catch (e: Exception) {
+                Log.e("링크 업데이트 처리", e.toString())
+            }
+        }
+    }
+
+    private suspend fun updateTagBackupUrlLink(oldUrl: String, newUrl: String) {
+        val tagBackups = urlDao.getAllTagBackups()
+        val tagsToUpdate = tagBackups.mapNotNull { tagEntity ->
+            val currentUrlList = tagEntity.urlList ?: return@mapNotNull null
+            if (!currentUrlList.contains(oldUrl)) {
+                return@mapNotNull null
+            }
+
+            val replacedUrlList = currentUrlList.map { urlValue ->
+                if (urlValue == oldUrl) newUrl else urlValue
+            }
+            tagEntity.copy(urlList = replacedUrlList)
+        }
+
+        if (tagsToUpdate.isNotEmpty()) {
+            urlDao.updateUrlInTags(tagsToUpdate)
+        }
+    }
+
+    private fun updateTagUrlInFirebase(userId: String, oldUrl: String, newUrl: String) {
+        val tagRef = FirebaseDatabase.getInstance().reference
+            .child("User").child(userId).child("Tag")
+
+        tagRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (tagSnapshot in snapshot.children) {
+                    val urlSnapshot = tagSnapshot.child("url")
+                    for (urlChild in urlSnapshot.children) {
+                        val currentUrl = urlChild.child("url").getValue(String::class.java) ?: continue
+                        if (currentUrl == oldUrl) {
+                            urlChild.ref.child("url").setValue(newUrl)
+                                .addOnFailureListener { e ->
+                                    Log.e("링크 업데이트", "Tag URL 업데이트 실패: ${e.message}")
+                                }
+                        }
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("링크 업데이트", "Tag 쿼리 취소됨: ${error.message}")
+            }
+        })
+    }
     /** updateFavorite */
     suspend fun updateFavorite(url: String, isFavorite: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {

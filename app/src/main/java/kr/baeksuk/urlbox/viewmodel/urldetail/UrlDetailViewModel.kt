@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.domain.DeleteImageUseCase
 import kr.baeksuk.urlbox.domain.ToggleFavoriteUseCase
+import kr.baeksuk.urlbox.domain.UpdateUrlLinkUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlMemoUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlNameUseCase
 import kr.baeksuk.urlbox.util.util.UserSessionManager
@@ -17,6 +18,7 @@ class UrlDetailViewModel(
     application: Application,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
     private val updateUrlNameUseCase: UpdateUrlNameUseCase,
+    private val updateUrlLinkUseCase: UpdateUrlLinkUseCase,
     private val updateUrlMemoUseCase: UpdateUrlMemoUseCase,
     private val deleteImageUseCase: DeleteImageUseCase,
     private val sessionManager : UserSessionManager
@@ -90,6 +92,12 @@ class UrlDetailViewModel(
             updateUrlNameUseCase(url, urlName)
         }
 
+    }
+
+    fun updateUrlLink(oldUrl: String, newUrl: String) {
+        viewModelScope.launch {
+            updateUrlLinkUseCase(oldUrl, newUrl)
+        }
     }
 
     fun updateUrlMemo(url: String, urlMemo: String) {

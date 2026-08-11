@@ -134,15 +134,23 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
+            <EditText
                 android:id="@+id/tx_link"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="@dimen/margin_start_tx_link"
                 android:ellipsize="end"
+                android:background="@android:color/transparent"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:fontFamily="@font/pretendard_semibold"
                 android:gravity="center_vertical"
+                android:imeOptions="actionDone"
+                android:inputType="textUri"
+                android:isScrollContainer="false"
+                android:longClickable="false"
                 android:maxLines="1"
+                android:cursorVisible="false"
                 android:textColor="@color/black"
                 android:textSize="@dimen/size_tx_url_name"
                 app:layout_constraintBottom_toBottomOf="@+id/ic_link"

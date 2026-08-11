@@ -15,6 +15,7 @@ import kr.baeksuk.urlbox.domain.LoadDetailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadThumbnailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadUserHomeDataUseCase
 import kr.baeksuk.urlbox.domain.ToggleFavoriteUseCase
+import kr.baeksuk.urlbox.domain.UpdateUrlLinkUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlMemoUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlNameUseCase
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
@@ -53,6 +54,7 @@ val module = module {
     single { ObserveFeedbackReportsUseCase(get()) }
     single { UpdateFeedbackStatusUseCase(get()) }
     single { LoadDetailDataUseCase(get(), get()) }
+    single { UpdateUrlLinkUseCase(get(), get()) }
     single { UpdateUrlMemoUseCase(get(), get()) }
     single { UpdateUrlNameUseCase(get(), get()) }
     single { ToggleFavoriteUseCase(get(), get()) }
@@ -69,7 +71,7 @@ val module = module {
     viewModel { UrlViewModel(androidApplication(), get(), get(), get()) }
     viewModel { AddLinkViewModel(androidApplication()) }
     viewModel { CaptureViewModel(androidApplication(), get(), get()) }
-    viewModel { UrlDetailViewModel(androidApplication(), get(), get(), get(), get(), get()) }
+    viewModel { UrlDetailViewModel(androidApplication(), get(), get(), get(), get(), get(), get()) }
     viewModel { ThumbnailViewModel(androidApplication(), get()) }
     viewModel { ShareReceiverViewModel(androidApplication(), get()) }
     viewModel { MyPageViewModel(androidApplication(), get()) }

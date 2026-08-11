@@ -3,6 +3,7 @@ package kr.baeksuk.urlbox.util.util
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,8 @@ class UserSessionManager(private val context: Context) {
 
         /** 튜토리얼 종료 변수 **/
         private val KEY_IS_CLEAR = booleanPreferencesKey("isClearIntent")
+        private val KEY_LAST_RELEASE_NOTE_ID = stringPreferencesKey("lastReleaseNoteId")
+        private val KEY_LAST_TUTORIAL_VERSION_CODE = intPreferencesKey("lastTutorialVersionCode")
     }
 
     val userId: Flow<String?> = context.dataStore.data.map { pref ->
@@ -60,6 +63,14 @@ class UserSessionManager(private val context: Context) {
 
     val isTutorialClear = context.dataStore.data
         .map { pref -> pref[KEY_IS_CLEAR] ?: false }
+
+    val lastReleaseNoteId: Flow<String> = context.dataStore.data.map { pref ->
+        pref[KEY_LAST_RELEASE_NOTE_ID] ?: ""
+    }
+
+    val lastTutorialVersionCode: Flow<Int> = context.dataStore.data.map { pref ->
+        pref[KEY_LAST_TUTORIAL_VERSION_CODE] ?: 0
+    }
 
     val userSession: Flow<UserSession> = combine(
         userId,
@@ -115,6 +126,18 @@ class UserSessionManager(private val context: Context) {
     suspend fun setTutorialClearDone() {
         context.dataStore.edit { pref ->
             pref[KEY_IS_CLEAR] = true
+        }
+    }
+
+    suspend fun setLastReleaseNoteId(releaseNoteId: String) {
+        context.dataStore.edit { pref ->
+            pref[KEY_LAST_RELEASE_NOTE_ID] = releaseNoteId
+        }
+    }
+
+    suspend fun setLastTutorialVersionCode(versionCode: Int) {
+        context.dataStore.edit { pref ->
+            pref[KEY_LAST_TUTORIAL_VERSION_CODE] = versionCode
         }
     }
 

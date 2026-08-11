@@ -59,8 +59,11 @@
     <string name="tx_use_terms_detail">サービス利用規約</string>
     <string name="tx_terms_detail">個人情報の取り扱いについて</string>
     <string name="tx_version">アプリバージョン</string>
-    <string name="tx_version_detail">1.0.0</string>
+    <string name="tx_version_detail">1.1</string>
     <string name="tx_language_setting">言語選択</string>
+    <string name="tx_korean" translatable="false">한국어</string>
+    <string name="tx_english" translatable="false">English</string>
+    <string name="tx_japanese" translatable="false">日本語</string>
     <string name="tx_thumbnail">サムネイル</string>
     <string name="tx_my_page">マイページ</string>
     <string name="tx_url">URL</string>
@@ -79,25 +82,37 @@
     <string name="tx_or">または</string>
     <string name="tx_guest_continue">ゲストとして続行</string>
     <string name="tx_syncing">アカウントに同期中…</string>
-    <string name="tx_admin_feedback_title">フィードバック管理</string>
-    <string name="tx_admin_feedback_subtitle">Firebaseに入ったGoogle Formの回答一覧です。</string>
-    <string name="tx_feedback_admin_empty">まだフィードバックはありません。</string>
-    <string name="tx_feedback_admin_change_status">ステータス変更</string>
+    <string name="tx_admin_feedback_title" translatable="false">フィードバック管理</string>
+    <string name="tx_admin_feedback_subtitle" translatable="false">Firebaseに入ったGoogle Formの回答一覧です。</string>
+    <string name="tx_feedback_admin_empty" translatable="false">まだフィードバックはありません。</string>
+    <string name="tx_feedback_admin_change_status" translatable="false">ステータス変更</string>
     <string name="tx_link_english">LINK</string>
     <string name="tx_tags">タグ</string>
     <string name="tx_add_tag">タグを追加</string>
     <string name="tx_my_tags">マイタグ</string>
     <string name="tx_input_tag">タグを入力してください</string>
     <string name="tx_change_pic">写真を変更</string>
+    <string name="feedback_form_url" translatable="false">https://docs.google.com/forms/d/e/1FAIpQLScjRcS880D_OBJ29SwAaCrMaaJgyclTJey7Lj99RiZRrZYzmQ/viewform?usp=publish-editor</string>
+    <string name="tx_example_link" translatable="false">https://www.youtube.com/wersadfasdgwear</string>
     <string name="tv_tutorial_01">リンクをひとつの場所に</string>
     <string name="tv_tutorial_detail_01">散らばったブックマークをサムネイルで見やすく \n保存しましょう</string>
     <string name="tx_app_info_tutorial_01">UrlBox - リンク管理の新しい方法</string>
     <string name="tx_swipe_tutorial"><![CDATA[> スワイプするか、次へボタンを押してください]]></string>
     <string name="tx_next">次へ</string>
+    <string name="tx_start">始める</string>
     <string name="tv_tutorial_02">サムネイルキャプチャ画面</string>
     <string name="tv_tutorial_detail_02">URLを入力すると、サムネイルキャプチャ用の \n画面が表示されます</string>
     <string name="tv_tutorial_03">タグで整理</string>
     <string name="tv_tutorial_detail_03">タグを自由につけて、リンクを簡単に \n分類・検索しましょう</string>
     <string name="tx_chose_album">アルバムから選択</string>
     <string name="tx_ad_label">広告</string>
+    <string name="tx_update_info">新機能のご案内</string>
+    <string name="tx_ex_url_link"><![CDATA[https://www.youtube.com/watch?v=KifSefVEdBs&list=RDKifSefVEdBs&start_radio=1]]></string>
+    <string name="tx_update_link_edt_01">リンク編集機能を追加！</string>
+    <string name="tx_update_link_edt_02">保存したリンクを直接編集できるようになりました。リンク詳細 \n画面で Link 項目を長押ししてください。</string>
+    <string name="tx_update_link_edt_03">編集後に完了を入力</string>
+    <string name="tx_update_link_edt_04">編集モードが有効になるとリンクを編集でき、キーボードの \n完了（Enter）を押すと保存されます。</string>
+    <string name="tx_enter_put">完了（Enter）を入力</string>
+    <string name="tx_update_link_edt_finish">完了！</string>
+    <string name="tx_update_link_edt_05">リンクはすぐに更新されます。誤って保存したURLも \n簡単に修正できます。</string>
 </resources>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/tutorial_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_tuto_edt_link"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_link_example"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/update_tuto_page01_content_margin_horizontal"
+            android:layout_marginTop="@dimen/update_tuto_page01_content_margin_top"
+            android:layout_marginEnd="@dimen/update_tuto_page01_content_margin_horizontal"
+            android:background="@drawable/border_cl_tuto_link_edit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_dot_link_edt"
+                android:layout_width="@dimen/update_tuto_page01_dot_size"
+                android:layout_height="@dimen/update_tuto_page01_dot_size"
+                android:layout_gravity="center"
+                android:layout_marginStart="@dimen/update_tuto_page01_dot_margin_start"
+                android:layout_marginTop="@dimen/update_tuto_page01_dot_margin_top"
+                android:src="@drawable/ic_dot_link_edt"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/update_tuto_page01_label_margin_start"
+                android:fontFamily="@font/pretendard_regular"
+                android:text="LINK"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/update_tuto_page01_label_text_size"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_dot_link_edt"
+                app:layout_constraintStart_toEndOf="@+id/iv_dot_link_edt"
+                app:layout_constraintTop_toTopOf="@+id/iv_dot_link_edt" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_link"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/update_tuto_page01_link_height"
+                android:layout_marginStart="@dimen/update_tuto_page01_link_margin_start"
+                android:layout_marginTop="@dimen/update_tuto_page01_link_margin_top"
+                android:layout_marginEnd="@dimen/update_tuto_page01_link_margin_end"
+                android:layout_marginBottom="@dimen/update_tuto_page01_link_margin_bottom"
+                android:background="@drawable/border_btn_link"
+                android:clickable="true"
+                android:elevation="@dimen/update_tuto_page01_link_elevation"
+                android:focusable="true"
+                android:gravity="center|start"
+                android:paddingStart="@dimen/update_tuto_page01_link_padding_horizontal"
+                android:paddingEnd="@dimen/update_tuto_page01_link_padding_horizontal"
+                android:translationZ="@dimen/update_tuto_page01_link_translation_z"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@id/iv_dot_link_edt"
+                app:layout_constraintTop_toBottomOf="@id/iv_dot_link_edt">
+
+                <ImageView
+                    android:id="@+id/ic_link"
+                    android:layout_width="@dimen/update_tuto_page01_link_icon_size"
+                    android:layout_height="@dimen/update_tuto_page01_link_icon_size"
+                    android:src="@drawable/icon_link"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <EditText
+                    android:id="@+id/tx_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/update_tuto_page01_link_text_margin_start"
+                    android:background="@android:color/transparent"
+                    android:cursorVisible="false"
+                    android:ellipsize="end"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:fontFamily="@font/pretendard_semibold"
+                    android:gravity="center_vertical"
+                    android:imeOptions="actionDone"
+                    android:inputType="textUri"
+                    android:isScrollContainer="false"
+                    android:longClickable="false"
+                    android:maxLines="1"
+                    android:text="https://youtube.com/watch?v=KifSefVE"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/update_tuto_page01_link_text_size"
+                    app:layout_constraintBottom_toBottomOf="@+id/ic_link"
+                    app:layout_constraintStart_toEndOf="@+id/ic_link"
+                    app:layout_constraintTop_toTopOf="@+id/ic_link" />
+                
+                <ImageView
+                    android:layout_width="@dimen/update_tuto_page03_done_icon_size"
+                    android:layout_height="@dimen/update_tuto_page03_done_icon_size"
+                    android:src="@drawable/ic_edt_link_fin"
+                    app:layout_constraintTop_toTopOf="@+id/tx_link"
+                    app:layout_constraintBottom_toBottomOf="@+id/tx_link"
+                    app:layout_constraintStart_toEndOf="@+id/tx_link"
+                    android:layout_marginStart="@dimen/update_tuto_page03_done_icon_margin_start"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tx_update_link_edt_01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/update_tuto_page01_title_margin_top"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_update_link_edt_finish"
+            android:textColor="@color/black"
+            android:textSize="@dimen/update_tuto_page01_title_text_size"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cl_link_example" />
+
+        <TextView
+            android:id="@+id/tx_update_link_edt_02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/update_tuto_page01_description_margin_top"
+            android:gravity="center"
+            android:text="@string/tx_update_link_edt_05"
+            android:textColor="@color/appBar_title_02"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tx_update_link_edt_01" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

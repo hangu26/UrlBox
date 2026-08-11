@@ -3,25 +3,28 @@ package kr.baeksuk.urlbox.view.main
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.pm.PackageInfoCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityMainBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.base.NavigationMenu
 import kr.baeksuk.urlbox.util.util.AppEvent
 import kr.baeksuk.urlbox.util.util.MakeVibrator
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import kr.baeksuk.urlbox.view.nav.MyPageFragment
 import kr.baeksuk.urlbox.view.nav.ThumbnailFragment
 import kr.baeksuk.urlbox.view.nav.UrlFragment
 import kr.baeksuk.urlbox.view.setting.SettingActivity
+import kr.baeksuk.urlbox.view.tutorial.UpdateTutorialDialogFragment
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
 import org.koin.android.ext.android.inject
 
@@ -29,6 +32,7 @@ class MainActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityMainBinding
     private val mViewModel: MainViewModel by inject()
+    private val sessionManager: UserSessionManager by inject()
     private var backPressedTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +58,15 @@ class MainActivity : BaseActivity() {
         initView()
         observeViewModel()
         configureBottomNavigation()
+        registerTutorialResultListener()
+        showUpdateTutorialIfNeeded()
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
     }
     private fun initView() {
+        mBinding.imgNewUpdate.setOnClickListener {
+            showUpdateTutorial()
+        }
 
         when (intent.extras?.getString("TARGET_FRAGMENT")) {
 
@@ -122,6 +131,46 @@ class MainActivity : BaseActivity() {
             }
         }
 
+    }
+
+    private fun showUpdateTutorialIfNeeded() {
+        lifecycleScope.launchWhenStarted {
+            val currentVersionCode = getCurrentVersionCode()
+            val lastShownVersionCode = sessionManager.lastTutorialVersionCode.first()
+            if (lastShownVersionCode >= currentVersionCode) {
+                return@launchWhenStarted
+            }
+            showUpdateTutorial()
+        }
+    }
+
+    private fun showUpdateTutorial() {
+        if (supportFragmentManager.findFragmentByTag(UpdateTutorialDialogFragment.TAG) != null) {
+            return
+        }
+        UpdateTutorialDialogFragment().show(
+            supportFragmentManager,
+            UpdateTutorialDialogFragment.TAG
+        )
+    }
+
+    private fun registerTutorialResultListener() {
+        supportFragmentManager.setFragmentResultListener(
+            UpdateTutorialDialogFragment.RESULT_KEY,
+            this
+        ) { _, bundle ->
+            val done = bundle.getBoolean(UpdateTutorialDialogFragment.RESULT_DONE, false)
+            if (!done) return@setFragmentResultListener
+
+            lifecycleScope.launchWhenStarted {
+                sessionManager.setLastTutorialVersionCode(getCurrentVersionCode())
+            }
+        }
+    }
+
+    private fun getCurrentVersionCode(): Int {
+        val packageInfo = packageManager.getPackageInfo(packageName, 0)
+        return PackageInfoCompat.getLongVersionCode(packageInfo).toInt()
     }
 
     private fun navigateUrl(bundle: Bundle? = null) {
