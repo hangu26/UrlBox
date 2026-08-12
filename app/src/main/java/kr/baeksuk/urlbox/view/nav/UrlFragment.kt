@@ -305,13 +305,10 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             adapter.notifyDataSetChanged()
         }
 +
-+    // Called by MainActivity to toggle showing hidden URLs in the main list
-+    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
 +        val current = uViewModel.urlData.value
 +        val urlDataList = current?.first ?: emptyList()
 +        val imgUriList = current?.second ?: emptyList()
 +
-+        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
 +        adapter.notifyDataSetChanged()
      }
         }
@@ -336,6 +333,16 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 activity?.finish()
             }
         }
+    }
+
+    // Called by MainActivity to toggle showing hidden URLs in the main list
+    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
+        val current = uViewModel.urlData.value
+        val urlDataList = current?.first ?: emptyList()
+        val imgUriList = current?.second ?: emptyList()
+
+        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
+        adapter.notifyDataSetChanged()
     }
 
     private fun openUrlDetail(url: Url, txUrl: View, imgView: View) {
