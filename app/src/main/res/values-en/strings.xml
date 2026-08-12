@@ -115,4 +115,7 @@
     <string name="tx_enter_put">Press Done (Enter)</string>
     <string name="tx_update_link_edt_finish">Done!</string>
     <string name="tx_update_link_edt_05">Your link is now updated immediately. You can \neasily fix incorrectly saved URLs.</string>
+
+    <string name="tx_persist_hidden">Keep hidden state on app exit</string>
+    <string name="tx_persist_hidden_detail">If you exit and reopen the app, \nthe toggle state will be preserved.</string>
 </resources>

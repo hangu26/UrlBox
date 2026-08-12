@@ -144,4 +144,7 @@
     <string name="tx_hidden_pin_reset_failed">초기화에 실패했습니다. 다시 시도해주세요.</string>
     <string name="tx_reset">초기화</string>
 
+    <string name="tx_persist_hidden">앱 종료 시 숨김 상태 유지</string>
+    <string name="tx_persist_hidden_detail">토글한 상태를 앱을 종료했다가 켜면 \n그대로 유지합니다</string>
+
 </resources>

@@ -115,4 +115,7 @@
     <string name="tx_enter_put">完了（Enter）を入力</string>
     <string name="tx_update_link_edt_finish">完了！</string>
     <string name="tx_update_link_edt_05">リンクはすぐに更新されます。誤って保存したURLも \n簡単に修正できます。</string>
+
+    <string name="tx_persist_hidden">アプリ終了時に非表示状態を保持</string>
+    <string name="tx_persist_hidden_detail">トグルした状態をアプリ終了後に再起動しても維持します。</string>
 </resources>
