@@ -44,7 +44,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
                     <TextView
                         android:id="@+id/tx_app_title"
@@ -52,11 +54,11 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:fontFamily="@font/pretendard_bold"
+                        android:layout_marginStart="@dimen/margin_start_tx_app_title"
                         android:text="@string/tx_appbar_title"
                         android:textColor="@color/appBar_title_02"
                         android:textSize="@dimen/appbar_tx_title_chat"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
@@ -66,9 +68,56 @@
                         android:layout_height="@dimen/height_btn_new_update"
                         android:src="@drawable/ic_new_update"
                         app:layout_constraintBottom_toBottomOf="@+id/img_setting"
-                        app:layout_constraintEnd_toStartOf="@+id/img_setting"
                         app:layout_constraintTop_toTopOf="@+id/img_setting"
+                        app:layout_constraintStart_toEndOf="@+id/tx_app_title"
+                        android:layout_marginStart="@dimen/margin_start_img_new_update"
                         android:layout_marginEnd="@dimen/margin_end_btn_new_update"/>
+
+                    <ImageView
+                        android:id="@+id/img_feedback"
+                        android:layout_width="@dimen/size_img_feedback"
+                        android:layout_height="@dimen/size_img_feedback"
+                        android:layout_marginEnd="@dimen/margin_end_img_feedback"
+                        android:src="@drawable/ic_feedback"
+                        app:layout_constraintBottom_toBottomOf="@+id/img_setting"
+                        app:layout_constraintEnd_toStartOf="@+id/fl_secret"
+                        app:layout_constraintTop_toTopOf="@+id/img_setting" />
+
+                    <FrameLayout
+                        android:id="@+id/fl_secret"
+                        android:layout_width="@dimen/size_img_secret"
+                        android:layout_height="@dimen/size_img_secret"
+                        android:layout_marginEnd="@dimen/margin_end_img_secret"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        app:layout_constraintBottom_toBottomOf="@+id/img_setting"
+                        app:layout_constraintEnd_toStartOf="@+id/img_setting"
+                        app:layout_constraintTop_toTopOf="@+id/img_setting">
+
+                        <ImageView
+                            android:id="@+id/img_secret"
+                            android:layout_width="@dimen/size_img_secret"
+                            android:layout_height="@dimen/size_img_secret"
+                            android:contentDescription="비밀 폴더"
+                            android:scaleType="centerInside"
+                            android:src="@drawable/ic_secret" />
+
+                        <TextView
+                            android:id="@+id/tv_secret_count"
+                            android:layout_width="@dimen/size_secret_folder_badge"
+                            android:layout_height="@dimen/size_secret_folder_badge"
+                            android:layout_gravity="top|end"
+                            android:layout_marginEnd="@dimen/margin_end_secret_folder_badge"
+                            android:layout_marginTop="@dimen/margin_top_secret_folder_badge"
+                            android:background="@drawable/bg_secret_folder_badge"
+                            android:fontFamily="sans-serif-medium"
+                            android:gravity="center"
+                            android:text="1"
+                            android:textColor="@android:color/white"
+                            android:textSize="@dimen/text_size_secret_folder_badge"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
 
                     <ImageView
                         android:id="@+id/img_setting"

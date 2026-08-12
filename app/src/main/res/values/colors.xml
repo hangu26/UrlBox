@@ -56,5 +56,9 @@
     <color name="stroke_ic_close">#A1824A</color>
     <color name="color_border_cl_tuto_link_edt">#F0EBE0</color>
 
+    <color name="color_drag_handle">#4A4A4A</color>
+    <color name="color_text_description">#8E8E93</color>
+    <color name="color_hidden_folder_gold">#C9A86A</color>
+    <color name="color_hidden_folder_gold_60">#786540</color>
 
 </resources>

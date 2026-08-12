@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet_gradient"
+    android:orientation="vertical"
+    android:padding="@dimen/bottom_sheet_padding">
+
+    <View
+        android:layout_width="@dimen/drag_handle_width"
+        android:layout_height="@dimen/drag_handle_height"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/drag_handle_margin_bottom"
+        android:background="@color/color_drag_handle" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/img_secret"
+            android:layout_width="@dimen/hidden_folder_header_icon_size"
+            android:layout_height="@dimen/hidden_folder_header_icon_size"
+            android:src="@drawable/ic_secret_bottom_sheet"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tx_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/hidden_folder_header_title_margin_start"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_hidden_folder"
+            android:textColor="@color/appBar_title_01"
+            android:textSize="@dimen/hidden_folder_title_text_size"
+            app:layout_constraintStart_toEndOf="@id/img_secret"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0개의 링크"
+            android:textColor="@color/color_hidden_folder_gold_60"
+            android:textSize="@dimen/hidden_folder_description_text_size"
+            app:layout_constraintStart_toStartOf="@id/tx_title"
+            app:layout_constraintTop_toBottomOf="@id/tx_title" />
+
+        <TextView
+            android:id="@+id/tvUsage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_hidden_usage_chip"
+            android:fontFamily="@font/pretendard_medium"
+            android:paddingStart="@dimen/hidden_folder_usage_padding_horizontal"
+            android:paddingTop="@dimen/hidden_folder_usage_padding_vertical"
+            android:paddingEnd="@dimen/hidden_folder_usage_padding_horizontal"
+            android:paddingBottom="@dimen/hidden_folder_usage_padding_vertical"
+            android:text="@string/tx_hidden_folder_usage"
+            android:textColor="@color/color_hidden_folder_gold"
+            android:textSize="@dimen/hidden_folder_usage_text_size"
+            app:layout_constraintBottom_toBottomOf="@id/img_secret"
+            app:layout_constraintEnd_toStartOf="@id/btnClose"
+            app:layout_constraintTop_toTopOf="@id/img_secret" />
+
+        <FrameLayout
+            android:id="@+id/btnClose"
+            android:layout_width="@dimen/hidden_folder_header_close_size"
+            android:layout_height="@dimen/hidden_folder_header_close_size"
+            android:background="@drawable/bg_hidden_close_chip"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@id/img_secret"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/img_secret">
+
+            <ImageView
+                android:layout_width="@dimen/hidden_folder_header_close_icon_size"
+                android:layout_height="@dimen/hidden_folder_header_close_icon_size"
+                android:layout_gravity="center"
+                android:contentDescription="@string/tx_cancel"
+                android:src="@drawable/ic_tuto_close" />
+        </FrameLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/hidden_folder_box_margin_top"
+        android:background="#33A1824A" />
+
+    <LinearLayout
+        android:id="@+id/layoutNoPasswordMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/hidden_folder_box_margin_top"
+            android:background="@drawable/bg_hidden_folder_box"
+            android:padding="@dimen/hidden_folder_box_padding">
+
+            <ImageView
+                android:id="@+id/img_secret_password"
+                android:layout_width="@dimen/hidden_folder_icon_width"
+                android:layout_height="@dimen/hidden_folder_icon_height"
+                android:contentDescription="@string/desc_password_icon"
+                android:src="@drawable/ic_secret_password"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvNoPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/hidden_folder_text_margin_start"
+                android:fontFamily="@font/pretendard_bold"
+                android:text="@string/tx_no_password"
+                android:textColor="@color/color_hidden_folder_gold"
+                android:textSize="@dimen/hidden_folder_button_text_size"
+                app:layout_constraintStart_toEndOf="@id/img_secret_password"
+                app:layout_constraintTop_toTopOf="@id/img_secret_password" />
+
+            <TextView
+                android:id="@+id/tvPasswordDescription"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/hidden_folder_text_margin_start"
+                android:layout_marginTop="@dimen/hidden_folder_text_margin_top"
+                android:fontFamily="@font/pretendard_regular"
+                android:text="@string/tx_no_password_desc"
+                android:textColor="@color/color_hidden_folder_gold_60"
+                android:textSize="@dimen/hidden_folder_description_text_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/img_secret_password"
+                app:layout_constraintTop_toBottomOf="@id/tvNoPassword" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/hidden_folder_button_area_margin_top">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnSetPassword"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/hidden_folder_button_height"
+                android:background="@drawable/bg_btn_set_password"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_bold"
+                    android:text="@string/tx_set_password_now"
+                    android:textColor="@android:color/white"
+                    android:textSize="@dimen/hidden_folder_button_text_size"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/btnOpen"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/hidden_folder_button_height"
+                android:layout_marginTop="@dimen/hidden_folder_button_margin_top"
+                android:background="@drawable/bg_btn_open_hidden"
+                android:clickable="true"
+                android:focusable="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/btnSetPassword">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/pretendard_bold"
+                    android:text="@string/tx_open_anyway"
+                    android:textColor="@color/color_hidden_folder_gold"
+                    android:textSize="@dimen/hidden_folder_button_text_size"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutPasswordMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/hidden_folder_pin_top_margin"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="@dimen/hidden_folder_pin_icon_box_size"
+            android:layout_height="@dimen/hidden_folder_pin_icon_box_size"
+            android:background="@drawable/bg_hidden_pin_icon_box">
+
+            <ImageView
+                android:layout_width="@dimen/hidden_folder_pin_icon_size"
+                android:layout_height="@dimen/hidden_folder_pin_icon_size"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_secret_password" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_hidden_pin_input"
+            android:textColor="@color/color_hidden_folder_gold"
+            android:textSize="@dimen/hidden_folder_pin_title_size" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/pinDot1"
+                android:layout_width="@dimen/hidden_folder_pin_dot_size"
+                android:layout_height="@dimen/hidden_folder_pin_dot_size"
+                android:background="@drawable/bg_hidden_pin_dot_inactive" />
+
+            <View
+                android:id="@+id/pinDot2"
+                android:layout_width="@dimen/hidden_folder_pin_dot_size"
+                android:layout_height="@dimen/hidden_folder_pin_dot_size"
+                android:layout_marginStart="@dimen/hidden_folder_pin_dot_spacing"
+                android:background="@drawable/bg_hidden_pin_dot_inactive" />
+
+            <View
+                android:id="@+id/pinDot3"
+                android:layout_width="@dimen/hidden_folder_pin_dot_size"
+                android:layout_height="@dimen/hidden_folder_pin_dot_size"
+                android:layout_marginStart="@dimen/hidden_folder_pin_dot_spacing"
+                android:background="@drawable/bg_hidden_pin_dot_inactive" />
+
+            <View
+                android:id="@+id/pinDot4"
+                android:layout_width="@dimen/hidden_folder_pin_dot_size"
+                android:layout_height="@dimen/hidden_folder_pin_dot_size"
+                android:layout_marginStart="@dimen/hidden_folder_pin_dot_spacing"
+                android:background="@drawable/bg_hidden_pin_dot_inactive" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:alignmentMode="alignMargins"
+            android:columnCount="3"
+            android:rowCount="4"
+            android:useDefaultMargins="true">
+
+            <TextView
+                android:id="@+id/pinNumber1"
+                style="@style/HiddenPinKeyStyle"
+                android:text="1" />
+
+            <TextView
+                android:id="@+id/pinNumber2"
+                style="@style/HiddenPinKeyStyle"
+                android:text="2" />
+
+            <TextView
+                android:id="@+id/pinNumber3"
+                style="@style/HiddenPinKeyStyle"
+                android:text="3" />
+
+            <TextView
+                android:id="@+id/pinNumber4"
+                style="@style/HiddenPinKeyStyle"
+                android:text="4" />
+
+            <TextView
+                android:id="@+id/pinNumber5"
+                style="@style/HiddenPinKeyStyle"
+                android:text="5" />
+
+            <TextView
+                android:id="@+id/pinNumber6"
+                style="@style/HiddenPinKeyStyle"
+                android:text="6" />
+
+            <TextView
+                android:id="@+id/pinNumber7"
+                style="@style/HiddenPinKeyStyle"
+                android:text="7" />
+
+            <TextView
+                android:id="@+id/pinNumber8"
+                style="@style/HiddenPinKeyStyle"
+                android:text="8" />
+
+            <TextView
+                android:id="@+id/pinNumber9"
+                style="@style/HiddenPinKeyStyle"
+                android:text="9" />
+
+            <Space
+                android:layout_width="@dimen/hidden_folder_pin_key_width"
+                android:layout_height="@dimen/hidden_folder_pin_key_height" />
+
+            <TextView
+                android:id="@+id/pinNumber0"
+                style="@style/HiddenPinKeyStyle"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/pinDelete"
+                style="@style/HiddenPinKeyStyle"
+                android:text="⌫"
+                android:textSize="@dimen/hidden_folder_pin_delete_text_size" />
+        </GridLayout>
+
+        <TextView
+            android:id="@+id/tvForgotPin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/hidden_folder_pin_forgot_margin_top"
+            android:fontFamily="@font/pretendard_regular"
+            android:text="@string/tx_hidden_pin_forgot"
+            android:textColor="@color/color_hidden_folder_gold_60"
+            android:textSize="@dimen/hidden_folder_pin_forgot_size" />
+    </LinearLayout>
+</LinearLayout>

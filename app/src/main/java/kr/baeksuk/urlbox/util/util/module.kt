@@ -18,6 +18,7 @@ import kr.baeksuk.urlbox.domain.ToggleFavoriteUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlLinkUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlMemoUseCase
 import kr.baeksuk.urlbox.domain.UpdateUrlNameUseCase
+import kr.baeksuk.urlbox.domain.SaveHiddenFolderPasswordUseCase
 import kr.baeksuk.urlbox.viewmodel.addlink.AddLinkViewModel
 import kr.baeksuk.urlbox.viewmodel.addlink.capture.CaptureViewModel
 import kr.baeksuk.urlbox.viewmodel.editurl.EditUrlViewModel
@@ -66,6 +67,7 @@ val module = module {
     single { CaptureLoginStateUseCase(get()) }
     single { CaptureSaveUseCase(get(), get()) }
     single { LoginUseCase(get(), get()) }
+    single { SaveHiddenFolderPasswordUseCase(get(), get()) }
     single { UserSessionManager(androidContext()) }
     viewModel { MainViewModel(androidApplication()) }
     viewModel { UrlViewModel(androidApplication(), get(), get(), get()) }

@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import kr.baeksuk.urlbox.data.local.entity.HiddenFolderSecurityEntity
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
@@ -16,8 +17,14 @@ import kr.baeksuk.urlbox.util.util.Converters
 import kr.baeksuk.urlbox.util.util.UrlListInTagConverter
 
 @Database(
-    entities = [UrlEntity::class, UrlBackupEntity::class, TagBackupEntity::class, PreparationTag::class], // ✅ PreparationTag 추가
-    version = 7 // ✅ 버전 증가
+    entities = [
+        UrlEntity::class,
+        UrlBackupEntity::class,
+        TagBackupEntity::class,
+        PreparationTag::class,
+        HiddenFolderSecurityEntity::class
+    ],
+    version = 8
 )
 @TypeConverters(Converters::class)
 abstract class UrlDatabase : RoomDatabase() {
@@ -34,7 +41,14 @@ abstract class UrlDatabase : RoomDatabase() {
                     context.applicationContext,
                     UrlDatabase::class.java, "urlbox_database"
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_4_5, MIGRATION_5_6,MIGRATION_6_7) // ✅ 마이그레이션 추가
+                    .addMigrations(
+                        MIGRATION_1_2,
+                        MIGRATION_2_3,
+                        MIGRATION_4_5,
+                        MIGRATION_5_6,
+                        MIGRATION_6_7,
+                        MIGRATION_7_8
+                    )
                     .build()
                 INSTANCE = instance
                 instance
@@ -121,6 +135,18 @@ abstract class UrlDatabase : RoomDatabase() {
                 database.execSQL("DROP TABLE tag_prepare_history_old")
             }
         }
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS hidden_folder_security (
+                        userId TEXT NOT NULL PRIMARY KEY,
+                        password TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
     }
 }
-

@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_pin_setup_dialog"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/pin_setup_header_padding_horizontal"
+        android:paddingTop="@dimen/pin_setup_header_padding_vertical"
+        android:paddingEnd="@dimen/pin_setup_header_padding_horizontal"
+        android:paddingBottom="@dimen/pin_setup_header_padding_vertical">
+
+        <ImageView
+            android:id="@+id/imgPinHeaderIcon"
+            android:layout_width="@dimen/pin_setup_header_icon_size"
+            android:layout_height="@dimen/pin_setup_header_icon_size"
+            android:src="@drawable/ic_secret_bottom_sheet"
+            app:layout_constraintBottom_toBottomOf="@+id/tvPinHeader"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvPinHeader" />
+
+        <TextView
+            android:id="@+id/tvPinHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/pin_setup_header_title_margin_start"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_pin_setup_header"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/pin_setup_header_title_text_size"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imgPinHeaderIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/btnPinClose"
+            android:layout_width="@dimen/pin_setup_header_close_button_size"
+            android:layout_height="@dimen/pin_setup_header_close_button_size"
+            android:background="@drawable/bg_pin_close_button"
+            android:clickable="true"
+            android:focusable="true"
+            app:layout_constraintBottom_toBottomOf="@+id/tvPinHeader"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvPinHeader">
+
+            <ImageView
+                android:layout_width="@dimen/pin_setup_header_close_icon_size"
+                android:layout_height="@dimen/pin_setup_header_close_icon_size"
+                android:layout_gravity="center"
+                android:contentDescription="@string/tx_cancel"
+                android:src="@drawable/ic_tuto_close" />
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/pin_setup_divider_height"
+        android:background="#EFE6D8" />
+
+    <LinearLayout
+        android:id="@+id/layoutPinEntry"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/pin_setup_entry_padding_horizontal"
+        android:paddingTop="@dimen/pin_setup_entry_padding_top"
+        android:paddingEnd="@dimen/pin_setup_entry_padding_horizontal"
+        android:paddingBottom="@dimen/pin_setup_entry_padding_bottom">
+
+        <TextView
+            android:id="@+id/txPinTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:fontFamily="@font/pretendard_bold"
+            android:textColor="@color/tx_black"
+            android:textSize="@dimen/pin_setup_title_text_size"
+            tools:text="새 비밀번호 설정" />
+
+        <TextView
+            android:id="@+id/txPinDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/pin_setup_description_margin_top"
+            android:fontFamily="@font/pretendard_medium"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/pin_setup_description_text_size"
+            tools:text="사용할 4자리 PIN을 입력하세요" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/pin_setup_dots_margin_top"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/pinDot1"
+                android:layout_width="@dimen/pin_setup_dot_size"
+                android:layout_height="@dimen/pin_setup_dot_size"
+                android:background="@drawable/bg_pin_dot_inactive" />
+
+            <View
+                android:id="@+id/pinDot2"
+                android:layout_width="@dimen/pin_setup_dot_size"
+                android:layout_height="@dimen/pin_setup_dot_size"
+                android:layout_marginStart="@dimen/pin_setup_dot_spacing"
+                android:background="@drawable/bg_pin_dot_inactive" />
+
+            <View
+                android:id="@+id/pinDot3"
+                android:layout_width="@dimen/pin_setup_dot_size"
+                android:layout_height="@dimen/pin_setup_dot_size"
+                android:layout_marginStart="@dimen/pin_setup_dot_spacing"
+                android:background="@drawable/bg_pin_dot_inactive" />
+
+            <View
+                android:id="@+id/pinDot4"
+                android:layout_width="@dimen/pin_setup_dot_size"
+                android:layout_height="@dimen/pin_setup_dot_size"
+                android:layout_marginStart="@dimen/pin_setup_dot_spacing"
+                android:background="@drawable/bg_pin_dot_inactive" />
+        </LinearLayout>
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/pin_setup_keypad_margin_top"
+            android:alignmentMode="alignMargins"
+            android:columnCount="3"
+            android:rowCount="4"
+            android:useDefaultMargins="true">
+
+            <TextView
+                android:id="@+id/pinNumber1"
+                style="@style/PinKeyStyle"
+                android:text="1" />
+
+            <TextView
+                android:id="@+id/pinNumber2"
+                style="@style/PinKeyStyle"
+                android:text="2" />
+
+            <TextView
+                android:id="@+id/pinNumber3"
+                style="@style/PinKeyStyle"
+                android:text="3" />
+
+            <TextView
+                android:id="@+id/pinNumber4"
+                style="@style/PinKeyStyle"
+                android:text="4" />
+
+            <TextView
+                android:id="@+id/pinNumber5"
+                style="@style/PinKeyStyle"
+                android:text="5" />
+
+            <TextView
+                android:id="@+id/pinNumber6"
+                style="@style/PinKeyStyle"
+                android:text="6" />
+
+            <TextView
+                android:id="@+id/pinNumber7"
+                style="@style/PinKeyStyle"
+                android:text="7" />
+
+            <TextView
+                android:id="@+id/pinNumber8"
+                style="@style/PinKeyStyle"
+                android:text="8" />
+
+            <TextView
+                android:id="@+id/pinNumber9"
+                style="@style/PinKeyStyle"
+                android:text="9" />
+
+            <Space
+                android:layout_width="@dimen/pin_key_width"
+                android:layout_height="@dimen/pin_key_height" />
+
+            <TextView
+                android:id="@+id/pinNumber0"
+                style="@style/PinKeyStyle"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/pinDelete"
+                style="@style/PinKeyStyle"
+                android:text="⌫"
+                android:textSize="@dimen/pin_setup_delete_text_size" />
+
+        </GridLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutPinSuccess"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/pin_setup_success_padding_top"
+        android:paddingBottom="@dimen/pin_setup_success_padding_bottom"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="@dimen/pin_setup_success_icon_size"
+            android:layout_height="@dimen/pin_setup_success_icon_size"
+            android:background="@drawable/bg_pin_success_icon">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/pretendard_bold"
+                android:text="✓"
+                android:textColor="@color/app_green"
+                android:textSize="@dimen/pin_setup_success_check_text_size" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pin_setup_success_title_margin_top"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_pin_setup_success_title"
+            android:textColor="@color/tx_black"
+            android:textSize="@dimen/pin_setup_success_title_text_size" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/pin_setup_success_description_margin_top"
+            android:fontFamily="@font/pretendard_medium"
+            android:text="@string/tx_pin_setup_success_description"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/pin_setup_success_description_text_size" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pinStepIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/pin_setup_indicator_margin_bottom"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <View
+            android:id="@+id/pinStepFirst"
+            android:layout_width="@dimen/pin_setup_indicator_active_width"
+            android:layout_height="@dimen/pin_setup_indicator_height"
+            android:background="@drawable/bg_pin_indicator_active" />
+
+        <View
+            android:id="@+id/pinStepSecond"
+            android:layout_width="@dimen/pin_setup_indicator_inactive_size"
+            android:layout_height="@dimen/pin_setup_indicator_inactive_size"
+            android:layout_marginStart="@dimen/pin_setup_indicator_spacing"
+            android:background="@drawable/bg_pin_indicator_inactive" />
+
+    </LinearLayout>
+
+</LinearLayout>

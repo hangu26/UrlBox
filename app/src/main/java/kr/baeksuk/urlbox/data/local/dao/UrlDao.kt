@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import kr.baeksuk.urlbox.data.local.entity.HiddenFolderSecurityEntity
 import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
@@ -157,5 +158,14 @@ interface UrlDao{
 
     @Query("SELECT * FROM tag_prepare_history")
     fun getPreparationTags(): LiveData<List<PreparationTag>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsertHiddenFolderSecurity(entity: HiddenFolderSecurityEntity)
+
+    @Query("SELECT * FROM hidden_folder_security WHERE userId = :userId LIMIT 1")
+    suspend fun getHiddenFolderSecurity(userId: String): HiddenFolderSecurityEntity?
+
+    @Query("DELETE FROM hidden_folder_security WHERE userId = :userId")
+    suspend fun deleteHiddenFolderSecurity(userId: String)
 
 }

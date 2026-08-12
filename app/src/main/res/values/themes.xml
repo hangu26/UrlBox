@@ -43,4 +43,28 @@
         <item name="android:layout_height">@dimen/img_btn_height</item>
     </style>
 
+    <style name="PinKeyStyle">
+        <item name="android:layout_width">@dimen/pin_key_width</item>
+        <item name="android:layout_height">@dimen/pin_key_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_pin_key_button</item>
+        <item name="android:textColor">@color/appBar_title_02</item>
+        <item name="android:textSize">@dimen/pin_key_text_size</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="HiddenPinKeyStyle">
+        <item name="android:layout_width">@dimen/hidden_folder_pin_key_width</item>
+        <item name="android:layout_height">@dimen/hidden_folder_pin_key_height</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_hidden_pin_key</item>
+        <item name="android:textColor">@color/color_hidden_folder_gold</item>
+        <item name="android:textSize">@dimen/hidden_folder_pin_key_text_size</item>
+        <item name="android:fontFamily">@font/pretendard_bold</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
 </resources>

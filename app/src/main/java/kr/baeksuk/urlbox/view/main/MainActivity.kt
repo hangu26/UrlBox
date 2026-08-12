@@ -26,6 +26,7 @@ import kr.baeksuk.urlbox.view.nav.UrlFragment
 import kr.baeksuk.urlbox.view.setting.SettingActivity
 import kr.baeksuk.urlbox.view.tutorial.UpdateTutorialDialogFragment
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
+import kr.baeksuk.urlbox.domain.CaptureLoginStateUseCase
 import org.koin.android.ext.android.inject
 
 class MainActivity : BaseActivity() {
@@ -33,6 +34,7 @@ class MainActivity : BaseActivity() {
     private lateinit var mBinding: ActivityMainBinding
     private val mViewModel: MainViewModel by inject()
     private val sessionManager: UserSessionManager by inject()
+    private val captureLoginStateUseCase: CaptureLoginStateUseCase by inject()
     private var backPressedTime = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +61,7 @@ class MainActivity : BaseActivity() {
         observeViewModel()
         configureBottomNavigation()
         registerTutorialResultListener()
+        registerHiddenFolderResultListener()
         showUpdateTutorialIfNeeded()
         onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
 
@@ -66,6 +69,15 @@ class MainActivity : BaseActivity() {
     private fun initView() {
         mBinding.imgNewUpdate.setOnClickListener {
             showUpdateTutorial()
+        }
+        mBinding.imgSecret.setOnClickListener {
+            lifecycleScope.launchWhenStarted {
+                if (captureLoginStateUseCase()) {
+                    showHiddenFolderBottomSheet()
+                } else {
+                    mViewModel.changeMenu(NavigationMenu.MYPAGE)
+                }
+            }
         }
 
         when (intent.extras?.getString("TARGET_FRAGMENT")) {
@@ -166,6 +178,41 @@ class MainActivity : BaseActivity() {
                 sessionManager.setLastTutorialVersionCode(getCurrentVersionCode())
             }
         }
+    }
+
+    private fun registerHiddenFolderResultListener() {
+        supportFragmentManager.setFragmentResultListener(
+            HiddenFolderBottomSheetDialogFragment.RESULT_KEY,
+            this
+        ) { _, bundle ->
+            val shouldOpenPin = bundle.getBoolean(
+                HiddenFolderBottomSheetDialogFragment.RESULT_OPEN_PIN_SETUP,
+                false
+            )
+            if (shouldOpenPin) {
+                showPinSetupDialog()
+            }
+        }
+    }
+
+    private fun showHiddenFolderBottomSheet() {
+        if (supportFragmentManager.findFragmentByTag(HiddenFolderBottomSheetDialogFragment.TAG) != null) {
+            return
+        }
+        HiddenFolderBottomSheetDialogFragment().show(
+            supportFragmentManager,
+            HiddenFolderBottomSheetDialogFragment.TAG
+        )
+    }
+
+    private fun showPinSetupDialog() {
+        if (supportFragmentManager.findFragmentByTag(PinSetupDialogFragment.TAG) != null) {
+            return
+        }
+        PinSetupDialogFragment().show(
+            supportFragmentManager,
+            PinSetupDialogFragment.TAG
+        )
     }
 
     private fun getCurrentVersionCode(): Int {

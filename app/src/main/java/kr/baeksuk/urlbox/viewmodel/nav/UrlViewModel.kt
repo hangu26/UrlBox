@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.HiddenFolderSecurityEntity
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -117,9 +118,10 @@ class UrlViewModel(
 
             var urlLoaded = false
             var tagLoaded = false
+            var passwordLoaded = false
 
             fun finishSyncIfNeeded() {
-                if (urlLoaded && tagLoaded) {
+                if (urlLoaded && tagLoaded && passwordLoaded) {
                     if (mode == RemoteSyncMode.INSERT || mode == RemoteSyncMode.REFRESH) {
                         viewModelScope.launch {
                             sessionManager.setHomeSyncDone()
@@ -148,6 +150,27 @@ class UrlViewModel(
                 _tagData.removeSource(tagSource)
 
                 tagLoaded = true
+                finishSyncIfNeeded()
+            }
+
+            val passwordSource: LiveData<String?> =
+                loadUserHomeDataUseCase.getHiddenFolderPassword(userId)
+            _tagData.addSource(passwordSource) { password: String? ->
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (password.isNullOrBlank()) {
+                        urlDao.deleteHiddenFolderSecurity(userId)
+                    } else {
+                        urlDao.upsertHiddenFolderSecurity(
+                            HiddenFolderSecurityEntity(
+                                userId = userId,
+                                password = password
+                            )
+                        )
+                    }
+                }
+                _tagData.removeSource(passwordSource)
+
+                passwordLoaded = true
                 finishSyncIfNeeded()
             }
         }
@@ -272,6 +295,3 @@ class UrlViewModel(
     }
 
 }
-
-
-

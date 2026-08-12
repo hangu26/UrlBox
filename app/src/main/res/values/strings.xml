@@ -115,6 +115,24 @@
     <string name="tx_update_link_edt_04">수정 모드가 활성화되면 링크를 편집하고, 키보드의 \n완료(Enter)를 누르면 저장돼요.</string>
     <string name="tx_enter_put">완료(Enter) 입력</string>
     <string name="tx_update_link_edt_finish">완료!</string>
-
+    <string name="tx_hidden_folder">숨김 폴더</string>
+    <string name="tx_hidden_folder_link_count">1개의 링크</string>
+    <string name="tx_no_password">비밀번호가 없어요</string>
+    <string name="tx_no_password_desc">지금은 누구나 숨김 폴더를 열 수 있어요. 설정에서 PIN을 등록하면 잠금이 활성화됩니다.</string>
+    <string name="tx_set_password_now">지금 비밀번호 설정하기</string>
+    <string name="tx_open_anyway">그냥 열기</string>
+    <string name="desc_password_icon">비밀번호</string>
+    <string name="tx_pin_setup_header">비밀번호 설정</string>
+    <string name="tx_pin_create_title">새 비밀번호 설정</string>
+    <string name="tx_pin_create_description">사용할 4자리 PIN을 입력하세요</string>
+    <string name="tx_pin_confirm_title">비밀번호 확인</string>
+    <string name="tx_pin_confirm_description">한 번 더 입력해주세요</string>
+    <string name="tx_pin_setup_success_title">설정 완료!</string>
+    <string name="tx_pin_setup_success_description">새 비밀번호가 저장됐어요</string>
+    <string name="tx_pin_mismatch">비밀번호가 일치하지 않아요. 다시 입력해주세요.</string>
+    <string name="tx_hidden_folder_usage">사용법</string>
+    <string name="tx_hidden_pin_input">PIN 입력</string>
+    <string name="tx_hidden_pin_forgot">비밀번호를 잊으셨나요?</string>
+    <string name="tx_hidden_pin_invalid">PIN이 올바르지 않아요.</string>
 
 </resources>

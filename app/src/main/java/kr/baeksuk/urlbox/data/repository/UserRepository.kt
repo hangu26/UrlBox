@@ -21,6 +21,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kr.baeksuk.urlbox.data.local.entity.HiddenFolderSecurityEntity
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.model.Tag
@@ -79,6 +80,24 @@ class UserRepository(context: Context){
             })
 
         return mutableTag
+    }
+
+    fun getHiddenFolderPassword(userId: String): LiveData<String?> {
+        val passwordReference =
+            FirebaseDatabase.getInstance().reference.child("User").child(userId).child("password")
+
+        val mutablePassword = MutableLiveData<String?>()
+        passwordReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                mutablePassword.postValue(snapshot.getValue(String::class.java))
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                mutablePassword.postValue(null)
+            }
+        })
+
+        return mutablePassword
     }
 
 
@@ -183,6 +202,35 @@ class UserRepository(context: Context){
         if (!snapshot.exists()) {
             userRef.setValue(user).await()
         }
+    }
+
+    suspend fun saveHiddenFolderPassword(userId: String, password: String) {
+        database.child("User")
+            .child(userId)
+            .child("password")
+            .setValue(password)
+            .await()
+
+        urlDao.upsertHiddenFolderSecurity(
+            HiddenFolderSecurityEntity(
+                userId = userId,
+                password = password
+            )
+        )
+    }
+
+    suspend fun syncHiddenFolderPasswordToLocal(userId: String, password: String?) {
+        if (password.isNullOrBlank()) {
+            urlDao.deleteHiddenFolderSecurity(userId)
+            return
+        }
+
+        urlDao.upsertHiddenFolderSecurity(
+            HiddenFolderSecurityEntity(
+                userId = userId,
+                password = password
+            )
+        )
     }
 
     /**

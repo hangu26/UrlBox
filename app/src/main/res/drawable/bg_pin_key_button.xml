@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#FAF8F3" />
+    <stroke
+        android:width="@dimen/pin_key_stroke_width"
+        android:color="#E6DDCD" />
+    <corners android:radius="@dimen/pin_key_corner_radius" />
+</shape>

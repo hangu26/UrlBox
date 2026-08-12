@@ -17,4 +17,6 @@ class LoadUserHomeDataUseCase(
 
     fun getTagData(userId: String) = userRepository.getTagData(userId)
 
+    fun getHiddenFolderPassword(userId: String) = userRepository.getHiddenFolderPassword(userId)
+
 }

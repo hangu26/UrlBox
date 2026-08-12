@@ -88,7 +88,7 @@
     <dimen name="my_page_constraint_margin_top">17dp</dimen>
     <dimen name="my_page_img_margin_top">17dp</dimen>
     <dimen name="tx_guest_email_size">17sp</dimen>
-    <dimen name="my_page_linear_margin_top">10dp</dimen> <!-- 광고 뷰 추가후 변경, 이전은 29dp -->
+    <dimen name="my_page_linear_margin_top">10dp</dimen> <!-- 광고 �?추�???변�? ?�전?�?29dp -->
     <dimen name="my_page_linear_margin_top_02">20dp</dimen>
     <dimen name="padding_bottom_my_page_linear">90dp</dimen>
     <dimen name="my_page_linear_height">90dp</dimen>
@@ -384,5 +384,40 @@
     <dimen name="width_btn_new_update">46dp</dimen>
     <dimen name="height_btn_new_update">25dp</dimen>
     <dimen name="margin_end_btn_new_update">5dp</dimen>
+    <dimen name="margin_start_tx_app_title">22dp</dimen>
+    <dimen name="margin_start_img_new_update">7dp</dimen>
+
+    <dimen name="size_img_feedback">22dp</dimen>
+    <dimen name="size_img_secret">22dp</dimen>
+    <dimen name="margin_end_img_secret">7dp</dimen>
+    <dimen name="margin_end_img_feedback">7dp</dimen>
+
+    <dimen name="size_secret_folder_badge">10dp</dimen>
+    <dimen name="margin_end_secret_folder_badge">-2dp</dimen>
+    <dimen name="margin_top_secret_folder_badge">-2dp</dimen>
+    <dimen name="text_size_secret_folder_badge">6sp</dimen>
+
+    <dimen name="size_secret_password_icon_width">67dp</dimen>
+    <dimen name="size_secret_password_icon_height">74dp</dimen>
+    <dimen name="margin_secret_password_icon">40dp</dimen>
+    <dimen name="corner_radius_hidden_folder_box">18dp</dimen>
+    <dimen name="stroke_width_hidden_folder_box">3dp</dimen>
+
+    <dimen name="size_drag_handle_width">32dp</dimen>
+    <dimen name="size_drag_handle_height">4dp</dimen>
+    <dimen name="margin_drag_handle_bottom">16dp</dimen>
+    <dimen name="size_secret_bottom_sheet_icon">42dp</dimen>
+    <dimen name="margin_icon_start_bottom_sheet">13dp</dimen>
+    <dimen name="text_size_hidden_folder_title">15sp</dimen>
+    <dimen name="text_size_hidden_folder_desc">14sp</dimen>
+    <dimen name="margin_top_hidden_folder_box">20dp</dimen>
+    <dimen name="padding_hidden_folder_box">16dp</dimen>
+    <dimen name="size_password_icon_width">22dp</dimen>
+    <dimen name="size_password_icon_height">24dp</dimen>
+    <dimen name="margin_top_button_area">24dp</dimen>
+    <dimen name="height_hidden_folder_button">48dp</dimen>
+    <dimen name="margin_top_button_open">8dp</dimen>
 
 </resources>
+
+
