@@ -19,6 +19,7 @@ import android.view.Gravity
 import android.graphics.drawable.ColorDrawable
 import android.graphics.Color
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.net.toUri
@@ -70,6 +71,8 @@ class RvUrlAdapter(
     private var filteredIndexedUrls = listOf<IndexedUrl>()
     private var displayItems = listOf<DisplayItem>()
     private var isBackup = false
+    private var isGuestMode = false
+    private var isHiddenMode = false
     private val nativeAdCache =
         object : LinkedHashMap<Int, NativeAd>(MAX_NATIVE_AD_CACHE, 0.75f, true) {}
     private val loadingAdSlots = mutableSetOf<Int>()
@@ -164,8 +167,10 @@ class RvUrlAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setGuestData(url: List<UrlEntity>) {
+        isHiddenMode = false
         isBackup = false
         imgUriList = emptyList()
+        isGuestMode = true
         urlList = url.map { urlEntity ->
             Url(
                 url = urlEntity.urlLink,
@@ -180,16 +185,25 @@ class RvUrlAdapter(
         updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
     }
 
+    fun setGuestMode(isGuest: Boolean) {
+        isGuestMode = isGuest
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     fun setUserBackupData(url: List<UrlBackupEntity>, isLoginBackup: Boolean) {
+        isHiddenMode = false
         isBackup = isLoginBackup
-        val newUrlList = url.sortedByDescending { it.timeStamp }
+        isGuestMode = false
+        val newUrlList = url
+            .filter { !it.hidden }
+            .sortedByDescending { it.timeStamp }
             .map { urlBackupEntity ->
                 Url(
                     url = urlBackupEntity.urlLink,
                     imageKey = urlBackupEntity.imageKey,
                     imgUri = urlBackupEntity.imgUri,
                     favorite = urlBackupEntity.favorite,
+                    hidden = urlBackupEntity.hidden,
                     timeStamp = urlBackupEntity.timeStamp,
                     urlName = urlBackupEntity.urlName,
                     urlMemo = urlBackupEntity.urlMemo,
@@ -205,8 +219,10 @@ class RvUrlAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setLoginData(urlDataList: List<Url>, imgUriList: List<String>, isLoginBackup: Boolean) {
+        isHiddenMode = false
         isBackup = isLoginBackup
         urlList = urlDataList
+            .filter { !it.hidden }
             .sortedByDescending { it.timeStamp }
             .map { url ->
                 Url(
@@ -214,6 +230,7 @@ class RvUrlAdapter(
                     imageKey = url.imageKey,
                     imgUri = url.imgUri,
                     favorite = url.favorite,
+                    hidden = url.hidden,
                     timeStamp = url.timeStamp,
                     urlName = url.urlName,
                     urlMemo = url.urlMemo,
@@ -232,6 +249,7 @@ class RvUrlAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setFavoriteData(url: List<UrlEntity>) {
+        isHiddenMode = false
         isBackup = false
         imgUriList = emptyList()
         urlList = url.map { urlEntity ->
@@ -249,6 +267,7 @@ class RvUrlAdapter(
 
     @SuppressLint("NotifyDataSetChanged")
     fun setUserFavoriteData(url: List<UrlBackupEntity>) {
+        isHiddenMode = false
         isBackup = true
         urlList = url.map { urlBackupEntity ->
             Url(
@@ -266,15 +285,26 @@ class RvUrlAdapter(
         updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun setHiddenData(urlList: List<Url>) {
+        isHiddenMode = true
+        isBackup = true
+        this.urlList = urlList
+        imgUriList = if (urlList.isNotEmpty()) urlList.map { it.imgUri } else emptyList()
+        updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_AD -> AdViewHolder(
                 ItemNativeAdBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             )
 
-            else -> MyViewHolder(
-                ItemUrlListBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            )
+            else -> {
+                val layoutId = if (isHiddenMode) R.layout.item_url_list_hidden else R.layout.item_url_list
+                val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
+                MyViewHolder(view)
+            }
         }
     }
 
@@ -293,10 +323,10 @@ class RvUrlAdapter(
         }
     }
 
-    inner class MyViewHolder(binding: ItemUrlListBinding) : RecyclerView.ViewHolder(binding.root) {
-        private val txUrl = binding.txUrl
-        private val imgView = binding.imgThumbnail
-        private val iconFavorite = binding.iconFavorite
+    inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val txUrl: TextView = itemView.findViewById(R.id.tx_url)
+        private val imgView: ImageView = itemView.findViewById(R.id.img_thumbnail)
+        private val iconFavorite: ImageView = itemView.findViewById(R.id.icon_favorite)
 
 
         fun bind(indexedUrl: IndexedUrl) {
@@ -341,7 +371,27 @@ class RvUrlAdapter(
 
             val actionCopy = popupView.findViewById<View>(R.id.action_copy)
             val actionHide = popupView.findViewById<View>(R.id.action_hide)
+            val actionHideIcon = popupView.findViewById<ImageView>(R.id.action_hide_icon)
+            val actionHideText = popupView.findViewById<TextView>(R.id.action_hide_text)
             val actionDelete = popupView.findViewById<View>(R.id.action_delete)
+
+            // Decide label per item: if the item is already hidden -> show '복원하기', else '숨기기'
+            if (url.hidden) {
+                actionHideText?.text = "복원하기"
+                actionHideIcon?.setImageResource(R.drawable.ic_close_tag)
+                actionHide.contentDescription = "복원하기"
+            } else {
+                actionHideText?.text = "숨기기"
+                actionHideIcon?.setImageResource(R.drawable.ic_lock)
+                actionHide.contentDescription = "숨기기"
+            }
+
+            // 게스트 모드일 때 숨기기 버튼 비활성화
+            if (isGuestMode) {
+                actionHide.alpha = 0.5f
+                actionHide.isEnabled = false
+                actionHide.setOnClickListener(null)
+            }
 
             val popupWidth = dpToPx(100)
             val popupWindow = PopupWindow(popupView, popupWidth, ViewGroup.LayoutParams.WRAP_CONTENT, true)
@@ -390,9 +440,11 @@ class RvUrlAdapter(
                 popupWindow.dismiss()
             }
 
-            actionHide.setOnClickListener {
-                onHideClick(url)
-                popupWindow.dismiss()
+            if (!isGuestMode) {
+                actionHide.setOnClickListener {
+                    onHideClick(url)
+                    popupWindow.dismiss()
+                }
             }
 
             actionDelete.setOnClickListener {
