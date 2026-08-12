@@ -1,5 +1,6 @@
 package kr.baeksuk.urlbox.view.main
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -10,7 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import android.view.Gravity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -18,9 +21,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kr.baeksuk.urlbox.util.base.MyApplication
+import com.google.android.material.snackbar.Snackbar
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.data.local.UrlDatabase
+import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
 import kr.baeksuk.urlbox.util.util.UserSessionManager
+import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
 
 class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
@@ -32,6 +40,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private val sessionManager: UserSessionManager by inject()
+    private val uViewModel: UrlViewModel by inject()
     private val enteredPin = StringBuilder()
     private lateinit var noPasswordLayout: View
     private lateinit var passwordLayout: View
@@ -39,6 +48,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var pinDots: List<View>
     private var storedPin: String? = null
     private lateinit var vibrator: Vibrator
+    private lateinit var adapter: RvUrlAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -104,6 +114,12 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 return@launch
             }
 
+            // If already unlocked in this app process, skip PIN prompt
+            if (MyApplication.hiddenFolderUnlocked) {
+                showUnlockedMode()
+                return@launch
+            }
+
             val password = withContext(Dispatchers.IO) {
                 UrlDatabase.getInstance(requireContext())
                     .urlDao()
@@ -138,6 +154,100 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         noPasswordLayout.visibility = View.GONE
         passwordLayout.visibility = View.GONE
         unlockedLayout.visibility = View.VISIBLE
+        
+        setupHiddenUrlRecyclerView()
+        loadAndDisplayHiddenUrls()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun setupHiddenUrlRecyclerView() {
+        val rvHiddenUrls = unlockedLayout.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvHiddenUrls)
+        
+        if (rvHiddenUrls != null) {
+            adapter = RvUrlAdapter(
+                requireContext(),
+            onDetailClick = { url, txUrl, imgView ->
+                val intent = android.content.Intent(requireContext(), kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity::class.java).apply {
+                    putExtra("title", url.url)
+                    putExtra("imgUri", url.imgUri)
+                    putExtra("imageKey", url.imageKey)
+                    putExtra("isFavorite", url.favorite)
+                    putExtra("timeStamp", url.timeStamp.toString())
+                    putExtra("urlName", url.urlName)
+                    putExtra("urlMemo", url.urlMemo)
+                }
+                startActivity(intent)
+            },
+            onHideClick = { url -> showUrl(url) },
+            onDeleteClick = { }
+        )
+            
+        rvHiddenUrls.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = this@HiddenFolderBottomSheetDialogFragment.adapter
+        }
+        }
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun loadAndDisplayHiddenUrls() {
+        val rvHiddenUrls = unlockedLayout.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvHiddenUrls)
+        val layoutHiddenEmpty = unlockedLayout.findViewById<View>(R.id.layoutHiddenEmpty)
+        val tvDescription = requireView().findViewById<android.widget.TextView>(R.id.tvDescription)
+
+        uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenUrls ->
+            val count = hiddenUrls.size
+
+            // Update header count (cap at 99+)
+            tvDescription?.text = if (count > 99) "99+개의 링크" else "${count}개의 링크"
+
+            if (count == 0) {
+                // show empty state
+                layoutHiddenEmpty?.visibility = View.VISIBLE
+                rvHiddenUrls?.visibility = View.GONE
+            } else {
+                layoutHiddenEmpty?.visibility = View.GONE
+                rvHiddenUrls?.visibility = View.VISIBLE
+
+                val urlList = hiddenUrls.map { urlBackupEntity ->
+                    Url(
+                        url = urlBackupEntity.urlLink,
+                        imageKey = urlBackupEntity.imageKey,
+                        imgUri = urlBackupEntity.imgUri,
+                        favorite = urlBackupEntity.favorite,
+                        timeStamp = urlBackupEntity.timeStamp,
+                        urlName = urlBackupEntity.urlName,
+                        urlMemo = urlBackupEntity.urlMemo,
+                        tag = urlBackupEntity.tag,
+                        hidden = true
+                    )
+                }
+
+                adapter.setHiddenData(urlList)
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    private fun openUrlDetail(url: Url) {
+        // URL 상세 보기 기능
+        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url.url))
+        startActivity(intent)
+    }
+
+    private fun showUrl(url: Url) {
+        lifecycleScope.launch {
+            val session = sessionManager.userSession.first()
+            val userId = session.userId ?: ""
+            
+            if (userId.isNotBlank()) {
+                uViewModel.showUrl(url.url, userId)
+                val t = Toast.makeText(requireContext(), "URL이 표시되었습니다.", Toast.LENGTH_SHORT)
+                t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
+                t.show()
+                loadAndDisplayHiddenUrls()
+            }
+        }
     }
 
     private fun bindPasswordKeypad(root: View) {
@@ -180,14 +290,15 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun verifyPin() {
         val input = enteredPin.toString()
         if (input == storedPin) {
+            // mark unlocked for this app session so user isn't prompted again
+            MyApplication.hiddenFolderUnlocked = true
             showUnlockedMode()
             return
         }
 
         enteredPin.clear()
         updateDots()
-        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_invalid), Toast.LENGTH_SHORT)
-            .show()
+        Snackbar.make(requireView(), getString(R.string.tx_hidden_pin_invalid), Snackbar.LENGTH_SHORT).show()
     }
 
     private fun updateDots() {
