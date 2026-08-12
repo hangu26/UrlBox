@@ -137,4 +137,11 @@
     <string name="tx_hidden_link_empty_title">숨김 링크가 없습니다</string>
     <string name="tx_hidden_link_empty_desc">모든 숨은 링크를 만나요</string>
 
+    <string name="tx_hidden_pin_reset_title">비밀번호를 초기화할까요?</string>
+    <string name="tx_hidden_pin_reset_message">초기화하면 숨김 링크가 모두 삭제됩니다. 계속하시겠어요?</string>
+    <string name="tx_hidden_pin_reset_no_user">사용자 정보가 없습니다.</string>
+    <string name="tx_hidden_pin_reset_done">비밀번호가 초기화되고 숨김 링크가 삭제되었습니다.</string>
+    <string name="tx_hidden_pin_reset_failed">초기화에 실패했습니다. 다시 시도해주세요.</string>
+    <string name="tx_reset">초기화</string>
+
 </resources>

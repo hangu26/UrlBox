@@ -27,11 +27,33 @@ class SettingViewModel(
     private val _requirePinOnHiddenUse = MutableLiveData<Boolean>()
     val requirePinOnHiddenUse = _requirePinOnHiddenUse
 
+    private val _persistShowHiddenOnExit = MutableLiveData<Boolean>()
+    val persistShowHiddenOnExit = _persistShowHiddenOnExit
+
     init {
         viewModelScope.launch {
             sessionManager.requirePinOnHiddenUse.collect { value ->
                 _requirePinOnHiddenUse.postValue(value)
             }
+        }
+        viewModelScope.launch {
+            sessionManager.persistShowHiddenOnExit.collect { value ->
+                _persistShowHiddenOnExit.postValue(value)
+            }
+        }
+    }
+
+    fun setRequirePinOnHiddenUse(value: Boolean) {
+        viewModelScope.launch {
+            sessionManager.setRequirePinOnHiddenUse(value)
+            _requirePinOnHiddenUse.value = value
+        }
+    }
+
+    fun setPersistShowHiddenOnExit(value: Boolean) {
+        viewModelScope.launch {
+            sessionManager.setPersistShowHiddenOnExit(value)
+            _persistShowHiddenOnExit.value = value
         }
     }
 
@@ -82,13 +104,6 @@ class SettingViewModel(
 
     fun clearFeedbackDestination() {
         _feedbackDestination.value = null
-    }
-
-    fun setRequirePinOnHiddenUse(value: Boolean) {
-        viewModelScope.launch {
-            sessionManager.setRequirePinOnHiddenUse(value)
-            _requirePinOnHiddenUse.value = value
-        }
     }
 
 }

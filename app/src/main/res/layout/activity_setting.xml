@@ -299,6 +299,59 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_top_in_setting_constraint"
+                    >
+
+                    <ImageView
+                        android:id="@+id/img_persist_hidden"
+                        android:layout_width="@dimen/width_height_icon_setting_btn"
+                        android:layout_height="@dimen/width_height_icon_setting_btn"
+                        android:src="@drawable/icon_app_version"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tx_persist_hidden"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_start_between_tx_in_setting"
+                        android:fontFamily="@font/pretendard_medium"
+                        android:text="앱 종료 시 숨김 상태 유지"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/tx_btn_in_setting_01"
+                        app:layout_constraintBottom_toTopOf="@+id/tx_persist_hidden_detail"
+                        app:layout_constraintStart_toEndOf="@+id/img_persist_hidden"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tx_persist_hidden_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_start_between_tx_in_setting"
+                        android:fontFamily="@font/pretendard_regular"
+                        android:text="토글한 상태를 앱을 종료했다가 켜면 \n그대로 유지합니다"
+                        android:textColor="@color/appBar_title_02"
+                        android:textSize="@dimen/tx_btn_in_setting_02"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/img_persist_hidden"
+                        app:layout_constraintTop_toBottomOf="@+id/tx_persist_hidden" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switch_persist_hidden"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{viewmodel.persistShowHiddenOnExit}"
+                        android:onClick="@{(v) -> viewmodel.setPersistShowHiddenOnExit(((android.widget.CompoundButton)v).isChecked)}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin_top_in_setting_constraint"
                     android:onClick="@{() -> viewmodel.btnReview()}">
 
                     <ImageView

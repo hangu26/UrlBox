@@ -238,6 +238,13 @@ class UserRepository(context: Context){
         urlDao.deleteAllHiddenFolderSecurity()
     }
 
+    suspend fun deleteHiddenFolderPassword(userId: String) {
+        // remove password from Firebase
+        database.child("User").child(userId).child("password").removeValue().await()
+        // remove local copy
+        urlDao.deleteHiddenFolderSecurity(userId)
+    }
+
     /**
      * 2. 전체 데이터 저장 (유저 정보 + URL 리스트 + 이미지 파일)
      */

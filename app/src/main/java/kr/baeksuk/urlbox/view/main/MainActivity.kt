@@ -69,14 +69,32 @@ class MainActivity : BaseActivity() {
         registerTutorialResultListener()
         registerHiddenFolderResultListener()
 
-        // Ensure hidden-list toggle is false on fresh app start (do not persist temporary toggle)
-        isShowingHidden = false
-        AppEvent.showHiddenState.value = false
-        uViewModel.setShowHiddenUrls(false)
+        // Restore hidden-list toggle depending on user's 'persist on exit' setting
+        lifecycleScope.launchWhenStarted {
+            try {
+                val persist = sessionManager.persistShowHiddenOnExit.first()
+                if (persist) {
+                    val last = sessionManager.lastShowHiddenState.first()
+                    isShowingHidden = last
+                    AppEvent.showHiddenState.value = isShowingHidden
+                    uViewModel.setShowHiddenUrls(isShowingHidden)
+                    updateHiddenFolderIcon()
+                } else {
+                    // default to not showing hidden on fresh start
+                    isShowingHidden = false
+                    AppEvent.showHiddenState.value = false
+                    uViewModel.setShowHiddenUrls(false)
+                }
+            } catch (e: Exception) {
+                // fallback: hide hidden urls
+                isShowingHidden = false
+                AppEvent.showHiddenState.value = false
+                uViewModel.setShowHiddenUrls(false)
+            }
+        }
 
         showUpdateTutorialIfNeeded()
 
-        // Prompt at startup only if user enabled the setting (default: off)
         lifecycleScope.launchWhenStarted {
             try {
                 val requireAtStart = sessionManager.requirePinOnHiddenUse.first()
@@ -114,14 +132,30 @@ class MainActivity : BaseActivity() {
             lifecycleScope.launchWhenStarted {
                 if (!captureLoginStateUseCase()) {
                     mViewModel.changeMenu(NavigationMenu.MYPAGE)
+                    Toast.makeText(this@MainActivity, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show()
                     return@launchWhenStarted
                 }
 
                 val requirePin = sessionManager.requirePinOnHiddenUse.first()
                 kr.baeksuk.urlbox.util.util.secretLog("MainActivity - secret button click: requirePin=$requirePin, unlocked=${kr.baeksuk.urlbox.util.base.MyApplication.hiddenFolderUnlocked}, promptShown=${kr.baeksuk.urlbox.util.base.MyApplication.hiddenPinPromptShown}")
-                if (requirePin && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenFolderUnlocked && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenPinPromptShown) {
-                    // show PIN sheet first; user will unlock and can then open
-                    pendingToggle = false // normal open, not toggle
+
+                val passwordExists = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val session = sessionManager.userSession.first()
+                        val userId = session.userId?.takeIf { it.isNotBlank() }
+                        if (userId.isNullOrBlank()) return@withContext false
+                        val pwd = kr.baeksuk.urlbox.data.local.UrlDatabase.getInstance(this@MainActivity)
+                            .urlDao()
+                            .getHiddenFolderSecurity(userId)
+                            ?.password
+                        !pwd.isNullOrBlank()
+                    } catch (e: Exception) {
+                        false
+                    }
+                }
+
+                if (requirePin && passwordExists && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenFolderUnlocked && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenPinPromptShown) {
+                    pendingToggle = false
                     HiddenFolderBottomSheetDialogFragment().show(supportFragmentManager, HiddenFolderBottomSheetDialogFragment.TAG)
                 } else {
                     showHiddenFolderBottomSheet()
@@ -138,8 +172,23 @@ class MainActivity : BaseActivity() {
 
                 val requirePin = sessionManager.requirePinOnHiddenUse.first()
                 kr.baeksuk.urlbox.util.util.secretLog("MainActivity - secret button long-press: requirePin=$requirePin, unlocked=${kr.baeksuk.urlbox.util.base.MyApplication.hiddenFolderUnlocked}, promptShown=${kr.baeksuk.urlbox.util.base.MyApplication.hiddenPinPromptShown}")
-                if (requirePin && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenFolderUnlocked && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenPinPromptShown) {
-                    // user long-pressed toggle but PIN is required first -> set pendingToggle and show PIN sheet
+
+                val passwordExists = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+                    try {
+                        val session = sessionManager.userSession.first()
+                        val userId = session.userId?.takeIf { it.isNotBlank() }
+                        if (userId.isNullOrBlank()) return@withContext false
+                        val pwd = kr.baeksuk.urlbox.data.local.UrlDatabase.getInstance(this@MainActivity)
+                            .urlDao()
+                            .getHiddenFolderSecurity(userId)
+                            ?.password
+                        !pwd.isNullOrBlank()
+                    } catch (e: Exception) {
+                        false
+                    }
+                }
+
+                if (requirePin && passwordExists && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenFolderUnlocked && !kr.baeksuk.urlbox.util.base.MyApplication.hiddenPinPromptShown) {
                     pendingToggle = true
                     HiddenFolderBottomSheetDialogFragment().show(supportFragmentManager, HiddenFolderBottomSheetDialogFragment.TAG)
                 } else {
@@ -148,9 +197,16 @@ class MainActivity : BaseActivity() {
                     android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                         isShowingHidden = !isShowingHidden
                         updateHiddenFolderIcon()
-                        // update shared state so new collectors can read current value
                         AppEvent.showHiddenState.value = isShowingHidden
                         AppEvent.onHiddenToggle.tryEmit(isShowingHidden)
+                        // persist last state in background thread
+                        java.util.concurrent.Executors.newSingleThreadExecutor().execute {
+                            kotlinx.coroutines.runBlocking {
+                                try {
+                                    sessionManager.setLastShowHiddenState(isShowingHidden)
+                                } catch (_: Exception) {}
+                            }
+                        }
                     }, 300)
                 }
             }
@@ -203,7 +259,6 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        // Observe showHiddenUrls state to update icon
         uViewModel.showHiddenUrls.observe(this@MainActivity) { isShowing ->
             updateHiddenFolderIcon()
         }

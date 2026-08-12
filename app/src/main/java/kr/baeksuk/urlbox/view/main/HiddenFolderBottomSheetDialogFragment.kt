@@ -45,6 +45,8 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private val sessionManager: UserSessionManager by inject()
     private val uViewModel: UrlViewModel by inject()
+    private val userRepo: kr.baeksuk.urlbox.data.repository.UserRepository by inject()
+    private val urlRepo: kr.baeksuk.urlbox.data.repository.UrlRepository by inject()
     private val enteredPin = StringBuilder()
     private lateinit var noPasswordLayout: View
     private lateinit var passwordLayout: View
@@ -96,6 +98,44 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         bindPasswordKeypad(view)
         loadPasswordState()
+
+        // Always update header description count whenever hidden urls change
+        val headerDescription = view.findViewById<android.widget.TextView>(R.id.tvDescription)
+        uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenUrls ->
+            val count = hiddenUrls?.size ?: 0
+            headerDescription?.text = if (count > 99) "99+개의 링크" else "${count}개의 링크"
+        }
+
+        view.findViewById<View>(R.id.tvForgotPin).setOnClickListener {
+            // show confirmation dialog and on confirm reset PIN and delete hidden urls
+            val ctx = requireContext()
+            androidx.appcompat.app.AlertDialog.Builder(ctx)
+                .setTitle(getString(R.string.tx_hidden_pin_reset_title))
+                .setMessage(getString(R.string.tx_hidden_pin_reset_message))
+                .setNegativeButton(getString(R.string.tx_cancel)) { dialog, _ -> dialog.dismiss() }
+                .setPositiveButton(getString(R.string.tx_reset)) { _, _ ->
+                    // perform reset
+                    lifecycleScope.launch {
+                        val session = sessionManager.userSession.first()
+                        val userId = session.userId ?: ""
+                        if (userId.isBlank()) {
+                        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_no_user), Toast.LENGTH_SHORT).show()
+                        return@launch
+                        }
+
+                        try {
+                        userRepo.deleteHiddenFolderPassword(userId)
+                        urlRepo.deleteAllHiddenUrls(userId)
+
+                        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_done), Toast.LENGTH_SHORT).show()
+                        showNoPasswordMode()
+                        } catch (e: Exception) {
+                        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+                .show()
+        }
     }
 
     override fun onStart() {

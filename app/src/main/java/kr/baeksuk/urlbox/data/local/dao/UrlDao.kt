@@ -183,4 +183,10 @@ interface UrlDao{
 
     @Query("SELECT * FROM url_backup_history WHERE hidden = 1 ORDER BY id DESC")
     fun getHiddenUrlBackups(): LiveData<List<UrlBackupEntity>>
+
+    @Query("DELETE FROM url_backup_history WHERE hidden = 1")
+    suspend fun deleteAllHiddenUrlBackups()
+
+    @Query("DELETE FROM url_history WHERE hidden = 1")
+    suspend fun deleteAllHiddenUrls()
 }

@@ -132,6 +132,48 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     fun getPreparationTags(): LiveData<List<PreparationTag>> = urlDao.getPreparationTags()
 
     /** 파이어베이스에 있는 데이터 url 에 태그 추가 함수 **/
+
+    /** Delete all hidden URLs for a user (Firebase + Room + Storage) */
+    fun deleteAllHiddenUrls(userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val userUrlRef = database.child("User").child(userId).child("url")
+                val snapshot = userUrlRef.get().await()
+                snapshot.children.forEach { childSnapshot ->
+                    val hiddenVal = childSnapshot.child("hidden").getValue(Boolean::class.java) ?: false
+                    if (hiddenVal) {
+                        // delete associated image from Firebase Storage if imageKey exists
+                        try {
+                            val imageKey = childSnapshot.child("imageKey").getValue(String::class.java) ?: ""
+                            if (!imageKey.isNullOrBlank()) {
+                                val storageRef = FirebaseStorage.getInstance().reference.child("images").child(userId).child("$imageKey.png")
+                                try {
+                                    storageRef.delete().await()
+                                } catch (se: Exception) {
+                                    // Log but continue deleting DB record
+                                    Log.e("UrlRepository", "Failed to delete storage image for key=$imageKey: ${se.message}")
+                                }
+                            }
+                        } catch (ie: Exception) {
+                            Log.e("UrlRepository", "Error checking imageKey for hidden url: ${ie.message}")
+                        }
+
+                        // remove from Firebase DB
+                        try {
+                            childSnapshot.ref.removeValue().await()
+                        } catch (de: Exception) {
+                            Log.e("UrlRepository", "Failed to remove hidden url DB node: ${de.message}")
+                        }
+                    }
+                }
+                // remove local hidden entries
+                urlDao.deleteAllHiddenUrlBackups()
+                urlDao.deleteAllHiddenUrls()
+            } catch (e: Exception) {
+                Log.e("UrlRepository", "Failed to delete hidden urls: ${e.message}")
+            }
+        }
+    }
     private fun insertUserTagInFirebase(userTag: UserTags, urlTitle: String, userId: String) {
 
         val userTagRef: DatabaseReference = database.child("User").child(userId).child("url")

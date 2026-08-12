@@ -32,11 +32,23 @@ class UserSessionManager(private val context: Context) {
         private val KEY_LAST_RELEASE_NOTE_ID = stringPreferencesKey("lastReleaseNoteId")
         private val KEY_LAST_TUTORIAL_VERSION_CODE = intPreferencesKey("lastTutorialVersionCode")
         private val KEY_REQUIRE_PIN_ON_HIDDEN_USE = booleanPreferencesKey("require_pin_on_hidden_use")
+        private val KEY_PERSIST_SHOW_HIDDEN_ON_EXIT = booleanPreferencesKey("persist_show_hidden_on_exit")
+        private val KEY_LAST_SHOW_HIDDEN_STATE = booleanPreferencesKey("last_show_hidden_state")
     }
 
     // Require PIN on first hidden-folder use by default (no settings toggle)
     val requirePinOnHiddenUse: Flow<Boolean> = context.dataStore.data.map { pref ->
         pref[KEY_REQUIRE_PIN_ON_HIDDEN_USE] ?: true
+    }
+
+    // Persist showing hidden URLs across app restarts if user enabled
+    val persistShowHiddenOnExit: Flow<Boolean> = context.dataStore.data.map { pref ->
+        pref[KEY_PERSIST_SHOW_HIDDEN_ON_EXIT] ?: false
+    }
+
+    // Last recorded showHidden state (stored on toggle)
+    val lastShowHiddenState: Flow<Boolean> = context.dataStore.data.map { pref ->
+        pref[KEY_LAST_SHOW_HIDDEN_STATE] ?: false
     }
 
     val userId: Flow<String?> = context.dataStore.data.map { pref ->
@@ -150,6 +162,18 @@ class UserSessionManager(private val context: Context) {
     suspend fun setRequirePinOnHiddenUse(required: Boolean) {
         context.dataStore.edit { pref ->
             pref[KEY_REQUIRE_PIN_ON_HIDDEN_USE] = required
+        }
+    }
+
+    suspend fun setPersistShowHiddenOnExit(value: Boolean) {
+        context.dataStore.edit { pref ->
+            pref[KEY_PERSIST_SHOW_HIDDEN_ON_EXIT] = value
+        }
+    }
+
+    suspend fun setLastShowHiddenState(value: Boolean) {
+        context.dataStore.edit { pref ->
+            pref[KEY_LAST_SHOW_HIDDEN_STATE] = value
         }
     }
 
