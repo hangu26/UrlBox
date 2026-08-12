@@ -168,6 +168,16 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         tagTouchHelper.attachToRecyclerView(uBinding.rvTags)
     }
 
+    // Called by MainActivity to toggle showing hidden URLs in the main list
+    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
+        val current = uViewModel.urlData.value
+        val urlDataList = current?.first ?: emptyList()
+        val imgUriList = current?.second ?: emptyList()
+
+        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
+        adapter.notifyDataSetChanged()
+    }
+
     /** 로딩 상태 observe **/
     private fun observeLoading() {
         uViewModel.isLoading.observe(viewLifecycleOwner) { updateLoadingState() }
@@ -305,13 +315,16 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             adapter.notifyDataSetChanged()
         }
 +
++    // Called by MainActivity to toggle showing hidden URLs in the main list
++    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
 +        val current = uViewModel.urlData.value
 +        val urlDataList = current?.first ?: emptyList()
 +        val imgUriList = current?.second ?: emptyList()
 +
++        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
 +        adapter.notifyDataSetChanged()
      }
-        }
+
 
         vm.tagData.observe(viewLifecycleOwner) { tag ->
 
@@ -333,16 +346,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 activity?.finish()
             }
         }
-    }
-
-    // Called by MainActivity to toggle showing hidden URLs in the main list
-    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
-        val current = uViewModel.urlData.value
-        val urlDataList = current?.first ?: emptyList()
-        val imgUriList = current?.second ?: emptyList()
-
-        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
-        adapter.notifyDataSetChanged()
     }
 
     private fun openUrlDetail(url: Url, txUrl: View, imgView: View) {
