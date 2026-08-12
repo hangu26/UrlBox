@@ -186,6 +186,7 @@ class UrlViewModel(
                 imageKey = url.imageKey,
                 imgUri = imgUri,
                 favorite = url.favorite,
+                hidden = url.hidden,
                 timeStamp = url.timeStamp,
                 urlName = url.urlName,
                 urlMemo = url.urlMemo,
@@ -306,6 +307,32 @@ class UrlViewModel(
                 _repo.deleteGuestData(url.url)
             }
         }
+    }
+
+    /** hideUrl - 숨기기 기능 */
+    fun hideUrl(url: Url) {
+        viewModelScope.launch {
+            val session = sessionManager.userSession.first()
+            val userId = session.userId ?: ""
+
+            if (userId.isNotBlank() && url.url.isNotBlank()) {
+                _repo.hideUrl(url.url, userId)
+            }
+        }
+    }
+
+    /** showUrl - 숨겨진 URL 표시 */
+    fun showUrl(url: String, userId: String) {
+        viewModelScope.launch {
+            if (userId.isNotBlank() && url.isNotBlank()) {
+                _repo.showUrl(url, userId)
+            }
+        }
+    }
+
+    /** getHiddenUrls - 숨겨진 URL 목록 조회 */
+    fun getHiddenUrls(): LiveData<List<UrlBackupEntity>> {
+        return _repo.getHiddenUrl()
     }
 
 }
