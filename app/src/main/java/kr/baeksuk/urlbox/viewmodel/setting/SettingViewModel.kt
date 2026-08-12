@@ -6,6 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.domain.feedback.CheckAdminAccessUseCase
+import kr.baeksuk.urlbox.util.util.UserSessionManager
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 sealed class FeedbackDestination {
     object UserForm : FeedbackDestination()
@@ -14,11 +17,23 @@ sealed class FeedbackDestination {
 
 class SettingViewModel(
     application: Application,
-    private val checkAdminAccessUseCase: CheckAdminAccessUseCase
+    private val checkAdminAccessUseCase: CheckAdminAccessUseCase,
+    private val sessionManager: UserSessionManager
 ) : AndroidViewModel(application) {
 
     private val _btnCloseState = MutableLiveData<Boolean>()
     val btnCloseState = _btnCloseState
+
+    private val _requirePinOnHiddenUse = MutableLiveData<Boolean>()
+    val requirePinOnHiddenUse = _requirePinOnHiddenUse
+
+    init {
+        viewModelScope.launch {
+            sessionManager.requirePinOnHiddenUse.collect { value ->
+                _requirePinOnHiddenUse.postValue(value)
+            }
+        }
+    }
 
     private val _btnLanguageState = MutableLiveData<Boolean>()
     val btnLanguageState = _btnLanguageState
@@ -67,6 +82,13 @@ class SettingViewModel(
 
     fun clearFeedbackDestination() {
         _feedbackDestination.value = null
+    }
+
+    fun setRequirePinOnHiddenUse(value: Boolean) {
+        viewModelScope.launch {
+            sessionManager.setRequirePinOnHiddenUse(value)
+            _requirePinOnHiddenUse.value = value
+        }
     }
 
 }

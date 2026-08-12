@@ -36,7 +36,9 @@ import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.UserTags
+import kr.baeksuk.urlbox.util.util.AppEvent
 import kr.baeksuk.urlbox.util.util.ImgUriListData
+import kr.baeksuk.urlbox.util.util.secretLog
 
 class RvUrlAdapter(
     ctx: Context,
@@ -73,7 +75,7 @@ class RvUrlAdapter(
     private var isBackup = false
     private var isGuestMode = false
     private var isHiddenMode = false
-    private var showHiddenInMain = false  // toggle flag for showing/hiding hidden URLs in main list
+    private var hiddenUrlsList = listOf<Url>()
     private val nativeAdCache =
         object : LinkedHashMap<Int, NativeAd>(MAX_NATIVE_AD_CACHE, 0.75f, true) {}
     private val loadingAdSlots = mutableSetOf<Int>()
@@ -167,12 +169,6 @@ class RvUrlAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun toggleShowHiddenInMain() {
-        showHiddenInMain = !showHiddenInMain
-        notifyDataSetChanged()
-    }
-
-    @SuppressLint("NotifyDataSetChanged")
     fun setGuestData(url: List<UrlEntity>) {
         isHiddenMode = false
         isBackup = false
@@ -202,7 +198,7 @@ class RvUrlAdapter(
         isBackup = isLoginBackup
         isGuestMode = false
         val newUrlList = url
-            .filter { !it.hidden }
+                .let { list -> if (AppEvent.showHiddenState.value) list else list.filter { !it.hidden } }
             .sortedByDescending { it.timeStamp }
             .map { urlBackupEntity ->
                 Url(
@@ -225,10 +221,11 @@ class RvUrlAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setLoginData(urlDataList: List<Url>, imgUriList: List<String>, isLoginBackup: Boolean, includeHidden: Boolean = false) {
+    fun setLoginData(urlDataList: List<Url>, imgUriList: List<String>, isLoginBackup: Boolean) {
         isHiddenMode = false
         isBackup = isLoginBackup
         urlList = urlDataList
+            .filter { AppEvent.showHiddenState.value || !it.hidden }
             .sortedByDescending { it.timeStamp }
             .map { url ->
                 Url(
@@ -300,6 +297,35 @@ class RvUrlAdapter(
         updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun addHiddenUrls(hiddenUrls: List<Url>) {
+        if (hiddenUrls.isEmpty()) {
+            secretLog("RvUrlAdapter - addHiddenUrls: No hidden URLs to add")
+            return
+        }
+        secretLog("RvUrlAdapter - addHiddenUrls: Current urlList size: ${urlList.size}, Hidden URLs: ${hiddenUrls.size}")
+        hiddenUrlsList = hiddenUrls
+        // 기존 리스트와 hidden URL을 합치되, 중복을 제거
+        val combinedList = urlList + hiddenUrls
+        val uniqueUrls = combinedList.distinctBy { it.url }.sortedByDescending { it.timeStamp }
+        urlList = uniqueUrls
+        Log.e("addHiddenUrls", "New urlList size: ${urlList.size}")
+        imgUriList = if (uniqueUrls.isNotEmpty()) uniqueUrls.map { it.imgUri } else emptyList()
+        updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun removeHiddenUrls() {
+        if (hiddenUrlsList.isEmpty()) return
+        val newUrlList = urlList.filter { url -> 
+            !hiddenUrlsList.any { it.url == url.url } 
+        }
+        hiddenUrlsList = emptyList()
+        urlList = newUrlList
+        imgUriList = if (newUrlList.isNotEmpty()) newUrlList.map { it.imgUri } else emptyList()
+        updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_AD -> AdViewHolder(
@@ -337,10 +363,6 @@ class RvUrlAdapter(
 
         fun bind(indexedUrl: IndexedUrl) {
             val url = indexedUrl.url
-            
-            // Show/hide based on hidden status and toggle flag
-            itemView.visibility = if (url.hidden && !showHiddenInMain) View.GONE else View.VISIBLE
-            
             val spannableString = SpannableString(url.urlName.toString()).apply {
                 setSpan(
                     UnderlineSpan(),

@@ -2,6 +2,7 @@ package kr.baeksuk.urlbox.view.main
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -38,6 +39,8 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         const val TAG = "HiddenFolderBottomSheetDialogFragment"
         const val RESULT_KEY = "hidden_folder_bottom_sheet_result"
         const val RESULT_OPEN_PIN_SETUP = "open_pin_setup"
+        const val RESULT_UNLOCKED = "unlocked"
+        const val RESULT_CANCELLED = "cancelled"
     }
 
     private val sessionManager: UserSessionManager by inject()
@@ -50,6 +53,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var storedPin: String? = null
     private lateinit var vibrator: Vibrator
     private lateinit var adapter: RvUrlAdapter
+    private var resultSent: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -82,6 +86,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 RESULT_KEY,
                 Bundle().apply { putBoolean(RESULT_OPEN_PIN_SETUP, true) }
             )
+            resultSent = true
             dismissAllowingStateLoss()
         }
 
@@ -293,6 +298,9 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         if (input == storedPin) {
             // mark unlocked for this app session so user isn't prompted again
             MyApplication.hiddenFolderUnlocked = true
+            // notify host that unlock succeeded
+            parentFragmentManager.setFragmentResult(RESULT_KEY, android.os.Bundle().apply { putBoolean(RESULT_UNLOCKED, true) })
+            resultSent = true
             showUnlockedMode()
             return
         }
@@ -325,7 +333,17 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
             )
         }
     }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        // If no result was sent (user dismissed/closed without unlocking or choosing setup), emit cancelled
+        if (!resultSent) {
+            parentFragmentManager.setFragmentResult(RESULT_KEY, Bundle().apply { putBoolean(RESULT_CANCELLED, true) })
+            resultSent = true
+        }
+    }
 }
+
 
 
 

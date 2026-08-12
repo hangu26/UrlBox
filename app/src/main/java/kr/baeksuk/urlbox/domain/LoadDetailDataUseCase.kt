@@ -26,8 +26,9 @@ class LoadDetailDataUseCase(
                             timeStamp = entity.timeStamp,
                             urlName = entity.urlName,
                             urlMemo = entity.urlMemo,
-                            tag = entity.tag
-                        )
+                        tag = entity.tag,
+                        hidden = entity.hidden == true
+                    )
                     }
                 }
             } else {

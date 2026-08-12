@@ -11,6 +11,8 @@ import kr.baeksuk.urlBox.databinding.ItemThumbnailListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.AppEvent
+import kr.baeksuk.urlbox.util.util.secretLog
 
 class RvThumbnailAdapter(
     ctx: Context,
@@ -24,6 +26,7 @@ class RvThumbnailAdapter(
     private var thumbnailList = listOf<Url>()
     private var imgUriList = listOf<String>()
     private var isBackup = false
+    private var hiddenUrlsList = listOf<Url>()
 
     init {
         setHasStableIds(true)
@@ -53,7 +56,9 @@ class RvThumbnailAdapter(
     fun setUserBackupData(url: List<UrlBackupEntity>, isLoginBackup: Boolean) {
 
         isBackup = isLoginBackup
-        thumbnailList = url.sortedByDescending { it.timeStamp }
+        // 기본적으로 숨김 URL은 표시하지 않음, 단 showHiddenState가 켜져 있으면 모두 포함
+        val filtered = if (AppEvent.showHiddenState.value) url else url.filter { it.hidden != true }
+        thumbnailList = filtered.sortedByDescending { it.timeStamp }
             .map { urlBackupEntity ->
                 Url(
                     url = urlBackupEntity.urlLink,
@@ -64,11 +69,31 @@ class RvThumbnailAdapter(
                 )
 
             }
-        imgUriList = url.sortedByDescending { it.timeStamp }
+        imgUriList = filtered.sortedByDescending { it.timeStamp }
             .map { it.imgUri }
 
         notifyDataSetChanged()
 
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun addHiddenUrls(hiddenUrls: List<Url>) {
+        if (hiddenUrls.isEmpty()) return
+        hiddenUrlsList = hiddenUrls
+        val combined = (thumbnailList + hiddenUrls).distinctBy { it.url }.sortedByDescending { it.timeStamp }
+        thumbnailList = combined
+        imgUriList = if (combined.isNotEmpty()) combined.map { it.imgUri } else emptyList()
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun removeHiddenUrls() {
+        if (hiddenUrlsList.isEmpty()) return
+        val newList = thumbnailList.filter { item -> hiddenUrlsList.none { it.url == item.url } }
+        hiddenUrlsList = emptyList()
+        thumbnailList = newList
+        imgUriList = if (newList.isNotEmpty()) newList.map { it.imgUri } else emptyList()
+        notifyDataSetChanged()
     }
 
     override fun getItemId(position: Int): Long {

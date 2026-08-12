@@ -35,6 +35,8 @@ import kr.baeksuk.urlbox.viewmodel.nav.StartMode
 import kr.baeksuk.urlbox.viewmodel.nav.UrlDataViewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
+import kr.baeksuk.urlbox.util.util.AppEvent
+import kr.baeksuk.urlbox.util.util.secretLog
 import kotlin.getValue
 
 class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
@@ -48,6 +50,9 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
     private var urlBackupObserved = false
     private var tagBackupObserved = false
+    private var hiddenUrlsObserved = false
+    private var isShowingHiddenLocal = false
+    private var cachedHiddenBackups: List<kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity> = emptyList()
     private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -73,6 +78,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         initViewType()
         setupRecyclerViews()
         observeLoading()
+        observeHiddenUrls()
         observeViewModel()
 
         val beforeActivity = activity?.intent?.extras?.getString("activity") ?: ""
@@ -168,15 +174,81 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         tagTouchHelper.attachToRecyclerView(uBinding.rvTags)
     }
 
-    // Called by MainActivity to toggle showing hidden URLs in the main list
-    fun toggleHiddenVisibility() {
-        adapter.toggleShowHiddenInMain()
-    }
-
     /** 로딩 상태 observe **/
     private fun observeLoading() {
         uViewModel.isLoading.observe(viewLifecycleOwner) { updateLoadingState() }
         uViewModel.isTagLoading.observe(viewLifecycleOwner) { updateLoadingState() }
+    }
+
+    /** 숨겨진 URL 관찰 **/
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeHiddenUrls() {
+        if (hiddenUrlsObserved) return
+        hiddenUrlsObserved = true
+
+        // use StateFlow as single source of truth for toggle events
+        val initialShow = AppEvent.showHiddenState.value
+        secretLog("UrlFragment - initial showHiddenState: $initialShow")
+        // set local flag so LiveData observer will add hidden items when they arrive
+        isShowingHiddenLocal = initialShow
+
+        lifecycleScope.launchWhenStarted {
+            AppEvent.showHiddenState.collect { isShowing: Boolean ->
+                secretLog("UrlFragment - onShowHiddenState: $isShowing")
+                isShowingHiddenLocal = isShowing
+                if (isShowing) {
+                    val source = if (cachedHiddenBackups.isNotEmpty()) cachedHiddenBackups else (uViewModel.getHiddenUrls().value ?: emptyList())
+                    secretLog("UrlFragment - source hidden count: ${source.size}")
+                    if (source.isNotEmpty()) {
+                        val hiddenUrlList = source.map { urlBackupEntity ->
+                            Url(
+                                url = urlBackupEntity.urlLink,
+                                imageKey = urlBackupEntity.imageKey,
+                                imgUri = urlBackupEntity.imgUri,
+                                favorite = urlBackupEntity.favorite,
+                                timeStamp = urlBackupEntity.timeStamp,
+                                urlName = urlBackupEntity.urlName,
+                                urlMemo = urlBackupEntity.urlMemo,
+                                tag = urlBackupEntity.tag,
+                                hidden = true
+                            )
+                        }
+                        secretLog("UrlFragment - adding hidden URLs: ${hiddenUrlList.size}")
+                        adapter.addHiddenUrls(hiddenUrlList)
+                        adapter.notifyDataSetChanged()
+                    } else {
+                        secretLog("UrlFragment - no hidden urls in source")
+                    }
+                } else {
+                    adapter.removeHiddenUrls()
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
+
+        // Always observe hidden urls to keep cache up to date
+        uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenUrls ->
+            secretLog("UrlFragment - Hidden URLs count: ${hiddenUrls.size}")
+            cachedHiddenBackups = hiddenUrls
+            if (isShowingHiddenLocal && hiddenUrls.isNotEmpty()) {
+                val hiddenUrlList = hiddenUrls.map { urlBackupEntity ->
+                    Url(
+                        url = urlBackupEntity.urlLink,
+                        imageKey = urlBackupEntity.imageKey,
+                        imgUri = urlBackupEntity.imgUri,
+                        favorite = urlBackupEntity.favorite,
+                        timeStamp = urlBackupEntity.timeStamp,
+                        urlName = urlBackupEntity.urlName,
+                        urlMemo = urlBackupEntity.urlMemo,
+                        tag = urlBackupEntity.tag,
+                        hidden = true
+                    )
+                }
+                secretLog("UrlFragment - Adding hidden URLs (from observer): ${hiddenUrlList.size}")
+                adapter.addHiddenUrls(hiddenUrlList)
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     private fun updateLoadingState() {

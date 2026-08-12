@@ -52,6 +52,7 @@ class SettingActivity : BaseActivity() {
 
         }
 
+
         vm.btnLanguageState.observe(this@SettingActivity) {
             if (it) {
 

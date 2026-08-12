@@ -82,7 +82,7 @@ val module = module {
     viewModel { FavoriteViewModel(androidApplication()) }
     viewModel { ImgDetailViewModel(androidApplication(), get(), get(), get() ,get()) }
     viewModel { LoginViewModel(androidApplication(), get()) }
-    viewModel { SettingViewModel(androidApplication(), get()) }
+    viewModel { SettingViewModel(androidApplication(), get(), get()) }
     viewModel { LanguageViewModel(androidApplication()) }
     viewModel { MyFolderViewModel(androidApplication()) }
     viewModel { EditUrlViewModel(androidApplication(), get()) }

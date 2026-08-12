@@ -18,6 +18,8 @@ class MyApplication : Application() {
         var dpWidth = 0.0F
         // In-memory flag: true if hidden folder has been unlocked during this app process
         var hiddenFolderUnlocked: Boolean = false
+        // In-memory flag: true if startup PIN prompt has already been shown during this app process
+        var hiddenPinPromptShown: Boolean = false
     }
 
     override fun onCreate() {
@@ -32,6 +34,28 @@ class MyApplication : Application() {
         KakaoSdk.init(this, kakaoAppKey)
 
         initView()
+
+        // Track activity lifecycle to reset hidden-folder unlocked state when app goes to background
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
+            private var started = 0
+
+            override fun onActivityCreated(activity: android.app.Activity, savedInstanceState: android.os.Bundle?) {}
+            override fun onActivityStarted(activity: android.app.Activity) {
+                started++
+            }
+            override fun onActivityResumed(activity: android.app.Activity) {}
+            override fun onActivityPaused(activity: android.app.Activity) {}
+            override fun onActivityStopped(activity: android.app.Activity) {
+                started--
+                if (started <= 0) {
+                    // app is in background; clear unlocked state so next foreground requires PIN
+                    hiddenFolderUnlocked = false
+                    hiddenPinPromptShown = false
+                }
+            }
+            override fun onActivitySaveInstanceState(activity: android.app.Activity, outState: android.os.Bundle) {}
+            override fun onActivityDestroyed(activity: android.app.Activity) {}
+        })
 
     }
 

@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
+import kr.baeksuk.urlbox.util.util.AppEvent
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.data.repository.UrlRepository
@@ -28,7 +30,12 @@ class ImgDetailViewModel(
 ) : AndroidViewModel(application) {
 
     val urlList: StateFlow<List<Url>> =
-        loadDetailDataUseCase.observeDetailUrls()
+        kotlinx.coroutines.flow.combine(
+            loadDetailDataUseCase.observeDetailUrls(),
+            AppEvent.showHiddenState
+        ) { urls, showHidden ->
+            if (showHidden) urls else urls.filter { it.hidden != true }
+        }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5_000),

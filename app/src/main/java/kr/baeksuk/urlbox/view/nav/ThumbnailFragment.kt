@@ -16,6 +16,13 @@ import androidx.recyclerview.widget.GridLayoutManager
 import kr.baeksuk.urlBox.databinding.FragmentThumbnailBinding
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvThumbnailAdapter
+import kr.baeksuk.urlbox.util.util.AppEvent
+import kr.baeksuk.urlbox.util.util.secretLog
+import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
+import kr.baeksuk.urlbox.util.util.UserSessionManager
+import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
+import org.koin.android.ext.android.inject
+import android.util.Log
 import kr.baeksuk.urlbox.view.imgdetail.ImgDetailActivity
 import kr.baeksuk.urlbox.view.main.MainActivity
 import kr.baeksuk.urlbox.viewmodel.nav.ThumbnailViewModel
@@ -26,8 +33,14 @@ class ThumbnailFragment : Fragment() {
 
     private lateinit var tBinding: FragmentThumbnailBinding
     private val tViewModel: ThumbnailViewModel by inject()
+    private val uViewModel: UrlViewModel by inject()
+    private val sessionManager: UserSessionManager by inject()
     private lateinit var adapter: RvThumbnailAdapter
     private var currentUrlList: List<Url> = emptyList()
+
+    private var cachedHiddenBackups: List<UrlBackupEntity> = emptyList()
+    private var isShowingHiddenLocal = false
+    private var hiddenObserved = false
 
     private fun transitionNameFor(url: Url): String {
         val key = if (url.imageKey.isNotBlank()) url.imageKey else url.url
@@ -56,6 +69,7 @@ class ThumbnailFragment : Fragment() {
         }
 
         observe()
+        observeHiddenUrls()
 
         return tBinding.root
     }
@@ -136,5 +150,89 @@ class ThumbnailFragment : Fragment() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    private fun observeHiddenUrls() {
+        if (hiddenObserved) return
+        hiddenObserved = true
+
+        // if toggle already on, try to populate UI from current state
+        val initialShow = AppEvent.showHiddenState.value
+        secretLog("ThumbnailFragment - initial showHiddenState: $initialShow")
+        // set local flag so the LiveData observer will add hidden items when they arrive
+        isShowingHiddenLocal = initialShow
+        if (initialShow) {
+            val sourceNow = if (cachedHiddenBackups.isNotEmpty()) cachedHiddenBackups else (uViewModel.getHiddenUrls().value ?: emptyList())
+                    secretLog("ThumbnailFragment - initial source hidden count: ${sourceNow.size}")
+            if (sourceNow.isNotEmpty()) {
+                val hiddenUrlList = sourceNow.map { b ->
+                    Url(
+                        url = b.urlLink,
+                        imageKey = b.imageKey,
+                        imgUri = b.imgUri,
+                        favorite = b.favorite,
+                        timeStamp = b.timeStamp,
+                        urlName = b.urlName,
+                        urlMemo = b.urlMemo,
+                        tag = b.tag,
+                        hidden = true
+                    )
+                }
+                adapter.addHiddenUrls(hiddenUrlList)
+            }
+        }
+
+        // keep cache updated
+        uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenBackups ->
+            secretLog("ThumbnailFragment - Hidden backups count: ${hiddenBackups.size}")
+            cachedHiddenBackups = hiddenBackups
+            if (isShowingHiddenLocal && hiddenBackups.isNotEmpty()) {
+                val hiddenUrlList = hiddenBackups.map { b ->
+                    Url(
+                        url = b.urlLink,
+                        imageKey = b.imageKey,
+                        imgUri = b.imgUri,
+                        favorite = b.favorite,
+                        timeStamp = b.timeStamp,
+                        urlName = b.urlName,
+                        urlMemo = b.urlMemo,
+                        tag = b.tag,
+                        hidden = true
+                    )
+                }
+                adapter.addHiddenUrls(hiddenUrlList)
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            AppEvent.showHiddenState.collect { isShowing: Boolean ->
+                secretLog("ThumbnailFragment - onShowHiddenState: $isShowing")
+                isShowingHiddenLocal = isShowing
+                if (isShowing) {
+                    val source = if (cachedHiddenBackups.isNotEmpty()) cachedHiddenBackups else (uViewModel.getHiddenUrls().value ?: emptyList())
+                    secretLog("ThumbnailFragment - source hidden count: ${source.size}")
+                    if (source.isNotEmpty()) {
+                        val hiddenUrlList = source.map { b ->
+                            Url(
+                                url = b.urlLink,
+                                imageKey = b.imageKey,
+                                imgUri = b.imgUri,
+                                favorite = b.favorite,
+                                timeStamp = b.timeStamp,
+                                urlName = b.urlName,
+                                urlMemo = b.urlMemo,
+                                tag = b.tag,
+                                hidden = true
+                            )
+                        }
+                        adapter.addHiddenUrls(hiddenUrlList)
+                    } else {
+                    secretLog("ThumbnailFragment - no hidden backups in source")
+                    }
+                } else {
+                    adapter.removeHiddenUrls()
+                }
+            }
+        }
+    }
 
 }

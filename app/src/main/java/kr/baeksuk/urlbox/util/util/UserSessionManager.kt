@@ -31,6 +31,12 @@ class UserSessionManager(private val context: Context) {
         private val KEY_IS_CLEAR = booleanPreferencesKey("isClearIntent")
         private val KEY_LAST_RELEASE_NOTE_ID = stringPreferencesKey("lastReleaseNoteId")
         private val KEY_LAST_TUTORIAL_VERSION_CODE = intPreferencesKey("lastTutorialVersionCode")
+        private val KEY_REQUIRE_PIN_ON_HIDDEN_USE = booleanPreferencesKey("require_pin_on_hidden_use")
+    }
+
+    // Require PIN on first hidden-folder use by default (no settings toggle)
+    val requirePinOnHiddenUse: Flow<Boolean> = context.dataStore.data.map { pref ->
+        pref[KEY_REQUIRE_PIN_ON_HIDDEN_USE] ?: true
     }
 
     val userId: Flow<String?> = context.dataStore.data.map { pref ->
@@ -138,6 +144,12 @@ class UserSessionManager(private val context: Context) {
     suspend fun setLastTutorialVersionCode(versionCode: Int) {
         context.dataStore.edit { pref ->
             pref[KEY_LAST_TUTORIAL_VERSION_CODE] = versionCode
+        }
+    }
+
+    suspend fun setRequirePinOnHiddenUse(required: Boolean) {
+        context.dataStore.edit { pref ->
+            pref[KEY_REQUIRE_PIN_ON_HIDDEN_USE] = required
         }
     }
 

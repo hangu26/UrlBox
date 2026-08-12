@@ -60,6 +60,9 @@ class UrlViewModel(
     private val _tagData = MediatorLiveData<List<Tag>>()
     val tagData: LiveData<List<Tag>> = _tagData
 
+    private val _showHiddenUrls = MutableLiveData<Boolean>(false)
+    val showHiddenUrls: LiveData<Boolean> = _showHiddenUrls
+
     enum class RemoteSyncMode {
         INSERT,
         REFRESH
@@ -333,6 +336,16 @@ class UrlViewModel(
     /** getHiddenUrls - 숨겨진 URL 목록 조회 */
     fun getHiddenUrls(): LiveData<List<UrlBackupEntity>> {
         return _repo.getHiddenUrl()
+    }
+
+    /** toggleShowHiddenUrls - 숨겨진 URL 표시 토글 */
+    fun toggleShowHiddenUrls() {
+        _showHiddenUrls.value = !(_showHiddenUrls.value ?: false)
+    }
+
+    /** setShowHiddenUrls - 숨겨진 URL 표시 상태 설정 */
+    fun setShowHiddenUrls(show: Boolean) {
+        _showHiddenUrls.value = show
     }
 
 }
