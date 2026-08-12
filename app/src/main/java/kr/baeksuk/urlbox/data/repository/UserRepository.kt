@@ -164,6 +164,7 @@ class UserRepository(context: Context){
                                     imageKey,
                                     imgUri,
                                     favorite,
+                                    hidden = dataSnapshot.child("hidden").value?.toString()?.toBoolean() ?: false,
                                     timeStamp,
                                     urlName,
                                     urlMemo,
