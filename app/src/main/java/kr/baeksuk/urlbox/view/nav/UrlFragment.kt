@@ -7,12 +7,17 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.Toast
+import android.view.Gravity
+import android.widget.TextView
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.FragmentUrlBinding
 import kr.baeksuk.urlbox.model.Tag
@@ -23,6 +28,7 @@ import kr.baeksuk.urlbox.util.base.BaseFragment
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.OnTagFilterSelectedListener
 import kr.baeksuk.urlbox.util.util.TagTouchCallback
+import kr.baeksuk.urlbox.util.util.UserSessionManager
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity
 import kr.baeksuk.urlbox.viewmodel.nav.StartMode
@@ -36,6 +42,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
     private lateinit var uBinding: FragmentUrlBinding
     private val uViewModel: UrlViewModel by inject()
+    private val sessionManager: UserSessionManager by inject()
     private lateinit var adapter: RvUrlAdapter
     private lateinit var tagAdapter: RvTagAdapter
 
@@ -293,8 +300,20 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             val urlDataList = listPair.first
             val imgUriList = listPair.second
 
-            adapter.setLoginData(urlDataList, imgUriList, false)
+            // default: don't include hidden in main list
+            adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = false)
             adapter.notifyDataSetChanged()
+        }
++
++    // Called by MainActivity to toggle showing hidden URLs in the main list
++    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
++        val current = uViewModel.urlData.value
++        val urlDataList = current?.first ?: emptyList()
++        val imgUriList = current?.second ?: emptyList()
++
++        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
++        adapter.notifyDataSetChanged()
+     }
         }
 
         vm.tagData.observe(viewLifecycleOwner) { tag ->
@@ -348,7 +367,22 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     }
 
     private fun hideUrl(url: Url) {
-        Toast.makeText(requireContext(), "숨기기 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            val session = sessionManager.userSession.first()
+            val isLoggedIn = session.autoLogin ?: false
+
+            if (!isLoggedIn) {
+                val t = Toast.makeText(requireContext(), "게스트 모드에서는 이용할 수 없습니다.", Toast.LENGTH_SHORT)
+                t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
+                t.show()
+                return@launch
+            }
+
+            uViewModel.hideUrl(url)
+            val t = Toast.makeText(requireContext(), "URL이 숨겨졌습니다.", Toast.LENGTH_SHORT)
+            t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
+            t.show()
+        }
     }
 
     private fun deleteUrl(url: Url) {

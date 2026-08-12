@@ -218,11 +218,11 @@ class RvUrlAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setLoginData(urlDataList: List<Url>, imgUriList: List<String>, isLoginBackup: Boolean) {
+    fun setLoginData(urlDataList: List<Url>, imgUriList: List<String>, isLoginBackup: Boolean, includeHidden: Boolean = false) {
         isHiddenMode = false
         isBackup = isLoginBackup
         urlList = urlDataList
-            .filter { !it.hidden }
+            .filter { includeHidden || !it.hidden }
             .sortedByDescending { it.timeStamp }
             .map { url ->
                 Url(

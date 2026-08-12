@@ -28,11 +28,13 @@ import kr.baeksuk.urlbox.view.tutorial.UpdateTutorialDialogFragment
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
 import kr.baeksuk.urlbox.domain.CaptureLoginStateUseCase
 import org.koin.android.ext.android.inject
+import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 
 class MainActivity : BaseActivity() {
 
     private lateinit var mBinding: ActivityMainBinding
     private val mViewModel: MainViewModel by inject()
+    private val uViewModel: UrlViewModel by inject()
     private val sessionManager: UserSessionManager by inject()
     private val captureLoginStateUseCase: CaptureLoginStateUseCase by inject()
     private var backPressedTime = 0L
@@ -70,6 +72,7 @@ class MainActivity : BaseActivity() {
         mBinding.imgNewUpdate.setOnClickListener {
             showUpdateTutorial()
         }
+        // single tap: open hidden folder (if logged in)
         mBinding.imgSecret.setOnClickListener {
             lifecycleScope.launchWhenStarted {
                 if (captureLoginStateUseCase()) {
@@ -78,6 +81,34 @@ class MainActivity : BaseActivity() {
                     mViewModel.changeMenu(NavigationMenu.MYPAGE)
                 }
             }
+        }
+
+        // long press: toggle showing hidden URLs in main list and change icon
+        var showHiddenInMain = false
+        mBinding.imgSecret.setOnLongClickListener {
+            showHiddenInMain = !showHiddenInMain
+            if (showHiddenInMain) {
+                mBinding.imgSecret.setImageResource(R.drawable.ic_visible)
+            } else {
+                mBinding.imgSecret.setImageResource(R.drawable.ic_secret)
+            }
+
+            // ensure Url fragment is active and apply setting
+            mViewModel.changeMenu(NavigationMenu.URL)
+            // find current fragment in container and invoke method if it's UrlFragment
+            val currentFrag = supportFragmentManager.findFragmentById(R.id.fl_main)
+            if (currentFrag is kr.baeksuk.urlbox.view.nav.UrlFragment) {
+                currentFrag.applyIncludeHiddenInMain(showHiddenInMain)
+            }
+
+            // show short feedback
+            val toastText = if (showHiddenInMain) "숨김 링크를 메인에서 표시합니다." else "숨김 링크를 메인에서 숨깁니다."
+            val t = Toast.makeText(this@MainActivity, toastText, Toast.LENGTH_SHORT)
+            try {
+                t.view?.findViewById<android.widget.TextView>(android.R.id.message)?.gravity = android.view.Gravity.CENTER
+            } catch (_: Throwable) {}
+            t.show()
+            true
         }
 
         when (intent.extras?.getString("TARGET_FRAGMENT")) {
@@ -112,6 +143,17 @@ class MainActivity : BaseActivity() {
                 startActivityAnimation(intent,this@MainActivity)
                 finish()
 
+            }
+        }
+
+        // Observe hidden URL count and update badge
+        uViewModel.getHiddenUrls().observe(this@MainActivity) { hiddenList ->
+            val count = hiddenList.size
+            if (count <= 0) {
+                mBinding.tvSecretCount.visibility = android.view.View.GONE
+            } else {
+                mBinding.tvSecretCount.visibility = android.view.View.VISIBLE
+                mBinding.tvSecretCount.text = if (count > 99) "99+" else count.toString()
             }
         }
 
