@@ -48,7 +48,9 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         uBinding = binding
         adapter = RvUrlAdapter(
             requireContext(),
-            onDetailClick = { url, txUrl, imgView -> openUrlDetail(url, txUrl, imgView) }
+            onDetailClick = { url, txUrl, imgView -> openUrlDetail(url, txUrl, imgView) },
+            onHideClick = { url -> hideUrl(url) },
+            onDeleteClick = { url -> deleteUrl(url) }
         )
         tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this)
 
@@ -343,6 +345,20 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         adapter.filterByTag(url, tag, uBinding.rvUrl)
         Log.e("태그 선택됨", tag)
         adapter.notifyDataSetChanged()
+    }
+
+    private fun hideUrl(url: Url) {
+        Toast.makeText(requireContext(), "숨기기 기능은 준비 중입니다.", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun deleteUrl(url: Url) {
+        uViewModel.deleteUrl(url)
         tagAdapter.notifyDataSetChanged()
+        
+        com.google.android.material.snackbar.Snackbar.make(
+            binding.root,
+            "삭제되었습니다.",
+            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+        ).show()
     }
 }

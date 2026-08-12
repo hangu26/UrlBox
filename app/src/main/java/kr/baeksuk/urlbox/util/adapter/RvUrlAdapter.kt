@@ -14,7 +14,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.util.TypedValue
+import android.view.Gravity
+import android.graphics.drawable.ColorDrawable
+import android.graphics.Color
 import android.widget.ImageView
+import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
@@ -23,6 +28,7 @@ import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.nativead.NativeAd
+import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ItemNativeAdBinding
 import kr.baeksuk.urlBox.databinding.ItemUrlListBinding
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
@@ -34,6 +40,8 @@ import kr.baeksuk.urlbox.util.util.ImgUriListData
 class RvUrlAdapter(
     ctx: Context,
     private val onDetailClick: (Url, View, View) -> Unit,
+    private val onHideClick: (Url) -> Unit = {},
+    private val onDeleteClick: (Url) -> Unit = {},
     private val imageLoader: (Context, Url, ImageView, Int, Boolean, List<String>) -> Unit =
         UrlImageLoader::load
 ) :
@@ -310,17 +318,86 @@ class RvUrlAdapter(
             }
             
             imgView.setOnLongClickListener {
-                val clipboard: ClipboardManager =
-                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clip = ClipData.newPlainText("label", url.url)
-                clipboard.setPrimaryClip(clip)
-                Toast.makeText(context, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                showContextMenu(imgView, url)
                 true
             }
             
             txUrl.setOnClickListener {
                 val intent = Intent(Intent.ACTION_VIEW, url.url.toUri())
                 context.startActivity(intent)
+            }
+            
+            txUrl.setOnLongClickListener { v ->
+                showContextMenu(v, url)
+                true
+            }
+        }
+        
+        private fun dpToPx(dp: Int): Int =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), context.resources.displayMetrics).toInt()
+
+        private fun showContextMenu(view: View, url: Url) {
+            val popupView = LayoutInflater.from(context).inflate(R.layout.popup_url_actions, null)
+
+            val actionCopy = popupView.findViewById<View>(R.id.action_copy)
+            val actionHide = popupView.findViewById<View>(R.id.action_hide)
+            val actionDelete = popupView.findViewById<View>(R.id.action_delete)
+
+            val popupWidth = dpToPx(100)
+            val popupWindow = PopupWindow(popupView, popupWidth, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+            popupWindow.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            popupWindow.isOutsideTouchable = true
+            try {
+                popupWindow.elevation = 12f
+            } catch (_: Throwable) {}
+
+            // Measure to compute height
+            popupView.measure(
+                View.MeasureSpec.makeMeasureSpec(popupWidth, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.UNSPECIFIED
+            )
+            val popupHeight = popupView.measuredHeight
+
+            val location = IntArray(2)
+            view.getLocationOnScreen(location)
+            val anchorX = location[0]
+            val anchorY = location[1]
+
+            val screenWidth = context.resources.displayMetrics.widthPixels
+            val margin = dpToPx(8)
+
+            // position popup near the right-middle of the view (slightly overlapping)
+            var x = anchorX + view.width - popupWidth - margin
+            // ensure popup stays within screen bounds
+            if (x + popupWidth + margin > screenWidth) x = screenWidth - popupWidth - margin
+            if (x < margin) x = margin
+
+            val y = anchorY + view.height / 2 - popupHeight / 2
+
+            popupWindow.showAtLocation(view.rootView, Gravity.NO_GRAVITY, x, y)
+
+            actionCopy.setOnClickListener {
+                val clipboard: ClipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("label", url.url)
+                clipboard.setPrimaryClip(clip)
+                
+                val rootView = (context as? android.app.Activity)?.window?.decorView?.findViewById<android.view.View>(android.R.id.content)
+                if (rootView != null) {
+                    com.google.android.material.snackbar.Snackbar.make(rootView, "클립보드에 복사되었습니다.", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "클립보드에 복사되었습니다.", Toast.LENGTH_SHORT).show()
+                }
+                popupWindow.dismiss()
+            }
+
+            actionHide.setOnClickListener {
+                onHideClick(url)
+                popupWindow.dismiss()
+            }
+
+            actionDelete.setOnClickListener {
+                onDeleteClick(url)
+                popupWindow.dismiss()
             }
         }
     }

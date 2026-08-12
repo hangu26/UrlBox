@@ -294,4 +294,18 @@ class UrlViewModel(
         }
     }
 
+    fun deleteUrl(url: Url) {
+        viewModelScope.launch {
+            val session = sessionManager.userSession.first()
+            val isLoggedIn = session.autoLogin
+            val userId = session.userId ?: ""
+
+            if (isLoggedIn && url.url.isNotBlank() && userId.isNotBlank()) {
+                _repo.deleteUserData(url.url, url.imageKey, userId)
+            } else {
+                _repo.deleteGuestData(url.url)
+            }
+        }
+    }
+
 }

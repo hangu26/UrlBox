@@ -6,6 +6,7 @@
     <dimen name="drag_handle_margin_bottom">16dp</dimen>
     <dimen name="hidden_folder_header_icon_size">42dp</dimen>
     <dimen name="hidden_folder_header_title_margin_start">13dp</dimen>
+    <dimen name="hidden_folder_header_close_margin_end">13dp</dimen>
     <dimen name="hidden_folder_title_text_size">15sp</dimen>
     <dimen name="hidden_folder_description_text_size">14sp</dimen>
     <dimen name="hidden_folder_box_margin_top">20dp</dimen>
@@ -88,4 +89,15 @@
     <dimen name="hidden_folder_pin_key_radius">14dp</dimen>
     <dimen name="hidden_folder_pin_forgot_margin_top">12dp</dimen>
     <dimen name="hidden_folder_pin_forgot_size">14sp</dimen>
+
+    <!-- Popup URL Actions -->
+    <dimen name="popup_width">100dp</dimen>
+    <dimen name="popup_item_height">45dp</dimen>
+    <dimen name="popup_item_margin_horizontal">8dp</dimen>
+    <dimen name="popup_item_margin_start">12dp</dimen>
+    <dimen name="popup_icon_size">20dp</dimen>
+    <dimen name="popup_text_size">13sp</dimen>
+    <dimen name="popup_divider_height">1dp</dimen>
+    <dimen name="popup_divider_margin_horizontal">16dp</dimen>
+    <dimen name="popup_elevation">8dp</dimen>
 </resources>

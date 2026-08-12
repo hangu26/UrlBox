@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/popup_width"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_popup_menu"
+    android:elevation="@dimen/popup_elevation">
+
+    <LinearLayout
+        android:id="@+id/action_copy"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/popup_item_height"
+        android:orientation="horizontal"
+        android:layout_marginStart="@dimen/popup_item_margin_horizontal"
+        android:layout_marginEnd="@dimen/popup_item_margin_horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="@dimen/popup_icon_size"
+            android:layout_height="@dimen/popup_icon_size"
+            android:src="@drawable/ic_copy"
+            android:scaleType="centerInside"
+            android:contentDescription="복사" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/popup_item_margin_start"
+            android:text="복사"
+            android:textColor="@color/tx_black"
+            android:textSize="@dimen/popup_text_size"
+            android:fontFamily="@font/pretendard_regular" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/popup_divider_height"
+        android:layout_marginStart="@dimen/popup_divider_margin_horizontal"
+        android:layout_marginEnd="@dimen/popup_divider_margin_horizontal"
+        android:background="#EEEEEE" />
+
+    <LinearLayout
+        android:id="@+id/action_hide"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/popup_item_height"
+        android:orientation="horizontal"
+        android:layout_marginStart="@dimen/popup_item_margin_horizontal"
+        android:layout_marginEnd="@dimen/popup_item_margin_horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="@dimen/popup_icon_size"
+            android:layout_height="@dimen/popup_icon_size"
+            android:src="@drawable/ic_lock"
+            android:scaleType="centerInside"
+            android:contentDescription="숨기기" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/popup_item_margin_start"
+            android:text="숨기기"
+            android:textColor="@color/tx_black"
+            android:textSize="@dimen/popup_text_size"
+            android:fontFamily="@font/pretendard_regular" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/popup_divider_height"
+        android:layout_marginStart="@dimen/popup_divider_margin_horizontal"
+        android:layout_marginEnd="@dimen/popup_divider_margin_horizontal"
+        android:background="#EEEEEE" />
+
+    <LinearLayout
+        android:id="@+id/action_delete"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/popup_item_height"
+        android:orientation="horizontal"
+        android:layout_marginStart="@dimen/popup_item_margin_horizontal"
+        android:layout_marginEnd="@dimen/popup_item_margin_horizontal"
+        android:gravity="center_vertical"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground">
+
+        <ImageView
+            android:layout_width="@dimen/popup_icon_size"
+            android:layout_height="@dimen/popup_icon_size"
+            android:src="@drawable/ic_delete_url"
+            android:scaleType="centerInside"
+            android:contentDescription="삭제" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="@dimen/popup_item_margin_start"
+            android:text="삭제"
+            android:textColor="@color/tx_black"
+            android:textSize="@dimen/popup_text_size"
+            android:fontFamily="@font/pretendard_regular" />
+
+    </LinearLayout>
+
+</LinearLayout>

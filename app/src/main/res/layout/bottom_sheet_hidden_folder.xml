@@ -60,6 +60,7 @@
             android:paddingEnd="@dimen/hidden_folder_usage_padding_horizontal"
             android:paddingBottom="@dimen/hidden_folder_usage_padding_vertical"
             android:text="@string/tx_hidden_folder_usage"
+            android:layout_marginEnd="@dimen/hidden_folder_header_close_margin_end"
             android:textColor="@color/color_hidden_folder_gold"
             android:textSize="@dimen/hidden_folder_usage_text_size"
             app:layout_constraintBottom_toBottomOf="@id/img_secret"
