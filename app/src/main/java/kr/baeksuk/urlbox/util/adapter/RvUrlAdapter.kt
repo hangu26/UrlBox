@@ -73,6 +73,7 @@ class RvUrlAdapter(
     private var isBackup = false
     private var isGuestMode = false
     private var isHiddenMode = false
+    private var showHiddenInMain = false  // toggle flag for showing/hiding hidden URLs in main list
     private val nativeAdCache =
         object : LinkedHashMap<Int, NativeAd>(MAX_NATIVE_AD_CACHE, 0.75f, true) {}
     private val loadingAdSlots = mutableSetOf<Int>()
@@ -166,6 +167,12 @@ class RvUrlAdapter(
     }
 
     @SuppressLint("NotifyDataSetChanged")
+    fun toggleShowHiddenInMain() {
+        showHiddenInMain = !showHiddenInMain
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
     fun setGuestData(url: List<UrlEntity>) {
         isHiddenMode = false
         isBackup = false
@@ -222,7 +229,6 @@ class RvUrlAdapter(
         isHiddenMode = false
         isBackup = isLoginBackup
         urlList = urlDataList
-            .filter { includeHidden || !it.hidden }
             .sortedByDescending { it.timeStamp }
             .map { url ->
                 Url(
@@ -331,6 +337,10 @@ class RvUrlAdapter(
 
         fun bind(indexedUrl: IndexedUrl) {
             val url = indexedUrl.url
+            
+            // Show/hide based on hidden status and toggle flag
+            itemView.visibility = if (url.hidden && !showHiddenInMain) View.GONE else View.VISIBLE
+            
             val spannableString = SpannableString(url.urlName.toString()).apply {
                 setSpan(
                     UnderlineSpan(),

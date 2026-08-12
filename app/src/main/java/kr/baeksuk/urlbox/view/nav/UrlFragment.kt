@@ -48,7 +48,6 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
     private var urlBackupObserved = false
     private var tagBackupObserved = false
-    private var includeHiddenInMain = false
     private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -170,14 +169,8 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     }
 
     // Called by MainActivity to toggle showing hidden URLs in the main list
-    fun applyIncludeHiddenInMain(includeHidden: Boolean) {
-        includeHiddenInMain = includeHidden
-        val current = uViewModel.urlData.value
-        val urlDataList = current?.first ?: emptyList()
-        val imgUriList = current?.second ?: emptyList()
-
-        adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHidden)
-        adapter.notifyDataSetChanged()
+    fun toggleHiddenVisibility() {
+        adapter.toggleShowHiddenInMain()
     }
 
     /** 로딩 상태 observe **/
@@ -312,8 +305,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             val urlDataList = listPair.first
             val imgUriList = listPair.second
 
-            // use stored includeHiddenInMain state
-            adapter.setLoginData(urlDataList, imgUriList, false, includeHidden = includeHiddenInMain)
+            adapter.setLoginData(urlDataList, imgUriList, false)
             adapter.notifyDataSetChanged()
         }
 

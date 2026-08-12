@@ -100,21 +100,10 @@ class MainActivity : BaseActivity() {
             } catch (_: Throwable) {}
             t.show()
 
-            // switch to URL fragment and apply the toggle state
-            mViewModel.changeMenu(NavigationMenu.URL)
-            
-            // wait for fragment to be ready, then apply the toggle
-            lifecycleScope.launchWhenStarted {
-                var retries = 0
-                while (retries < 10) {
-                    val currentFrag = supportFragmentManager.findFragmentById(R.id.fl_main)
-                    if (currentFrag is kr.baeksuk.urlbox.view.nav.UrlFragment) {
-                        currentFrag.applyIncludeHiddenInMain(showHiddenInMain)
-                        break
-                    }
-                    retries++
-                    kotlinx.coroutines.delay(50)
-                }
+            // find current URL fragment and toggle visibility
+            val currentFrag = supportFragmentManager.findFragmentById(R.id.fl_main)
+            if (currentFrag is kr.baeksuk.urlbox.view.nav.UrlFragment) {
+                currentFrag.toggleHiddenVisibility()
             }
             true
         }
