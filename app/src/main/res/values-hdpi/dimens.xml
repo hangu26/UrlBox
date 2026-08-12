@@ -4,7 +4,7 @@
     <dimen name="splash_app_name_margin_bottom">90dp</dimen>
     <dimen name="splash_app_detail_size">37sp</dimen>
     <dimen name="appbar_tx_title_chat">22sp</dimen>
-    <dimen name="img_setting_width">26dp</dimen>
+    <dimen name="img_setting_width">30dp</dimen>
     <dimen name="img_setting_height">26dp</dimen>
     <dimen name="img_setting_margin_end">22dp</dimen>
     <dimen name="icon_tutorial_margin_end">10dp</dimen>
@@ -387,14 +387,14 @@
     <dimen name="margin_start_tx_app_title">22dp</dimen>
     <dimen name="margin_start_img_new_update">7dp</dimen>
 
-    <dimen name="size_img_feedback">26dp</dimen>
-    <dimen name="size_img_secret">26dp</dimen>
+    <dimen name="size_img_feedback">30dp</dimen>
+    <dimen name="size_img_secret">30dp</dimen>
     <dimen name="margin_end_img_secret">7dp</dimen>
     <dimen name="margin_end_img_feedback">7dp</dimen>
 
-    <dimen name="size_secret_folder_badge">10dp</dimen>
+    <dimen name="size_secret_folder_badge">12dp</dimen>
     <dimen name="margin_end_secret_folder_badge">-2dp</dimen>
-    <dimen name="margin_top_secret_folder_badge">-2dp</dimen>
+    <dimen name="margin_top_secret_folder_badge">0dp</dimen>
     <dimen name="text_size_secret_folder_badge">6sp</dimen>
 
     <dimen name="size_secret_password_icon_width">67dp</dimen>
