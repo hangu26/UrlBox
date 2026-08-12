@@ -93,21 +93,29 @@ class MainActivity : BaseActivity() {
                 mBinding.imgSecret.setImageResource(R.drawable.ic_secret)
             }
 
-            // ensure Url fragment is active and apply setting
-            mViewModel.changeMenu(NavigationMenu.URL)
-            // find current fragment in container and invoke method if it's UrlFragment
-            val currentFrag = supportFragmentManager.findFragmentById(R.id.fl_main)
-            if (currentFrag is kr.baeksuk.urlbox.view.nav.UrlFragment) {
-                currentFrag.applyIncludeHiddenInMain(showHiddenInMain)
-            }
-
-            // show short feedback
             val toastText = if (showHiddenInMain) "숨김 링크를 메인에서 표시합니다." else "숨김 링크를 메인에서 숨깁니다."
             val t = Toast.makeText(this@MainActivity, toastText, Toast.LENGTH_SHORT)
             try {
                 t.view?.findViewById<android.widget.TextView>(android.R.id.message)?.gravity = android.view.Gravity.CENTER
             } catch (_: Throwable) {}
             t.show()
+
+            // switch to URL fragment and apply the toggle state
+            mViewModel.changeMenu(NavigationMenu.URL)
+            
+            // wait for fragment to be ready, then apply the toggle
+            lifecycleScope.launchWhenStarted {
+                var retries = 0
+                while (retries < 10) {
+                    val currentFrag = supportFragmentManager.findFragmentById(R.id.fl_main)
+                    if (currentFrag is kr.baeksuk.urlbox.view.nav.UrlFragment) {
+                        currentFrag.applyIncludeHiddenInMain(showHiddenInMain)
+                        break
+                    }
+                    retries++
+                    kotlinx.coroutines.delay(50)
+                }
+            }
             true
         }
 
