@@ -10,6 +10,7 @@ data class UrlEntity(
     val urlLink : String,
     val imageKey : String,
     val favorite : Boolean,
+    val hidden : Boolean = false,
     val timeStamp : Long,
     val urlName : String? = null,
     val urlMemo : String? = null,

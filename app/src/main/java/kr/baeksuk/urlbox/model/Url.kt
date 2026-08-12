@@ -5,6 +5,7 @@ data class Url(
     val imageKey: String = "",
     val imgUri : String = "",
     val favorite : Boolean = false,
+    val hidden : Boolean = false,
     val timeStamp : Long = 0,
     val urlName : String? = null,
     val urlMemo : String? = "",

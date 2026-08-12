@@ -16,6 +16,8 @@ class MyApplication : Application() {
     companion object {
         var dpHeight = 0.0F
         var dpWidth = 0.0F
+        // In-memory flag: true if hidden folder has been unlocked during this app process
+        var hiddenFolderUnlocked: Boolean = false
     }
 
     override fun onCreate() {

@@ -1326,4 +1326,81 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         return urlDao.hasBackupData() // suspend 함수 호출
     }
 
+    /** hideUrl - Firebase와 Room에 hidden=true 설정 */
+    fun hideUrl(url: String, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // 1. 로컬 DB 업데이트
+                urlDao.updateUrlBackupHidden(url, true)
+
+                // 2. Firebase 업데이트
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                userUrlRef.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+                                    childSnapshot.ref.child("hidden").setValue(true)
+                                        .addOnSuccessListener {
+                                            Log.d("URL 숨기기", "Firebase 업데이트 성공: $url")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("URL 숨기기", "Firebase 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("URL 숨기기", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+            } catch (e: Exception) {
+                Log.e("URL 숨기기 처리", e.toString())
+            }
+        }
+    }
+
+    /** showUrl - 숨겨진 URL 표시 */
+    fun showUrl(url: String, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                // 1. 로컬 DB 업데이트
+                urlDao.updateUrlBackupHidden(url, false)
+
+                // 2. Firebase 업데이트
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User").child(userId).child("url")
+
+                userUrlRef.orderByChild("url").equalTo(url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                for (childSnapshot in snapshot.children) {
+                                    childSnapshot.ref.child("hidden").setValue(false)
+                                        .addOnSuccessListener {
+                                            Log.d("URL 표시", "Firebase 업데이트 성공: $url")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.e("URL 표시", "Firebase 업데이트 실패: ${e.message}")
+                                        }
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("URL 표시", "쿼리 취소됨: ${error.message}")
+                        }
+                    })
+            } catch (e: Exception) {
+                Log.e("URL 표시 처리", e.toString())
+            }
+        }
+    }
+
+    /** getHiddenUrl - 숨겨진 URL 목록 조회 */
+    fun getHiddenUrl(): LiveData<List<UrlBackupEntity>> = urlDao.getHiddenUrlBackups()
+
 }

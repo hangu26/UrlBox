@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/constraint_url_margin_bottom">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/btn_url"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/img_thumbnail"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:src="@drawable/urlbox_icon"
+            android:transitionName="imageTran"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/icon_favorite"
+            android:layout_width="@dimen/size_img_star_in_main"
+            android:layout_height="@dimen/size_img_star_in_main"
+            android:layout_marginTop="@dimen/margin_favorite_in_img"
+            android:layout_marginEnd="@dimen/margin_favorite_in_img"
+            android:src="@drawable/icon_favorite_corral"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tx_url"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:fontFamily="@font/pretendard_semibold"
+            android:gravity="center"
+            android:paddingStart="@dimen/item_url_padding_side"
+            android:paddingTop="5dp"
+            android:paddingEnd="@dimen/item_url_padding_side"
+            android:paddingBottom="8dp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="https://www.youtube.com/wersadfasdgwear"
+            android:textColor="@android:color/white"
+            android:shadowColor="#80000000"
+            android:shadowDx="0"
+            android:shadowDy="1"
+            android:shadowRadius="2"
+            android:textSize="@dimen/tx_confirm_url_size"
+            android:transitionName="titleTran"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/img_thumbnail" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

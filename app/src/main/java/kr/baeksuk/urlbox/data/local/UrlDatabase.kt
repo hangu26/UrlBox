@@ -24,7 +24,7 @@ import kr.baeksuk.urlbox.util.util.UrlListInTagConverter
         PreparationTag::class,
         HiddenFolderSecurityEntity::class
     ],
-    version = 8
+    version = 9
 )
 @TypeConverters(Converters::class)
 abstract class UrlDatabase : RoomDatabase() {
@@ -47,7 +47,8 @@ abstract class UrlDatabase : RoomDatabase() {
                         MIGRATION_4_5,
                         MIGRATION_5_6,
                         MIGRATION_6_7,
-                        MIGRATION_7_8
+                        MIGRATION_7_8,
+                        MIGRATION_8_9
                     )
                     .build()
                 INSTANCE = instance
@@ -145,6 +146,20 @@ abstract class UrlDatabase : RoomDatabase() {
                         password TEXT NOT NULL
                     )
                     """.trimIndent()
+                )
+            }
+        }
+
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // url_history 테이블에 hidden 컬럼 추가
+                database.execSQL(
+                    "ALTER TABLE url_history ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0"
+                )
+                
+                // url_backup_history 테이블에 hidden 컬럼 추가
+                database.execSQL(
+                    "ALTER TABLE url_backup_history ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0"
                 )
             }
         }

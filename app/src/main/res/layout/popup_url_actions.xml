@@ -57,6 +57,7 @@
         android:background="?attr/selectableItemBackground">
 
         <ImageView
+            android:id="@+id/action_hide_icon"
             android:layout_width="@dimen/popup_icon_size"
             android:layout_height="@dimen/popup_icon_size"
             android:src="@drawable/ic_lock"
@@ -64,6 +65,7 @@
             android:contentDescription="숨기기" />
 
         <TextView
+            android:id="@+id/action_hide_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

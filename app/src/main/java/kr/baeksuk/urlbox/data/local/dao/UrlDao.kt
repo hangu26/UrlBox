@@ -170,4 +170,17 @@ interface UrlDao{
 
     @Query("DELETE FROM hidden_folder_security")
     suspend fun deleteAllHiddenFolderSecurity()
+
+    // Hidden URL methods
+    @Query("UPDATE url_history SET hidden = :hidden WHERE urlLink = :url")
+    suspend fun updateUrlHidden(url: String, hidden: Boolean)
+
+    @Query("UPDATE url_backup_history SET hidden = :hidden WHERE urlLink = :url")
+    suspend fun updateUrlBackupHidden(url: String, hidden: Boolean)
+
+    @Query("SELECT * FROM url_history WHERE hidden = 1 ORDER BY id DESC")
+    fun getHiddenUrls(): LiveData<List<UrlEntity>>
+
+    @Query("SELECT * FROM url_backup_history WHERE hidden = 1 ORDER BY id DESC")
+    fun getHiddenUrlBackups(): LiveData<List<UrlBackupEntity>>
 }
