@@ -1,9 +1,13 @@
 package kr.baeksuk.urlbox.view.main
 
 import android.app.Dialog
+import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +46,7 @@ class PinSetupDialogFragment : DialogFragment() {
     private var firstPin = ""
     private val currentPinInput = StringBuilder()
     private val saveHiddenFolderPasswordUseCase: SaveHiddenFolderPasswordUseCase by inject()
+    private lateinit var vibrator: Vibrator
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
@@ -85,6 +90,7 @@ class PinSetupDialogFragment : DialogFragment() {
             view.findViewById(R.id.pinDot4)
         )
 
+        vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         bindPinKeypad(view)
         view.findViewById<View>(R.id.btnPinClose).setOnClickListener {
             dismissAllowingStateLoss()
@@ -124,6 +130,7 @@ class PinSetupDialogFragment : DialogFragment() {
     private fun onNumberPressed(number: String) {
         if (currentPinInput.length >= 4) return
         currentPinInput.append(number)
+        vibrate()
         updatePinDots()
         if (currentPinInput.length == 4) {
             handlePinCompleted()
@@ -213,4 +220,24 @@ class PinSetupDialogFragment : DialogFragment() {
         pinStepIndicator.visibility = View.GONE
         layoutPinSuccess.visibility = View.VISIBLE
     }
+
+    private fun vibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(
+                VibrationEffect.createOneShot(
+                    30L,
+                    100
+                )
+            )
+        }
+    }
 }
+
+
+
+
+
+

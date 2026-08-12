@@ -7,7 +7,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
@@ -47,6 +49,12 @@ class MyPageViewModel(
 
     fun deleteUserTagBackup() {
         _urlRepo.deleteUserTagBackup()
+    }
+
+    fun deletePassword(){
+        viewModelScope.launch {
+            _repo.deleteAllHiddenFolderSecurity()
+        }
     }
 
     fun getUrlBackup(): LiveData<List<UrlBackupEntity>> {

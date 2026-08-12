@@ -341,4 +341,47 @@
             android:textColor="@color/color_hidden_folder_gold_60"
             android:textSize="@dimen/hidden_folder_pin_forgot_size" />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutUnlockedMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/hidden_folder_pin_top_margin"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        android:paddingBottom="20dp">
+
+        <FrameLayout
+            android:layout_width="@dimen/hidden_folder_pin_icon_box_size"
+            android:layout_height="@dimen/hidden_folder_pin_icon_box_size"
+            android:background="@drawable/bg_hidden_pin_icon_box">
+
+            <ImageView
+                android:layout_width="@dimen/hidden_folder_pin_icon_size"
+                android:layout_height="@dimen/hidden_folder_pin_icon_size"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_secret_password"
+                android:tint="@color/color_hidden_folder_gold" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_hidden_link_empty_title"
+            android:textColor="@color/color_hidden_folder_gold"
+            android:textSize="@dimen/hidden_folder_pin_title_size" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/pretendard_regular"
+            android:text="@string/tx_hidden_link_empty_desc"
+            android:textAlignment="center"
+            android:textColor="@color/color_hidden_folder_gold_60"
+            android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>

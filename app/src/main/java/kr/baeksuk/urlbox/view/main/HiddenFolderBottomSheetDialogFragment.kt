@@ -1,6 +1,10 @@
 package kr.baeksuk.urlbox.view.main
 
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +35,10 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private val enteredPin = StringBuilder()
     private lateinit var noPasswordLayout: View
     private lateinit var passwordLayout: View
+    private lateinit var unlockedLayout: View
     private lateinit var pinDots: List<View>
     private var storedPin: String? = null
+    private lateinit var vibrator: Vibrator
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,8 +51,10 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         noPasswordLayout = view.findViewById(R.id.layoutNoPasswordMode)
         passwordLayout = view.findViewById(R.id.layoutPasswordMode)
+        unlockedLayout = view.findViewById(R.id.layoutUnlockedMode)
         pinDots = listOf(
             view.findViewById(R.id.pinDot1),
             view.findViewById(R.id.pinDot2),
@@ -67,7 +75,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
 
         view.findViewById<View>(R.id.btnOpen).setOnClickListener {
-            dismissAllowingStateLoss()
+            showUnlockedMode()
         }
 
         bindPasswordKeypad(view)
@@ -115,13 +123,21 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun showNoPasswordMode() {
         noPasswordLayout.visibility = View.VISIBLE
         passwordLayout.visibility = View.GONE
+        unlockedLayout.visibility = View.GONE
     }
 
     private fun showPasswordMode() {
         noPasswordLayout.visibility = View.GONE
         passwordLayout.visibility = View.VISIBLE
+        unlockedLayout.visibility = View.GONE
         enteredPin.clear()
         updateDots()
+    }
+
+    private fun showUnlockedMode() {
+        noPasswordLayout.visibility = View.GONE
+        passwordLayout.visibility = View.GONE
+        unlockedLayout.visibility = View.VISIBLE
     }
 
     private fun bindPasswordKeypad(root: View) {
@@ -143,6 +159,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 if (passwordLayout.visibility != View.VISIBLE) return@setOnClickListener
                 if (enteredPin.length >= 4) return@setOnClickListener
                 enteredPin.append(number)
+                vibrate()
                 updateDots()
 
                 if (enteredPin.length == 4) {
@@ -163,7 +180,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun verifyPin() {
         val input = enteredPin.toString()
         if (input == storedPin) {
-            dismissAllowingStateLoss()
+            showUnlockedMode()
             return
         }
 
@@ -183,4 +200,23 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
             dot.setBackgroundResource(background)
         }
     }
+    private fun vibrate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(
+                VibrationEffect.createOneShot(
+                    30L,
+                    100
+                )
+            )
+        }
+    }
 }
+
+
+
+
+
+

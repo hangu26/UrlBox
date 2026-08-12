@@ -233,6 +233,10 @@ class UserRepository(context: Context){
         )
     }
 
+    suspend fun deleteAllHiddenFolderSecurity(){
+        urlDao.deleteAllHiddenFolderSecurity()
+    }
+
     /**
      * 2. 전체 데이터 저장 (유저 정보 + URL 리스트 + 이미지 파일)
      */

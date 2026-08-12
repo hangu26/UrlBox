@@ -228,6 +228,7 @@ class MyPageFragment : Fragment() {
                     SessionCache.current = null
                     vm.deleteUserBackup()
                     vm.deleteUserTagBackup()
+                    vm.deletePassword()
                     restartApp(requireContext())
 
                 } catch (e: Exception) {

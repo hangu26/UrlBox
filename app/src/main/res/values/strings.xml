@@ -134,5 +134,7 @@
     <string name="tx_hidden_pin_input">PIN 입력</string>
     <string name="tx_hidden_pin_forgot">비밀번호를 잊으셨나요?</string>
     <string name="tx_hidden_pin_invalid">PIN이 올바르지 않아요.</string>
+    <string name="tx_hidden_link_empty_title">숨김 링크가 없습니다</string>
+    <string name="tx_hidden_link_empty_desc">모든 숨은 링크를 만나요</string>
 
 </resources>

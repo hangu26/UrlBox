@@ -168,4 +168,6 @@ interface UrlDao{
     @Query("DELETE FROM hidden_folder_security WHERE userId = :userId")
     suspend fun deleteHiddenFolderSecurity(userId: String)
 
+    @Query("DELETE FROM hidden_folder_security")
+    suspend fun deleteAllHiddenFolderSecurity()
 }
