@@ -39,6 +39,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         const val TAG = "HiddenFolderBottomSheetDialogFragment"
         const val RESULT_KEY = "hidden_folder_bottom_sheet_result"
         const val RESULT_OPEN_PIN_SETUP = "open_pin_setup"
+        const val RESULT_OPEN_TUTORIAL = "open_tutorial"
         const val RESULT_UNLOCKED = "unlocked"
         const val RESULT_CANCELLED = "cancelled"
     }
@@ -106,35 +107,54 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
             headerDescription?.text = if (count > 99) "99+개의 링크" else "${count}개의 링크"
         }
 
+        val resetCard = view.findViewById<View>(R.id.cardResetConfirm)
+        val btnResetCancel = view.findViewById<View>(R.id.btnResetCancel)
+        val btnResetConfirm = view.findViewById<View>(R.id.btnResetConfirm)
+
         view.findViewById<View>(R.id.tvForgotPin).setOnClickListener {
-            // show confirmation dialog and on confirm reset PIN and delete hidden urls
-            val ctx = requireContext()
-            androidx.appcompat.app.AlertDialog.Builder(ctx)
-                .setTitle(getString(R.string.tx_hidden_pin_reset_title))
+            val isVisible = resetCard?.visibility == View.VISIBLE
+            resetCard?.visibility = if (isVisible) View.GONE else View.VISIBLE
+        }
+
+        btnResetCancel?.setOnClickListener {
+            resetCard?.visibility = View.GONE
+        }
+
+        btnResetConfirm?.setOnClickListener {
+            resetCard?.visibility = View.GONE
+
+            androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                .setTitle(getString(R.string.tx_hidden_pin_reset_confirm_title))
                 .setMessage(getString(R.string.tx_hidden_pin_reset_message))
                 .setNegativeButton(getString(R.string.tx_cancel)) { dialog, _ -> dialog.dismiss() }
                 .setPositiveButton(getString(R.string.tx_reset)) { _, _ ->
-                    // perform reset
                     lifecycleScope.launch {
                         val session = sessionManager.userSession.first()
                         val userId = session.userId ?: ""
                         if (userId.isBlank()) {
-                        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_no_user), Toast.LENGTH_SHORT).show()
-                        return@launch
+                            Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_no_user), Toast.LENGTH_SHORT).show()
+                            return@launch
                         }
 
                         try {
-                        userRepo.deleteHiddenFolderPassword(userId)
-                        urlRepo.deleteAllHiddenUrls(userId)
+                            userRepo.deleteHiddenFolderPassword(userId)
+                            urlRepo.deleteAllHiddenUrls(userId)
 
-                        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_done), Toast.LENGTH_SHORT).show()
-                        showNoPasswordMode()
+                            Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_done), Toast.LENGTH_SHORT).show()
+                            showNoPasswordMode()
                         } catch (e: Exception) {
-                        Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_failed), Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), getString(R.string.tx_hidden_pin_reset_failed), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
                 .show()
+        }
+
+        // Usage button: open tutorial (trigger main activity to show tutorial)
+        view.findViewById<View>(R.id.tvUsage).setOnClickListener {
+            parentFragmentManager.setFragmentResult(RESULT_KEY, Bundle().apply { putBoolean(RESULT_OPEN_TUTORIAL, true) })
+            resultSent = true
+            dismissAllowingStateLoss()
         }
     }
 

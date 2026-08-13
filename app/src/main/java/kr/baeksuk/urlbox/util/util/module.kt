@@ -3,6 +3,7 @@ package kr.baeksuk.urlbox.util.util
 import kr.baeksuk.urlbox.data.repository.UrlRepository
 import kr.baeksuk.urlbox.data.repository.FirebaseAdminAccessRepository
 import kr.baeksuk.urlbox.data.repository.FirebaseFeedbackRepository
+import kr.baeksuk.urlbox.data.repository.FirebaseFeedbackV2Repository
 import kr.baeksuk.urlbox.domain.LoginUseCase
 import kr.baeksuk.urlbox.data.repository.UserRepository
 import kr.baeksuk.urlbox.domain.CaptureLoginStateUseCase
@@ -10,6 +11,7 @@ import kr.baeksuk.urlbox.domain.CaptureSaveUseCase
 import kr.baeksuk.urlbox.domain.DeleteImageUseCase
 import kr.baeksuk.urlbox.domain.feedback.CheckAdminAccessUseCase
 import kr.baeksuk.urlbox.domain.feedback.ObserveFeedbackReportsUseCase
+import kr.baeksuk.urlbox.domain.feedback.ObserveFeedbackReportsV2UseCase
 import kr.baeksuk.urlbox.domain.feedback.UpdateFeedbackStatusUseCase
 import kr.baeksuk.urlbox.domain.LoadDetailDataUseCase
 import kr.baeksuk.urlbox.domain.LoadThumbnailDataUseCase
@@ -51,8 +53,10 @@ import org.koin.dsl.module
 val module = module {
     single<AdminAccessRepository> { FirebaseAdminAccessRepository() }
     single<FeedbackRepository> { FirebaseFeedbackRepository() }
+    single { FirebaseFeedbackV2Repository() }
     single { CheckAdminAccessUseCase(get()) }
     single { ObserveFeedbackReportsUseCase(get()) }
+    single { ObserveFeedbackReportsV2UseCase(get()) }
     single { UpdateFeedbackStatusUseCase(get()) }
     single { LoadDetailDataUseCase(get(), get()) }
     single { UpdateUrlLinkUseCase(get(), get()) }

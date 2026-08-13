@@ -52,7 +52,7 @@
     <string name="tx_terms_detail">개인정보처리방침</string>
     <string name="tx_use_terms_detail">서비스 이용약관</string>
     <string name="tx_version">앱 버전</string>
-    <string name="tx_version_detail">1.1</string>
+    <string name="tx_version_detail">1.2.1</string>
     <string name="tx_language_setting">언어 선택</string>
     <string name="tx_korean" translatable="false">한국어</string>
     <string name="tx_english" translatable="false">English</string>
@@ -146,5 +146,18 @@
 
     <string name="tx_persist_hidden">앱 종료 시 숨김 상태 유지</string>
     <string name="tx_persist_hidden_detail">토글한 상태를 앱을 종료했다가 켜면 \n그대로 유지합니다</string>
+
+    <!-- Hidden Folder Tutorial -->
+    <string name="tx_update_hidden_folder_title_01">숨김 폴더 기능</string>
+    <string name="tx_update_hidden_folder_desc_01">개인적인 링크를 비밀번호로 보호하세요</string>
+    <string name="tx_update_hidden_folder_title_02">숨김 폴더 사용법</string>
+    <string name="tx_update_hidden_folder_desc_02">숨기려는 URL을 길게 누르면 숨길 수 있습니다</string>
+    <string name="tx_update_hidden_folder_title_03">숨김 URL 표시하기</string>
+    <string name="tx_update_hidden_folder_desc_03">상단 아이콘을 꾹 눌러 숨김 URL을 표시할 수 있습니다</string>
+    <string name="tx_update_feedback_title">개발자에게 한마디</string>
+    <string name="tx_update_feedback_desc">상단 피드백 버튼을 눌러 개발자에게 \n소중한 의견을 전달해주세요</string>
+    
+    <!-- Final confirmation for reset -->
+    <string name="tx_hidden_pin_reset_confirm_title">정말로 초기화하시겠습니까?</string>
 
 </resources>

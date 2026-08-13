@@ -216,23 +216,48 @@ class MyPageFragment : Fragment() {
 
             if (!clicked) return@observe
 
-            auth.signOut()
-
-            kakaoLogout()
+            // Sign out from Firebase and Kakao immediately
+            try { auth.signOut() } catch (_: Exception) {}
+            try { kakaoLogout() } catch (_: Exception) {}
 
             viewLifecycleOwner.lifecycleScope.launch {
-
+                // perform independent cleanup steps; ensure session is cleared even if other steps fail
                 try {
                     credentialManager.clearCredentialState(ClearCredentialStateRequest())
-                    sessionManager.clearSession()
-                    SessionCache.current = null
-                    vm.deleteUserBackup()
-                    vm.deleteUserTagBackup()
-                    vm.deletePassword()
-                    restartApp(requireContext())
-
                 } catch (e: Exception) {
-                    e.printStackTrace() // 로그 출력 (에러 확인용)
+                    // ignore credential clearing errors
+                    e.printStackTrace()
+                }
+
+                try {
+                    sessionManager.clearSession()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                try {
+                    SessionCache.current = null
+                } catch (_: Exception) {}
+
+                try {
+                    vm.deleteUserBackup()
+                } catch (e: Exception) { e.printStackTrace() }
+
+                try {
+                    vm.deleteUserTagBackup()
+                } catch (e: Exception) { e.printStackTrace() }
+
+                try {
+                    vm.deletePassword()
+                } catch (e: Exception) { e.printStackTrace() }
+
+                // Finally restart app to ensure all in-memory state and fragments reset
+                try {
+                    // small delay to let DataStore write complete before restarting
+                    kotlinx.coroutines.delay(250)
+                    restartApp(requireContext())
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
 

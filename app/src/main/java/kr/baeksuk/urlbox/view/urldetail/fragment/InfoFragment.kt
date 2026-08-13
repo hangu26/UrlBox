@@ -40,6 +40,7 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
     private var urlName: String? = null
     private var urlLink: String? = null
     private var isEditingLink = false
+    private var pendingUrlLink: String? = null
     private lateinit var backPressedCallback: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +101,26 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
     private fun observeSessionState() {
         iViewModel.isLoggedIn.observe(viewLifecycleOwner) { isLoggedIn ->
             renderTagSection(isLoggedIn)
+        }
+        
+        // URL 링크 수정 결과 관찰
+        iViewModel.updateUrlLinkSuccess.observe(viewLifecycleOwner) { isSuccess ->
+            if (isSuccess && pendingUrlLink != null) {
+                // 성공 시 pending URL로 변경
+                urlLink = pendingUrlLink
+                binding.txLink.setText(pendingUrlLink)
+            } else if (!isSuccess && pendingUrlLink != null) {
+                // 실패 시 원래 URL로 복원
+                binding.txLink.setText(urlLink)
+            }
+            disableLinkEditMode()
+            pendingUrlLink = null
+        }
+        
+        iViewModel.updateUrlLinkError.observe(viewLifecycleOwner) { errorMessage ->
+            if (!errorMessage.isNullOrBlank()) {
+                android.widget.Toast.makeText(requireContext(), errorMessage, android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -175,15 +196,16 @@ class InfoFragment : BaseFragment<FragmentInfoBinding>(R.layout.fragment_info),
                     }
 
                     if (normalizedUrl != urlLink) {
+                        // pending URL 저장 후 update 요청
+                        pendingUrlLink = normalizedUrl
                         iViewModel.updateUrlLink(urlLink ?: "", normalizedUrl)
-                        urlLink = normalizedUrl
-                        binding.txLink.setText(normalizedUrl)
+                    } else {
+                        disableLinkEditMode()
                     }
                 } else {
                     binding.txLink.setText(urlLink)
+                    disableLinkEditMode()
                 }
-
-                disableLinkEditMode()
 
                 true
             } else {

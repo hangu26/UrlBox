@@ -169,6 +169,7 @@
     <dimen name="margin_favorite_in_img">10dp</dimen>
     <dimen name="margin_favorite_in_thumbnail">5dp</dimen>
     <dimen name="size_img_star_in_main">18dp</dimen>
+    <dimen name="size_img_hidden_in_main">25dp</dimen>
     <dimen name="width_height_icon_setting_btn">50dp</dimen>
     <dimen name="margin_side_in_setting_btn_constraint">17dp</dimen>
     <dimen name="margin_start_between_tx_in_setting">17dp</dimen>
@@ -417,6 +418,130 @@
     <dimen name="margin_top_button_area">24dp</dimen>
     <dimen name="height_hidden_folder_button">48dp</dimen>
     <dimen name="margin_top_button_open">8dp</dimen>
+
+    <dimen name="bottom_sheet_padding">20dp</dimen>
+    <dimen name="drag_handle_width">32dp</dimen>
+    <dimen name="drag_handle_height">4dp</dimen>
+    <dimen name="drag_handle_margin_bottom">16dp</dimen>
+    <dimen name="hidden_folder_header_icon_size">42dp</dimen>
+    <dimen name="hidden_folder_header_title_margin_start">13dp</dimen>
+    <dimen name="hidden_folder_header_close_margin_end">13dp</dimen>
+    <dimen name="hidden_folder_title_text_size">15sp</dimen>
+    <dimen name="hidden_folder_description_text_size">14sp</dimen>
+    <dimen name="hidden_folder_box_margin_top">20dp</dimen>
+    <dimen name="hidden_folder_box_padding">16dp</dimen>
+    <dimen name="hidden_folder_icon_width">22dp</dimen>
+    <dimen name="hidden_folder_icon_height">24dp</dimen>
+    <dimen name="hidden_folder_text_margin_start">13dp</dimen>
+    <dimen name="hidden_folder_text_margin_top">8dp</dimen>
+    <dimen name="hidden_folder_button_area_margin_top">24dp</dimen>
+    <dimen name="hidden_folder_button_height">48dp</dimen>
+    <dimen name="hidden_folder_button_margin_top">8dp</dimen>
+    <dimen name="hidden_folder_button_text_size">16sp</dimen>
+    <dimen name="corner_radius_hidden_folder_button">54px</dimen>
+    <dimen name="hidden_folder_button_stroke_width">1dp</dimen>
+
+    <dimen name="pin_setup_dialog_corner_radius">28dp</dimen>
+    <dimen name="pin_setup_header_padding_horizontal">18dp</dimen>
+    <dimen name="pin_setup_header_padding_vertical">14dp</dimen>
+    <dimen name="pin_setup_header_icon_size">38dp</dimen>
+    <dimen name="pin_setup_header_title_margin_start">10dp</dimen>
+    <dimen name="pin_setup_header_title_text_size">15sp</dimen>
+    <dimen name="pin_setup_header_close_button_size">38dp</dimen>
+    <dimen name="pin_setup_header_close_icon_size">18dp</dimen>
+    <dimen name="pin_setup_divider_height">1dp</dimen>
+
+    <dimen name="pin_setup_entry_padding_horizontal">16dp</dimen>
+    <dimen name="pin_setup_entry_padding_top">20dp</dimen>
+    <dimen name="pin_setup_entry_padding_bottom">16dp</dimen>
+    <dimen name="pin_setup_title_text_size">28sp</dimen>
+    <dimen name="pin_setup_description_margin_top">6dp</dimen>
+    <dimen name="pin_setup_description_text_size">14sp</dimen>
+    <dimen name="pin_setup_dots_margin_top">18dp</dimen>
+    <dimen name="pin_setup_dot_size">16dp</dimen>
+    <dimen name="pin_setup_dot_spacing">14dp</dimen>
+    <dimen name="pin_setup_dot_stroke_width">1dp</dimen>
+    <dimen name="pin_setup_keypad_margin_top">16dp</dimen>
+
+    <dimen name="pin_key_width">88dp</dimen>
+    <dimen name="pin_key_height">72dp</dimen>
+    <dimen name="pin_key_text_size">22sp</dimen>
+    <dimen name="pin_key_corner_radius">22dp</dimen>
+    <dimen name="pin_key_stroke_width">1dp</dimen>
+    <dimen name="pin_setup_delete_text_size">26sp</dimen>
+
+    <dimen name="pin_setup_success_padding_top">20dp</dimen>
+    <dimen name="pin_setup_success_padding_bottom">20dp</dimen>
+    <dimen name="pin_setup_success_icon_size">50dp</dimen>
+    <dimen name="pin_setup_success_icon_corner_radius">14dp</dimen>
+    <dimen name="pin_setup_success_check_text_size">23sp</dimen>
+    <dimen name="pin_setup_success_title_margin_top">12dp</dimen>
+    <dimen name="pin_setup_success_title_text_size">24sp</dimen>
+    <dimen name="pin_setup_success_description_margin_top">6dp</dimen>
+    <dimen name="pin_setup_success_description_text_size">14sp</dimen>
+
+    <dimen name="pin_setup_indicator_margin_bottom">12dp</dimen>
+    <dimen name="pin_setup_indicator_active_width">24dp</dimen>
+    <dimen name="pin_setup_indicator_height">7dp</dimen>
+    <dimen name="pin_setup_indicator_inactive_size">7dp</dimen>
+    <dimen name="pin_setup_indicator_spacing">7dp</dimen>
+    <dimen name="pin_setup_indicator_corner_radius">5dp</dimen>
+
+    <dimen name="hidden_folder_header_close_size">32dp</dimen>
+    <dimen name="hidden_folder_header_close_icon_size">16dp</dimen>
+    <dimen name="hidden_folder_usage_text_size">14sp</dimen>
+    <dimen name="hidden_folder_usage_padding_horizontal">10dp</dimen>
+    <dimen name="hidden_folder_usage_padding_vertical">4dp</dimen>
+    <dimen name="hidden_folder_pin_top_margin">20dp</dimen>
+    <dimen name="hidden_folder_pin_icon_box_size">56dp</dimen>
+    <dimen name="hidden_folder_pin_icon_size">24dp</dimen>
+    <dimen name="hidden_folder_pin_title_size">26sp</dimen>
+    <dimen name="hidden_folder_pin_hint_size">13sp</dimen>
+    <dimen name="hidden_folder_pin_dot_size">14dp</dimen>
+    <dimen name="hidden_folder_pin_dot_spacing">10dp</dimen>
+    <dimen name="hidden_folder_pin_key_width">60dp</dimen>
+    <dimen name="hidden_folder_pin_key_height">46dp</dimen>
+    <dimen name="hidden_folder_pin_key_text_size">18sp</dimen>
+    <dimen name="hidden_folder_pin_delete_text_size">20sp</dimen>
+    <dimen name="hidden_folder_pin_key_radius">14dp</dimen>
+    <dimen name="hidden_folder_pin_forgot_margin_top">12dp</dimen>
+    <dimen name="hidden_folder_pin_forgot_size">14sp</dimen>
+
+    <dimen name="hidden_folder_reset_card_margin_top">12dp</dimen>
+    <dimen name="hidden_folder_reset_card_margin_bottom">8dp</dimen>
+    <dimen name="hidden_folder_reset_card_padding">16dp</dimen>
+    <dimen name="hidden_folder_reset_title_text_size">16sp</dimen>
+    <dimen name="hidden_folder_reset_message_margin_top">8dp</dimen>
+    <dimen name="hidden_folder_reset_message_text_size">12sp</dimen>
+    <dimen name="hidden_folder_reset_button_area_margin_top">16dp</dimen>
+    <dimen name="hidden_folder_reset_button_height">42dp</dimen>
+    <dimen name="hidden_folder_reset_button_text_size">14sp</dimen>
+    <dimen name="hidden_folder_reset_button_margin_end">8dp</dimen>
+    <dimen name="hidden_folder_reset_card_radius">12dp</dimen>
+
+    <!-- Popup URL Actions -->
+    <dimen name="popup_width">100dp</dimen>
+    <dimen name="popup_item_height">45dp</dimen>
+    <dimen name="popup_item_margin_horizontal">8dp</dimen>
+    <dimen name="popup_item_margin_start">12dp</dimen>
+    <dimen name="popup_icon_size">20dp</dimen>
+    <dimen name="popup_text_size">13sp</dimen>
+    <dimen name="popup_divider_height">1dp</dimen>
+    <dimen name="popup_divider_margin_horizontal">16dp</dimen>
+    <dimen name="popup_elevation">8dp</dimen>
+
+    <!-- Update Tutorial Hidden Folder -->
+    <dimen name="update_tuto_hidden_folder_icon_size">100dp</dimen>
+    <dimen name="update_tuto_hidden_folder_label_text_size">14sp</dimen>
+    <dimen name="update_tuto_hidden_folder_icon_spacing">50dp</dimen>
+    <dimen name="update_tuto_hidden_folder_container_margin">90dp</dimen>
+    <dimen name="update_tuto_choice_spacing">60dp</dimen>
+
+    <!-- Hidden Folder PIN Extra Margins -->
+    <dimen name="hidden_folder_pin_title_margin_top">14dp</dimen>
+    <dimen name="hidden_folder_pin_keypad_margin_top">14dp</dimen>
+    <dimen name="hidden_folder_pin_keypad_extra_margin">10dp</dimen>
+    <dimen name="hidden_folder_unlocked_bottom_padding">20dp</dimen>
 
 </resources>
 

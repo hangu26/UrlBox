@@ -52,7 +52,7 @@
     <string name="tx_terms_detail">개인정보처리방침</string>
     <string name="tx_use_terms_detail">서비스 이용약관</string>
     <string name="tx_version">앱 버전</string>
-    <string name="tx_version_detail">1.1</string>
+    <string name="tx_version_detail">1.2.1</string>
     <string name="tx_language_setting">언어 선택</string>
     <string name="tx_korean" translatable="false">한국어</string>
     <string name="tx_english" translatable="false">English</string>
@@ -115,4 +115,15 @@
     <string name="tx_enter_put">완료(Enter) 입력</string>
     <string name="tx_update_link_edt_finish">완료!</string>
     <string name="tx_update_link_edt_05">이제 링크가 즉시 업데이트됩니다. 잘못 저장된 URL도 \n쉽게 고칠 수 있어요.</string>
+
+    <!-- Hidden Folder Tutorial -->
+    <string name="tx_hidden_folder">숨김 폴더</string>
+    <string name="tx_update_hidden_folder_title_01">숨김 폴더 기능</string>
+    <string name="tx_update_hidden_folder_desc_01">개인적인 링크를 비밀번호로 보호하세요</string>
+    <string name="tx_update_hidden_folder_title_02">숨김 폴더 사용법</string>
+    <string name="tx_update_hidden_folder_desc_02">숨기려는 URL을 길게 누르면 숨길 수 있습니다</string>
+    <string name="tx_update_hidden_folder_title_03">숨김 URL 표시하기</string>
+    <string name="tx_update_hidden_folder_desc_03">상단 아이콘을 꾹 눌러 숨김 URL을 표시할 수 있습니다</string>
+    <string name="tx_update_feedback_title">개발자에게 한마디</string>
+    <string name="tx_update_feedback_desc">상단 피드백 버튼을 눌러 개발자에게 \n소중한 의견을 전달해주세요</string>
 </resources>

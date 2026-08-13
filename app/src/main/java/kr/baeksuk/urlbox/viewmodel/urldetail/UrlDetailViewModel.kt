@@ -48,6 +48,12 @@ class UrlDetailViewModel(
     private val _isLoggedIn = MutableLiveData<Boolean>()
     val isLoggedIn: LiveData<Boolean> = _isLoggedIn
 
+    private val _updateUrlLinkError = MutableLiveData<String?>()
+    val updateUrlLinkError: LiveData<String?> = _updateUrlLinkError
+
+    private val _updateUrlLinkSuccess = MutableLiveData<Boolean>()
+    val updateUrlLinkSuccess: LiveData<Boolean> = _updateUrlLinkSuccess
+
     fun loadSessionState() {
         viewModelScope.launch {
             _isLoggedIn.value = sessionManager.userSession.first().autoLogin ?: false
@@ -96,7 +102,21 @@ class UrlDetailViewModel(
 
     fun updateUrlLink(oldUrl: String, newUrl: String) {
         viewModelScope.launch {
-            updateUrlLinkUseCase(oldUrl, newUrl)
+            try {
+                updateUrlLinkUseCase(oldUrl, newUrl)
+                _updateUrlLinkError.value = null
+                _updateUrlLinkSuccess.value = true
+            } catch (e: IllegalStateException) {
+                if (e.message?.contains("이미 존재하는 URL입니다") == true) {
+                    _updateUrlLinkError.value = "이미 존재하는 URL입니다."
+                } else {
+                    _updateUrlLinkError.value = "URL 수정에 실패했습니다."
+                }
+                _updateUrlLinkSuccess.value = false
+            } catch (e: Exception) {
+                _updateUrlLinkError.value = "URL 수정에 실패했습니다."
+                _updateUrlLinkSuccess.value = false
+            }
         }
     }
 

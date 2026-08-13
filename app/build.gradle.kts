@@ -13,14 +13,14 @@ val localProperties = Properties().apply {
 
 android {
     namespace = "kr.baeksuk.urlBox"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "kr.baeksuk.urlBox"
         minSdk = 28
-        targetSdk = 35
-        versionCode = 32
-        versionName = "1.1"
+        targetSdk = 36
+        versionCode = 39
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -34,6 +34,12 @@ android {
             "String",
             "kakao_native_app_key",
             "\"${localProperties["kakao_native_app_key"]}\""
+        )
+
+        buildConfigField(
+            "String",
+            "ADMIN_EMAILS",
+            "\"${localProperties["admin_emails"]}\""
         )
 
         manifestPlaceholders["kakao_app_key"] = localProperties["kakao_app_key"] as Any

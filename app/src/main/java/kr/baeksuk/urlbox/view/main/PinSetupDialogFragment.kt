@@ -62,6 +62,10 @@ class PinSetupDialogFragment : DialogFragment() {
         dialog?.window?.apply {
             setLayout(width, ViewGroup.LayoutParams.WRAP_CONTENT)
             setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            setGravity(android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL)
+            attributes = attributes?.apply {
+                y = 100
+            }
         }
     }
 

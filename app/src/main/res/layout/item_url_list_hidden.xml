@@ -38,6 +38,17 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/icon_hidden"
+            android:layout_width="@dimen/size_img_star_in_main"
+            android:layout_height="@dimen/size_img_star_in_main"
+            android:layout_marginTop="@dimen/margin_favorite_in_img"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_hidden_url"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/icon_favorite"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/tx_url"
             android:layout_width="0dp"

@@ -435,6 +435,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         lifecycleScope.launch {
             val session = sessionManager.userSession.first()
             val isLoggedIn = session.autoLogin ?: false
+            val userId = session.userId ?: ""
 
             if (!isLoggedIn) {
                 val t = Toast.makeText(requireContext(), "게스트 모드에서는 이용할 수 없습니다.", Toast.LENGTH_SHORT)
@@ -443,10 +444,21 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 return@launch
             }
 
-            uViewModel.hideUrl(url)
-            val t = Toast.makeText(requireContext(), "URL이 숨겨졌습니다.", Toast.LENGTH_SHORT)
-            t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
-            t.show()
+            if (url.hidden) {
+                // 복원하기 - hidden 플래그만 제거, URL은 그대로 유지
+                uViewModel.showUrl(url.url, userId)
+                adapter.updateUrlHiddenStatus(url.url, false)
+                adapter.notifyDataSetChanged()
+                val t = Toast.makeText(requireContext(), "URL이 복원되었습니다.", Toast.LENGTH_SHORT)
+                t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
+                t.show()
+            } else {
+                // 숨기기
+                uViewModel.hideUrl(url)
+                val t = Toast.makeText(requireContext(), "URL이 숨겨졌습니다.", Toast.LENGTH_SHORT)
+                t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
+                t.show()
+            }
         }
     }
 

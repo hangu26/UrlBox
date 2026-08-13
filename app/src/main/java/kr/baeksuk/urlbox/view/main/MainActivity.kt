@@ -28,6 +28,8 @@ import kr.baeksuk.urlbox.view.setting.SettingActivity
 import kr.baeksuk.urlbox.view.tutorial.UpdateTutorialDialogFragment
 import kr.baeksuk.urlbox.viewmodel.main.MainViewModel
 import kr.baeksuk.urlbox.domain.CaptureLoginStateUseCase
+import kr.baeksuk.urlbox.domain.feedback.CheckAdminAccessUseCase
+import android.net.Uri
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
@@ -39,6 +41,7 @@ class MainActivity : BaseActivity() {
     private val uViewModel: UrlViewModel by viewModel()
     private val sessionManager: UserSessionManager by inject()
     private val captureLoginStateUseCase: CaptureLoginStateUseCase by inject()
+    private val checkAdminAccessUseCase: CheckAdminAccessUseCase by inject()
     private var backPressedTime = 0L
     private var isShowingHidden = false
     private var pendingToggle = false
@@ -125,7 +128,19 @@ class MainActivity : BaseActivity() {
     }
     private fun initView() {
         mBinding.imgNewUpdate.setOnClickListener {
-            showUpdateTutorial()
+            showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_HIDDEN_FOLDER)
+        }
+
+        mBinding.imgFeedback.setOnClickListener {
+            // Always open the bottom sheet. The fragment itself decides admin vs form view.
+            try {
+                DeveloperFeedbackBottomSheetDialogFragment().show(supportFragmentManager, DeveloperFeedbackBottomSheetDialogFragment.TAG)
+            } catch (e: Exception) {
+                // fallback: open public web form
+                val feedbackUrl = getString(R.string.feedback_form_url)
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(feedbackUrl)).apply { addCategory(Intent.CATEGORY_BROWSABLE) }
+                try { startActivity(intent) } catch (_: Exception) {}
+            }
         }
         
         mBinding.imgSecret.setOnClickListener {
@@ -300,15 +315,20 @@ class MainActivity : BaseActivity() {
             if (lastShownVersionCode >= currentVersionCode) {
                 return@launchWhenStarted
             }
-            showUpdateTutorial()
+            // Show hidden-folder tutorial for this update
+            showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_HIDDEN_FOLDER)
         }
     }
 
-    private fun showUpdateTutorial() {
+    private fun showUpdateTutorial(tutorialType: String = UpdateTutorialDialogFragment.TUTORIAL_TYPE_LINK_EDIT) {
         if (supportFragmentManager.findFragmentByTag(UpdateTutorialDialogFragment.TAG) != null) {
             return
         }
-        UpdateTutorialDialogFragment().show(
+        UpdateTutorialDialogFragment().apply {
+            arguments = Bundle().apply {
+                putString(UpdateTutorialDialogFragment.ARG_TUTORIAL_TYPE, tutorialType)
+            }
+        }.show(
             supportFragmentManager,
             UpdateTutorialDialogFragment.TAG
         )
@@ -337,8 +357,17 @@ class MainActivity : BaseActivity() {
                 HiddenFolderBottomSheetDialogFragment.RESULT_OPEN_PIN_SETUP,
                 false
             )
+            val openTutorial = bundle.getBoolean(
+                HiddenFolderBottomSheetDialogFragment.RESULT_OPEN_TUTORIAL,
+                false
+            )
             val unlocked = bundle.getBoolean(HiddenFolderBottomSheetDialogFragment.RESULT_UNLOCKED, false)
             val cancelled = bundle.getBoolean(HiddenFolderBottomSheetDialogFragment.RESULT_CANCELLED, false)
+
+            if (openTutorial) {
+                showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_HIDDEN_FOLDER)
+                return@setFragmentResultListener
+            }
 
             if (shouldOpenPin) {
                 showPinSetupDialog()

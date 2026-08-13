@@ -52,12 +52,18 @@ class EditUrlViewModel(
     fun updateUserUrl(url: String, urlName : String, urlMemo : String, context: Context) {
 
         viewModelScope.launch(Dispatchers.IO) {
+            // 새로운 URL과 기존 URL이 다르고, 새로운 URL이 이미 존재하는지 확인
+            if (url != urlName && _repo.hasBackupUrl(urlName)) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
 
             withContext(Dispatchers.Main) {
                 val userId = sessionManager.userId.first().orEmpty()
                 _repo.updateUrlInfo(url, urlName, urlMemo, userId)
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-
             }
 
         }
@@ -66,10 +72,16 @@ class EditUrlViewModel(
     fun updateGuestUrl(url: String, urlName : String, urlMemo : String, context: Context){
 
         viewModelScope.launch(Dispatchers.IO) {
+            // 새로운 URL과 기존 URL이 다르고, 새로운 URL이 이미 존재하는지 확인
+            if (url != urlName && _repo.hasGuestUrl(urlName)) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(context, "이미 존재하는 URL입니다.", Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
 
             withContext(Dispatchers.Main) {
                 Toast.makeText(context, "저장되었습니다.", Toast.LENGTH_SHORT).show()
-
             }
 
         }

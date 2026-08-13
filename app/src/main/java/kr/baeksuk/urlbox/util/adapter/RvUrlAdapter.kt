@@ -326,6 +326,29 @@ class RvUrlAdapter(
         updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun removeUrlFromList(urlToRemove: String) {
+        val newUrlList = urlList.filter { it.url != urlToRemove }
+        val newHiddenList = hiddenUrlsList.filter { it.url != urlToRemove }
+        urlList = newUrlList
+        hiddenUrlsList = newHiddenList
+        imgUriList = if (newUrlList.isNotEmpty()) newUrlList.map { it.imgUri } else emptyList()
+        updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateUrlHiddenStatus(urlToUpdate: String, hidden: Boolean) {
+        urlList = urlList.map { url ->
+            if (url.url == urlToUpdate) {
+                url.copy(hidden = hidden)
+            } else {
+                url
+            }
+        }
+        hiddenUrlsList = hiddenUrlsList.filter { it.url != urlToUpdate }
+        updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             VIEW_TYPE_AD -> AdViewHolder(
@@ -359,6 +382,7 @@ class RvUrlAdapter(
         private val txUrl: TextView = itemView.findViewById(R.id.tx_url)
         private val imgView: ImageView = itemView.findViewById(R.id.img_thumbnail)
         private val iconFavorite: ImageView = itemView.findViewById(R.id.icon_favorite)
+        private val iconHidden: ImageView = itemView.findViewById(R.id.icon_hidden)
 
 
         fun bind(indexedUrl: IndexedUrl) {
@@ -373,6 +397,7 @@ class RvUrlAdapter(
             }
             txUrl.text = spannableString
             iconFavorite.visibility = if (url.favorite) View.VISIBLE else View.GONE
+            iconHidden.visibility = if (url.hidden) View.VISIBLE else View.GONE
             imageLoader(context, url, imgView, indexedUrl.originalIndex, isBackup, imgUriList)
 
             imgView.setOnClickListener {

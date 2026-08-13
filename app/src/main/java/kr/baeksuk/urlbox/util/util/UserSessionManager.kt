@@ -179,10 +179,11 @@ class UserSessionManager(private val context: Context) {
 
     suspend fun clearSession() {
         context.dataStore.edit { pref ->
-            pref.remove(KEY_USER_ID)
-            pref.remove(KEY_USER_EMAIL)
-            pref.remove(KEY_USER_NAME)
-            pref.remove(KEY_USER_PROFILE)
+            // explicitly clear values to avoid stale reads from consumers
+            pref[KEY_USER_ID] = ""
+            pref[KEY_USER_EMAIL] = ""
+            pref[KEY_USER_NAME] = ""
+            pref[KEY_USER_PROFILE] = ""
             pref[KEY_AUTO_LOGIN] = false
         }
     }

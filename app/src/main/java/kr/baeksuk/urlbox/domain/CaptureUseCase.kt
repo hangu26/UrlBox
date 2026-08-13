@@ -77,6 +77,10 @@ class CaptureSaveUseCase(
     ) {
         when (request.action) {
             CaptureContentAction.SKIP -> {
+                if (!request.isEdit && urlRepository.hasBackupUrl(request.url)) {
+                    throw DuplicateUrlException()
+                }
+
                 val backupEntity = buildBackupEntity(
                     url = request.url,
                     imageKey = request.imageKey,
@@ -125,6 +129,10 @@ class CaptureSaveUseCase(
     private suspend fun handleGuestRequest(request: CaptureSaveRequest) {
         when (request.action) {
             CaptureContentAction.SKIP -> {
+                if (!request.isEdit && urlRepository.hasGuestUrl(request.url)) {
+                    throw DuplicateUrlException()
+                }
+
                 val guestEntity = buildGuestEntity(
                     url = request.url,
                     imageKey = request.imageKey,

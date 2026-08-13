@@ -9,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
+import android.widget.ImageView
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.Glide
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.DialogUpdateTutorialBinding
 import kr.baeksuk.urlbox.util.adapter.UpdateTutorialPagerAdapter
@@ -22,22 +24,37 @@ class UpdateTutorialDialogFragment : DialogFragment() {
         const val TAG = "UpdateTutorialDialogFragment"
         const val RESULT_KEY = "update_tutorial_result"
         const val RESULT_DONE = "done"
+        const val ARG_TUTORIAL_TYPE = "tutorial_type"
+        const val TUTORIAL_TYPE_LINK_EDIT = "link_edit"
+        const val TUTORIAL_TYPE_HIDDEN_FOLDER = "hidden_folder"
     }
 
     private var _binding: DialogUpdateTutorialBinding? = null
     private val binding: DialogUpdateTutorialBinding get() = _binding!!
+    private var tutorialType: String = TUTORIAL_TYPE_LINK_EDIT
+    
     private val pageChangeCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             updateActionText(position)
             adjustViewPagerHeight(position)
+            loadGifIfNeeded(position)
         }
     }
 
-    private val tutorialPages = listOf(
-        R.layout.item_update_tutorial_page_01,
-        R.layout.item_update_tutorial_page_02,
-        R.layout.item_update_tutorial_page_03
-    )
+    private val tutorialPages: List<Int>
+        get() = when (tutorialType) {
+            TUTORIAL_TYPE_HIDDEN_FOLDER -> listOf(
+                R.layout.item_update_tutorial_hidden_folder_page_01,
+                R.layout.item_update_tutorial_hidden_folder_page_02,
+                R.layout.item_update_tutorial_hidden_folder_page_03,
+                R.layout.item_update_tutorial_hidden_folder_page_04
+            )
+            else -> listOf(
+                R.layout.item_update_tutorial_page_01,
+                R.layout.item_update_tutorial_page_02,
+                R.layout.item_update_tutorial_page_03
+            )
+        }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return super.onCreateDialog(savedInstanceState).apply {
@@ -64,6 +81,7 @@ class UpdateTutorialDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = DialogUpdateTutorialBinding.inflate(inflater, container, false)
+        tutorialType = arguments?.getString(ARG_TUTORIAL_TYPE) ?: TUTORIAL_TYPE_LINK_EDIT
         return binding.root
     }
 
@@ -74,6 +92,7 @@ class UpdateTutorialDialogFragment : DialogFragment() {
         binding.dotsIndicator.attachTo(binding.viewPagerTutorial)
         updateActionText(binding.viewPagerTutorial.currentItem)
         adjustViewPagerHeight(binding.viewPagerTutorial.currentItem)
+        loadGifIfNeeded(binding.viewPagerTutorial.currentItem)
 
         binding.viewPagerTutorial.registerOnPageChangeCallback(pageChangeCallback)
 
@@ -94,6 +113,24 @@ class UpdateTutorialDialogFragment : DialogFragment() {
 
         binding.btnCloseTutorial.setOnClickListener {
             completeTutorial()
+        }
+    }
+
+    private fun loadGifIfNeeded(position: Int) {
+        if (tutorialType != TUTORIAL_TYPE_HIDDEN_FOLDER || position != 1) return
+
+        binding.viewPagerTutorial.post {
+            val recyclerView = binding.viewPagerTutorial.getChildAt(0) as? RecyclerView ?: return@post
+            val holder = recyclerView.findViewHolderForAdapterPosition(position) ?: return@post
+            val itemView = holder.itemView
+
+            val gifImageView = itemView.findViewById<ImageView>(R.id.iv_hidden_folder_gif)
+            if (gifImageView != null) {
+                Glide.with(this)
+                    .asGif()
+                    .load(R.drawable.hidden_folder)
+                    .into(gifImageView)
+            }
         }
     }
 
