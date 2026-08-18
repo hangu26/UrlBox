@@ -116,6 +116,7 @@
     <string name="tx_update_link_edt_finish">完了！</string>
     <string name="tx_update_link_edt_05">リンクはすぐに更新されます。誤って保存したURLも \n簡単に修正できます。</string>
 
+    <string name="tx_reset">リセット</string>
     <string name="tx_persist_hidden">アプリ終了時に非表示状態を保持</string>
     <string name="tx_persist_hidden_detail">トグルした状態をアプリ終了後に再起動しても維持します。</string>
 
@@ -129,5 +130,29 @@
     <string name="tx_update_hidden_folder_desc_03">上部のアイコンを長押しして非表示URLを表示できます</string>
     <string name="tx_update_feedback_title">フィードバックを送信</string>
     <string name="tx_update_feedback_desc">上部のフィードバックボタンをタップして \n開発者に貴重なご意見をお寄せください</string>
+    <string name="tx_no_password">パスワードが設定されていません</string>
+    <string name="tx_no_password_desc">現在、誰でも隠しフォルダを開くことができます。設定でPINを登録するとロックが有効になります。</string>
+    <string name="tx_set_password_now">今すぐパスワードを設定</string>
+    <string name="tx_open_anyway">そのまま開く</string>
+    <string name="desc_password_icon">パスワード</string>
+    <string name="tx_pin_setup_header">パスワード設定</string>
+    <string name="tx_pin_create_title">新しいパスワードを設定</string>
+    <string name="tx_pin_create_description">4桁のPINを入力してください</string>
+    <string name="tx_pin_confirm_title">パスワードを確認</string>
+    <string name="tx_pin_confirm_description">もう一度入力してください</string>
+    <string name="tx_pin_setup_success_title">設定完了！</string>
+    <string name="tx_pin_setup_success_description">新しいパスワードが保存されました</string>
+    <string name="tx_pin_mismatch">パスワードが一致しません。もう一度入力してください。</string>
+    <string name="tx_hidden_folder_usage">使い方</string>
+    <string name="tx_hidden_pin_input">PINを入力</string>
+    <string name="tx_hidden_pin_forgot">パスワードをお忘れですか？</string>
+    <string name="tx_hidden_pin_invalid">PINが正しくありません。</string>
+    <string name="tx_hidden_link_empty_title">非表示リンクはありません</string>
+    <string name="tx_hidden_link_empty_desc">すべての非表示リンクを見る</string>
+    <string name="tx_hidden_pin_reset_title">パスワードをリセットしますか？</string>
+    <string name="tx_hidden_pin_reset_message">リセットすると、すべての非表示リンクが削除されます。続行しますか？</string>
+    <string name="tx_hidden_pin_reset_no_user">ユーザー情報が見つかりません。</string>
+    <string name="tx_hidden_pin_reset_done">パスワードがリセットされ、非表示リンクが削除されました。</string>
+    <string name="tx_hidden_pin_reset_failed">リセットに失敗しました。もう一度お試しください。</string>
 
 </resources>

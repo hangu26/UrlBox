@@ -100,7 +100,6 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         bindPasswordKeypad(view)
         loadPasswordState()
 
-        // Always update header description count whenever hidden urls change
         val headerDescription = view.findViewById<android.widget.TextView>(R.id.tvDescription)
         uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenUrls ->
             val count = hiddenUrls?.size ?: 0
@@ -150,7 +149,6 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 .show()
         }
 
-        // Usage button: open tutorial (trigger main activity to show tutorial)
         view.findViewById<View>(R.id.tvUsage).setOnClickListener {
             parentFragmentManager.setFragmentResult(RESULT_KEY, Bundle().apply { putBoolean(RESULT_OPEN_TUTORIAL, true) })
             resultSent = true

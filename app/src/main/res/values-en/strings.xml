@@ -116,6 +116,7 @@
     <string name="tx_update_link_edt_finish">Done!</string>
     <string name="tx_update_link_edt_05">Your link is now updated immediately. You can \neasily fix incorrectly saved URLs.</string>
 
+    <string name="tx_reset">Reset</string>
     <string name="tx_persist_hidden">Keep hidden state on app exit</string>
     <string name="tx_persist_hidden_detail">If you exit and reopen the app, \nthe toggle state will be preserved.</string>
 
@@ -129,5 +130,29 @@
     <string name="tx_update_hidden_folder_desc_03">Long press the icon at the top to display hidden URLs</string>
     <string name="tx_update_feedback_title">Send Feedback</string>
     <string name="tx_update_feedback_desc">Tap the feedback button at the top to share \nyour valuable feedback with the developer</string>
+    <string name="tx_no_password">No Password Set</string>
+    <string name="tx_no_password_desc">Anyone can open the hidden folder right now. Set a PIN in Settings to enable the lock.</string>
+    <string name="tx_set_password_now">Set Password Now</string>
+    <string name="tx_open_anyway">Open Anyway</string>
+    <string name="desc_password_icon">Password</string>
+    <string name="tx_pin_setup_header">Set Password</string>
+    <string name="tx_pin_create_title">Set New Password</string>
+    <string name="tx_pin_create_description">Enter a 4-digit PIN</string>
+    <string name="tx_pin_confirm_title">Confirm Password</string>
+    <string name="tx_pin_confirm_description">Enter it again</string>
+    <string name="tx_pin_setup_success_title">Setup Complete!</string>
+    <string name="tx_pin_setup_success_description">Your new password has been saved.</string>
+    <string name="tx_pin_mismatch">Passwords do not match. Please try again.</string>
+    <string name="tx_hidden_folder_usage">How to Use</string>
+    <string name="tx_hidden_pin_input">Enter PIN</string>
+    <string name="tx_hidden_pin_forgot">Forgot your password?</string>
+    <string name="tx_hidden_pin_invalid">Incorrect PIN.</string>
+    <string name="tx_hidden_link_empty_title">No Hidden Links</string>
+    <string name="tx_hidden_link_empty_desc">View All Hidden Links</string>
+    <string name="tx_hidden_pin_reset_title">Reset Password?</string>
+    <string name="tx_hidden_pin_reset_message">Resetting will delete all hidden links. Do you want to continue?</string>
+    <string name="tx_hidden_pin_reset_no_user">User information not found.</string>
+    <string name="tx_hidden_pin_reset_done">Your password has been reset and hidden links have been deleted.</string>
+    <string name="tx_hidden_pin_reset_failed">Failed to reset. Please try again.</string>
 
 </resources>

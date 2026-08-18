@@ -116,7 +116,7 @@
     <string name="tx_enter_put">완료(Enter) 입력</string>
     <string name="tx_update_link_edt_finish">완료!</string>
     <string name="tx_hidden_folder">숨김 폴더</string>
-    <string name="tx_hidden_folder_link_count">1개의 링크</string>
+    <string name="tx_hidden_folder_link_count" translatable="false">1개의 링크</string>
     <string name="tx_no_password">비밀번호가 없어요</string>
     <string name="tx_no_password_desc">지금은 누구나 숨김 폴더를 열 수 있어요. 설정에서 PIN을 등록하면 잠금이 활성화됩니다.</string>
     <string name="tx_set_password_now">지금 비밀번호 설정하기</string>

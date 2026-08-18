@@ -281,9 +281,10 @@ class RvUrlAdapter(
                 timeStamp = urlBackupEntity.timeStamp,
                 urlName = urlBackupEntity.urlName,
                 urlMemo = urlBackupEntity.urlMemo,
-                tag = urlBackupEntity.tag
+                tag = urlBackupEntity.tag,
+                hidden = urlBackupEntity.hidden
             )
-        }.filter { it.favorite }
+        }.filter { it.favorite && !it.hidden}
         imgUriList = if (urlList.isNotEmpty()) urlList.map { it.imgUri } else emptyList()
         updateFilteredUrls(urlList.mapIndexed { index, item -> IndexedUrl(item, index) })
     }
