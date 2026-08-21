@@ -7,13 +7,18 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.app.Dialog
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.Toast
 import android.view.Gravity
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -24,6 +29,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kr.baeksuk.urlbox.util.base.MyApplication
+import kr.baeksuk.urlbox.util.share.UrlShareUseCase
+import kr.baeksuk.urlbox.util.util.UrlNavigationUtils
 import com.google.android.material.snackbar.Snackbar
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.data.local.UrlDatabase
@@ -57,6 +64,19 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var vibrator: Vibrator
     private lateinit var adapter: RvUrlAdapter
     private var resultSent: Boolean = false
+    private var shouldClearSelectionAfterShare: Boolean = false
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return object : BottomSheetDialog(requireContext(), theme) {
+            override fun onBackPressed() {
+                if (this@HiddenFolderBottomSheetDialogFragment::adapter.isInitialized && adapter.isInSelectionMode()) {
+                    clearSelectionModeHidden()
+                    return
+                }
+                super.onBackPressed()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -68,6 +88,26 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (this@HiddenFolderBottomSheetDialogFragment::adapter.isInitialized && adapter.isInSelectionMode()) {
+                    clearSelectionModeHidden()
+                    return
+                }
+                dismissAllowingStateLoss()
+            }
+        })
+
+        dialog?.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+                if (this@HiddenFolderBottomSheetDialogFragment::adapter.isInitialized && adapter.isInSelectionMode()) {
+                    clearSelectionModeHidden()
+                    return@setOnKeyListener true
+                }
+            }
+            false
+        }
 
         vibrator = requireContext().getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         noPasswordLayout = view.findViewById(R.id.layoutNoPasswordMode)
@@ -103,7 +143,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         val headerDescription = view.findViewById<android.widget.TextView>(R.id.tvDescription)
         uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenUrls ->
             val count = hiddenUrls?.size ?: 0
-            headerDescription?.text = if (count > 99) "99+개의 링크" else "${count}개의 링크"
+            headerDescription?.text = if (count > 99) getString(R.string.tx_hidden_folder_link_count_99) else getString(R.string.tx_hidden_folder_link_count, count)
         }
 
         val resetCard = view.findViewById<View>(R.id.cardResetConfirm)
@@ -169,6 +209,14 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (shouldClearSelectionAfterShare) {
+            shouldClearSelectionAfterShare = false
+            clearSelectionModeHidden()
+        }
+    }
+
     private fun loadPasswordState() {
         lifecycleScope.launch {
             val session = sessionManager.userSession.first()
@@ -178,7 +226,7 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
                 return@launch
             }
 
-            // If already unlocked in this app process, skip PIN prompt
+            /** 이미 이 앱 프로세스에서 잠금 해제된 경우 PIN 입력을 건너뜁니다. */
             if (MyApplication.hiddenFolderUnlocked) {
                 showUnlockedMode()
                 return@launch
@@ -230,27 +278,226 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         if (rvHiddenUrls != null) {
             adapter = RvUrlAdapter(
                 requireContext(),
-            onDetailClick = { url, txUrl, imgView ->
-                val intent = android.content.Intent(requireContext(), kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity::class.java).apply {
-                    putExtra("title", url.url)
-                    putExtra("imgUri", url.imgUri)
-                    putExtra("imageKey", url.imageKey)
-                    putExtra("isFavorite", url.favorite)
-                    putExtra("timeStamp", url.timeStamp.toString())
-                    putExtra("urlName", url.urlName)
-                    putExtra("urlMemo", url.urlMemo)
+                onDetailClick = { url, txUrl, imgView ->
+                    val intent = android.content.Intent(requireContext(), kr.baeksuk.urlbox.view.urldetail.UrlDetailActivity::class.java).apply {
+                        putExtra("title", url.url)
+                        putExtra("imgUri", url.imgUri)
+                        putExtra("imageKey", url.imageKey)
+                        putExtra("isFavorite", url.favorite)
+                        putExtra("timeStamp", url.timeStamp.toString())
+                        putExtra("urlName", url.urlName)
+                        putExtra("urlMemo", url.urlMemo)
+                    }
+                    startActivity(intent)
+                },
+               onHideClick = { url -> startSelectionFromPopupHidden(url) },
+               onDeleteClick = { url -> startSelectionFromPopupHidden(url) },
+                onShareClick = { url -> startSelectionFromPopupHidden(url) },
+                onSelectionChanged = { updateSelectionUiHidden() }
+            )
+
+            rvHiddenUrls.apply {
+                layoutManager = GridLayoutManager(context, 2)
+                adapter = this@HiddenFolderBottomSheetDialogFragment.adapter
+            }
+        }
+    }
+
+    private fun startSelectionFromPopupHidden(initialUrl: Url) {
+        adapter.setSelectionMode(true)
+        adapter.toggleUrlSelection(initialUrl.url)
+        adapter.notifyDataSetChanged()
+        updateSelectionUiHidden()
+        showBottomActionsHidden()
+    }
+
+    private fun updateSelectionUiHidden() {
+        val topBar = view?.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.top_selection_bar_hidden)
+        val bottomBar = view?.findViewById<android.view.View>(R.id.bottom_action_bar_hidden)
+        val tvSelected = view?.findViewById<TextView>(R.id.tv_selected_count_hidden)
+        val tvCancel = view?.findViewById<TextView>(R.id.tv_cancel_selection_hidden)
+        val cbSelectAll = view?.findViewById<android.widget.CheckBox>(R.id.cb_select_all_hidden)
+
+        val selectedCount = adapter.getSelectedCount()
+
+        topBar?.visibility = if (adapter.isInSelectionMode()) View.VISIBLE else View.GONE
+        
+        if (adapter.isInSelectionMode()) {
+            if (bottomBar?.visibility != View.VISIBLE) {
+                showBottomActionsHiddenAnimated(bottomBar)
+            } else {
+                bottomBar.alpha = 1f
+                bottomBar.translationY = 0f
+                bottomBar.visibility = View.VISIBLE
+            }
+        } else {
+            resetHiddenRecyclerPadding()
+            if (bottomBar?.visibility != View.GONE) {
+                hideBottomActionsHiddenAnimated(bottomBar)
+            } else {
+                bottomBar?.alpha = 1f
+                bottomBar?.translationY = 0f
+            }
+        }
+        tvSelected?.text = "${selectedCount}개 선택됨"
+
+        /** 체크박스 상태 */
+        cbSelectAll?.setOnClickListener {
+            val checked = cbSelectAll.isChecked
+            if (checked) {
+                adapter.selectAll()
+            } else {
+                adapter.clearSelection()
+            }
+            adapter.notifyDataSetChanged()
+            updateSelectionUiHidden()
+        }
+
+        /** 초기 체크 상태 설정 */
+        cbSelectAll?.isChecked = (adapter.getSelectedCount() > 0 && adapter.getSelectedCount() == adapter.getCurrentUrls().size)
+
+        tvCancel?.setOnClickListener {
+            adapter.clearSelection()
+            adapter.setSelectionMode(false)
+            adapter.notifyDataSetChanged()
+            updateSelectionUiHidden()
+        }
+    }
+
+    private fun showBottomActionsHidden() {
+        val root = view ?: return
+        val bottomBar = root.findViewById<View>(R.id.bottom_action_bar_hidden)
+        val btnShare = root.findViewById<View>(R.id.btn_bottom_share_hidden)
+        val btnRestore = root.findViewById<View>(R.id.btn_bottom_restore_hidden)
+        val btnDelete = root.findViewById<View>(R.id.btn_bottom_delete_hidden)
+
+        showBottomActionsHiddenAnimated(bottomBar)
+        bottomBar?.bringToFront()
+        bottomBar?.requestLayout()
+
+        btnShare?.setOnClickListener {
+            shareSelectedHiddenUrls()
+        }
+
+        btnRestore?.setOnClickListener {
+            hideSelectedHiddenUrls(false)
+            adapter.clearSelection()
+            adapter.setSelectionMode(false)
+            updateSelectionUiHidden()
+        }
+
+        btnDelete?.setOnClickListener {
+            deleteSelectedHiddenUrls()
+            adapter.clearSelection()
+            adapter.setSelectionMode(false)
+            updateSelectionUiHidden()
+        }
+
+        /** RecyclerView에 하단 패딩 추가 — 마지막 항목이 액션 바에 가려지지 않도록 */
+        val rv = root.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvHiddenUrls)
+        val actionBarHeight = bottomBar?.height ?: (resources.displayMetrics.density * 56).toInt()
+        rv?.setPadding(rv.paddingLeft, rv.paddingTop, rv.paddingRight, actionBarHeight)
+    }
+
+    private fun hideBottomActionsHidden() {
+        resetHiddenRecyclerPadding()
+        val bottomBar = view?.findViewById<View>(R.id.bottom_action_bar_hidden)
+        hideBottomActionsHiddenAnimated(bottomBar)
+    }
+
+    private fun showBottomActionsHiddenAnimated(view: View?) {
+        if (view == null) return
+        view.visibility = View.VISIBLE
+        view.alpha = 0f
+        view.translationY = view.height.toFloat()
+        view.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(360)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+    }
+
+    private fun hideBottomActionsHiddenAnimated(view: View?) {
+        if (view == null) return
+        view.animate()
+            .translationY(view.height.toFloat())
+            .alpha(0f)
+            .setDuration(320)
+            .setInterpolator(AccelerateInterpolator())
+            .withEndAction {
+                view.visibility = View.GONE
+                view.translationY = 0f
+                view.alpha = 1f
+            }
+            .start()
+    }
+
+    private fun hideSelectedHiddenUrls(hide: Boolean = true) {
+        val selected = adapter.getSelectedUrls()
+        if (selected.isEmpty()) return
+        lifecycleScope.launch {
+            val session = sessionManager.userSession.first()
+            val isLoggedIn = session.autoLogin ?: false
+            if (!isLoggedIn) {
+                Toast.makeText(requireContext(), "게스트 모드에서는 이용할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            selected.forEach { url ->
+                /** hide==false이면 복원 */
+                if (!hide) {
+                    uViewModel.showUrl(url.url, session.userId ?: "")
+                    adapter.updateUrlHiddenStatus(url.url, false)
+                } else {
+                    uViewModel.hideUrl(url)
+                    adapter.updateUrlHiddenStatus(url.url, true)
                 }
-                startActivity(intent)
-            },
-            onHideClick = { url -> showUrl(url) },
-            onDeleteClick = { }
+            }
+            adapter.clearSelection()
+            adapter.notifyDataSetChanged()
+            Snackbar.make(requireView(), if (!hide) "선택한 URL이 복원되었습니다." else "선택한 URL이 숨겨졌습니다.", Snackbar.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun deleteSelectedHiddenUrls() {
+        val selected = adapter.getSelectedUrls()
+        if (selected.isEmpty()) return
+        selected.forEach { url ->
+            uViewModel.deleteUrl(url)
+        }
+        adapter.clearSelection()
+        adapter.notifyDataSetChanged()
+        Snackbar.make(requireView(), "선택한 URL이 삭제되었습니다.", Snackbar.LENGTH_SHORT).show()
+    }
+
+    private fun shareSelectedHiddenUrls() {
+        val selectedUrlObjects = adapter.getSelectedUrls()
+        if (selectedUrlObjects.isEmpty()) {
+            Toast.makeText(requireContext(), "공유할 URL을 선택해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        shouldClearSelectionAfterShare = true
+        UrlShareUseCase(this, sessionManager).shareSelectedUrls(
+            selectedUrlObjects,
+            view?.findViewById(R.id.btn_bottom_share_hidden),
+            extraAboveOffsetPx = resources.getDimensionPixelSize(R.dimen.share_popup_hidden_extra_above),
+            allowOverflow = true
         )
-            
-        rvHiddenUrls.apply {
-            layoutManager = GridLayoutManager(context, 2)
-            adapter = this@HiddenFolderBottomSheetDialogFragment.adapter
-        }
-        }
+    }
+
+    private fun clearSelectionModeHidden() {
+        if (!this::adapter.isInitialized) return
+        adapter.clearSelection()
+        adapter.setSelectionMode(false)
+        resetHiddenRecyclerPadding()
+        updateSelectionUiHidden()
+    }
+
+    private fun resetHiddenRecyclerPadding() {
+        val rv = view?.findViewById<androidx.recyclerview.widget.RecyclerView>(R.id.rvHiddenUrls) ?: return
+        rv.setPadding(rv.paddingLeft, rv.paddingTop, rv.paddingRight, 0)
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -262,11 +509,11 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
         uViewModel.getHiddenUrls().observe(viewLifecycleOwner) { hiddenUrls ->
             val count = hiddenUrls.size
 
-            // Update header count (cap at 99+)
-            tvDescription?.text = if (count > 99) "99+개의 링크" else "${count}개의 링크"
+            /** 헤더 카운트 업데이트 (99+로 제한) */
+            tvDescription?.text = if (count > 99) getString(R.string.tx_hidden_folder_link_count_99) else getString(R.string.tx_hidden_folder_link_count, count)
 
             if (count == 0) {
-                // show empty state
+                /** 빈 상태 표시 */
                 layoutHiddenEmpty?.visibility = View.VISIBLE
                 rvHiddenUrls?.visibility = View.GONE
             } else {
@@ -294,9 +541,9 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     }
 
     private fun openUrlDetail(url: Url) {
-        // URL 상세 보기 기능
-        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url.url))
-        startActivity(intent)
+        if (!UrlNavigationUtils.openUrl(requireContext(), url.url)) {
+            Toast.makeText(requireContext(), "유효한 URL이 아닙니다.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showUrl(url: Url) {
@@ -354,9 +601,9 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun verifyPin() {
         val input = enteredPin.toString()
         if (input == storedPin) {
-            // mark unlocked for this app session so user isn't prompted again
+            /** 이 앱 세션에서 잠금 해제되었음을 표시하여 사용자가 다시 묻지 않게 함 */
             MyApplication.hiddenFolderUnlocked = true
-            // notify host that unlock succeeded
+            /** 호스트에 잠금 해제가 성공했음을 알림 */
             parentFragmentManager.setFragmentResult(RESULT_KEY, android.os.Bundle().apply { putBoolean(RESULT_UNLOCKED, true) })
             resultSent = true
             showUnlockedMode()
@@ -394,10 +641,24 @@ class HiddenFolderBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        // If no result was sent (user dismissed/closed without unlocking or choosing setup), emit cancelled
+        /** 결과가 전송되지 않았으면(사용자가 잠금 해제나 설정 선택 없이 닫은 경우) 취소를 전송 */
         if (!resultSent) {
             parentFragmentManager.setFragmentResult(RESULT_KEY, Bundle().apply { putBoolean(RESULT_CANCELLED, true) })
             resultSent = true
+        }
+    }
+
+    /** 호스트 액티비티가 시트 내부의 선택을 조회/취소할 수 있도록 허용 */
+    fun isSelectionActiveHidden(): Boolean = ::adapter.isInitialized && adapter.isInSelectionMode()
+
+    fun cancelSelectionHidden() {
+        if (::adapter.isInitialized && adapter.isInSelectionMode()) {
+            adapter.clearSelection()
+            adapter.setSelectionMode(false)
+            adapter.notifyDataSetChanged()
+            updateSelectionUiHidden()
+            view?.findViewById<View>(R.id.bottom_action_bar_hidden)?.visibility = View.GONE
+            view?.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.top_selection_bar_hidden)?.visibility = View.GONE
         }
     }
 }

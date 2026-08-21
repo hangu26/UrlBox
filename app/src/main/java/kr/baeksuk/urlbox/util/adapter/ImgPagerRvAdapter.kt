@@ -2,8 +2,8 @@ package kr.baeksuk.urlbox.util.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
+import android.widget.Toast
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.core.view.doOnPreDraw
 import kr.baeksuk.urlBox.databinding.ItemThumbnailPageBinding
 import kr.baeksuk.urlbox.model.Url
+import kr.baeksuk.urlbox.util.util.UrlNavigationUtils
 
 class ImgPagerRvAdapter(
     private var urlList: List<Url>,
@@ -79,10 +80,9 @@ class ImgPagerRvAdapter(
 
 
             txUrl.setOnClickListener {
-
-                val intent = Intent(Intent.ACTION_VIEW, txUrl.text.toString().toUri())
-                context.startActivity(intent)
-
+                if (!UrlNavigationUtils.openUrl(context, txUrl.text.toString())) {
+                    Toast.makeText(context, "유효한 URL이 아닙니다.", Toast.LENGTH_SHORT).show()
+                }
             }
 
             binding.clLink.setOnTouchListener { v, event ->
@@ -90,8 +90,9 @@ class ImgPagerRvAdapter(
                 setTouchAnimation(v, event)
 
                 if (event?.action == MotionEvent.ACTION_UP) {
-                    val intent = Intent(Intent.ACTION_VIEW, txUrl.text.toString().toUri())
-                    context.startActivity(intent)
+                    if (!UrlNavigationUtils.openUrl(context, txUrl.text.toString())) {
+                        Toast.makeText(context, "유효한 URL이 아닙니다.", Toast.LENGTH_SHORT).show()
+                    }
                 }
 
                 false

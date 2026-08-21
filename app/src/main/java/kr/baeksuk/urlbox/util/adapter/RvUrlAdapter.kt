@@ -38,6 +38,7 @@ import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.model.UserTags
 import kr.baeksuk.urlbox.util.util.AppEvent
 import kr.baeksuk.urlbox.util.util.ImgUriListData
+import kr.baeksuk.urlbox.util.util.UrlNavigationUtils
 import kr.baeksuk.urlbox.util.util.secretLog
 
 class RvUrlAdapter(
@@ -45,10 +46,12 @@ class RvUrlAdapter(
     private val onDetailClick: (Url, View, View) -> Unit,
     private val onHideClick: (Url) -> Unit = {},
     private val onDeleteClick: (Url) -> Unit = {},
+    private val onShareClick: (Url) -> Unit = {},
+    private val onSelectionChanged: (() -> Unit)? = null,
     private val imageLoader: (Context, Url, ImageView, Int, Boolean, List<String>) -> Unit =
         UrlImageLoader::load
 ) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         private const val VIEW_TYPE_URL = 0
         private const val VIEW_TYPE_AD = 1
@@ -76,6 +79,10 @@ class RvUrlAdapter(
     private var isGuestMode = false
     private var isHiddenMode = false
     private var hiddenUrlsList = listOf<Url>()
+    
+    // 선택 모드 변수
+    private var isSelectionMode = false
+    private val selectedUrls = mutableSetOf<String>()
     private val nativeAdCache =
         object : LinkedHashMap<Int, NativeAd>(MAX_NATIVE_AD_CACHE, 0.75f, true) {}
     private val loadingAdSlots = mutableSetOf<Int>()
@@ -384,7 +391,7 @@ class RvUrlAdapter(
         private val imgView: ImageView = itemView.findViewById(R.id.img_thumbnail)
         private val iconFavorite: ImageView = itemView.findViewById(R.id.icon_favorite)
         private val iconHidden: ImageView = itemView.findViewById(R.id.icon_hidden)
-
+            private val checkboxSelect: android.widget.CheckBox? = itemView.findViewById(R.id.checkbox_select)
 
         fun bind(indexedUrl: IndexedUrl) {
             val url = indexedUrl.url
@@ -401,23 +408,52 @@ class RvUrlAdapter(
             iconHidden.visibility = if (url.hidden) View.VISIBLE else View.GONE
             imageLoader(context, url, imgView, indexedUrl.originalIndex, isBackup, imgUriList)
 
+            // 선택 모드 UI 처리
+                checkboxSelect?.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
+                // avoid triggering listener when setting checked programmatically
+                checkboxSelect?.setOnCheckedChangeListener(null)
+                checkboxSelect?.isChecked = selectedUrls.contains(url.url)
+
             imgView.setOnClickListener {
-                onDetailClick(url, txUrl, imgView)
+                if (isSelectionMode) {
+                    // 선택 모드: 체크박스 토글
+                    toggleUrlSelection(url.url)
+                } else {
+                    // 일반 모드: 상세 보기
+                    onDetailClick(url, txUrl, imgView)
+                }
             }
             
             imgView.setOnLongClickListener {
-                showContextMenu(imgView, url)
+                if (!isSelectionMode) {
+                    showContextMenu(imgView, url)
+                }
                 true
             }
             
             txUrl.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, url.url.toUri())
-                context.startActivity(intent)
+                if (!isSelectionMode) {
+                    if (!UrlNavigationUtils.openUrl(context, url.url)) {
+                        Toast.makeText(context, "유효한 URL이 아닙니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             
             txUrl.setOnLongClickListener { v ->
-                showContextMenu(v, url)
+                if (!isSelectionMode) {
+                    showContextMenu(v, url)
+                }
                 true
+            }
+
+            // 체크박스 클릭 처리
+                checkboxSelect?.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    selectedUrls.add(url.url)
+                } else {
+                    selectedUrls.remove(url.url)
+                }
+                onSelectionChanged?.invoke()
             }
         }
         
@@ -428,20 +464,20 @@ class RvUrlAdapter(
             val popupView = LayoutInflater.from(context).inflate(R.layout.popup_url_actions, null)
 
             val actionCopy = popupView.findViewById<View>(R.id.action_copy)
+            val actionShare = popupView.findViewById<View>(R.id.action_share)
             val actionHide = popupView.findViewById<View>(R.id.action_hide)
             val actionHideIcon = popupView.findViewById<ImageView>(R.id.action_hide_icon)
             val actionHideText = popupView.findViewById<TextView>(R.id.action_hide_text)
             val actionDelete = popupView.findViewById<View>(R.id.action_delete)
 
-            // Decide label per item: if the item is already hidden -> show '복원하기', else '숨기기'
             if (url.hidden) {
-                actionHideText?.text = "복원하기"
+                actionHideText?.text = itemView.context.getString(R.string.tx_restore)
                 actionHideIcon?.setImageResource(R.drawable.ic_close_tag)
-                actionHide.contentDescription = "복원하기"
+                actionHide.contentDescription = itemView.context.getString(R.string.tx_restore)
             } else {
-                actionHideText?.text = "숨기기"
+                actionHideText?.text = itemView.context.getString(R.string.tx_hide)
                 actionHideIcon?.setImageResource(R.drawable.ic_lock)
-                actionHide.contentDescription = "숨기기"
+                actionHide.contentDescription = itemView.context.getString(R.string.tx_hide)
             }
 
             // 게스트 모드일 때 숨기기 버튼 비활성화
@@ -498,6 +534,12 @@ class RvUrlAdapter(
                 popupWindow.dismiss()
             }
 
+            // 공유 버튼 처리
+            actionShare?.setOnClickListener {
+                onShareClick(url)
+                popupWindow.dismiss()
+            }
+
             if (!isGuestMode) {
                 actionHide.setOnClickListener {
                     onHideClick(url)
@@ -539,5 +581,50 @@ class RvUrlAdapter(
         nativeAdCache.clear()
         loadingAdSlots.clear()
         super.onDetachedFromRecyclerView(recyclerView)
+    }
+
+    // 선택 모드 관련 메서드
+    fun setSelectionMode(enabled: Boolean) {
+        isSelectionMode = enabled
+        if (!enabled) {
+            selectedUrls.clear()
+        }
+    }
+
+    fun isInSelectionMode(): Boolean = isSelectionMode
+
+    fun toggleUrlSelection(urlLink: String) {
+        if (selectedUrls.contains(urlLink)) {
+            selectedUrls.remove(urlLink)
+        } else {
+            selectedUrls.add(urlLink)
+        }
+        onSelectionChanged?.invoke()
+        notifyDataSetChanged()
+    }
+
+    fun isUrlSelected(urlLink: String): Boolean = selectedUrls.contains(urlLink)
+
+    fun getSelectedUrls(): List<Url> {
+        return urlList.filter { selectedUrls.contains(it.url) }
+    }
+
+    fun getCurrentUrls(): List<Url> = urlList
+
+    fun getSelectedCount(): Int = selectedUrls.size
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun clearSelection() {
+        selectedUrls.clear()
+        onSelectionChanged?.invoke()
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun selectAll() {
+        selectedUrls.clear()
+        urlList.forEach { selectedUrls.add(it.url) }
+        onSelectionChanged?.invoke()
+        notifyDataSetChanged()
     }
 }

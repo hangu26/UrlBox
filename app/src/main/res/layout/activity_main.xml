@@ -63,6 +63,17 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageView
+                        android:id="@+id/img_share"
+                        android:layout_width="@dimen/size_img_share"
+                        android:layout_height="@dimen/size_img_share"
+                        android:layout_marginEnd="@dimen/margin_end_img_feedback"
+                        android:src="@drawable/ic_share"
+                        android:contentDescription="공유"
+                        app:layout_constraintBottom_toBottomOf="@+id/img_setting"
+                        app:layout_constraintTop_toTopOf="@+id/img_setting"
+                        app:layout_constraintEnd_toStartOf="@+id/img_feedback"/>
+
+                    <ImageView
                         android:id="@+id/img_new_update"
                         android:layout_width="@dimen/width_btn_new_update"
                         android:layout_height="@dimen/height_btn_new_update"

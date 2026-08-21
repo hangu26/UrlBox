@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <size android:width="@dimen/checkbox_size" android:height="@dimen/checkbox_size" />
+            <solid android:color="#3B82F6" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/ic_check_black" android:width="@dimen/checkbox_icon_size" android:height="@dimen/checkbox_icon_size" android:gravity="center" />
+</layer-list>

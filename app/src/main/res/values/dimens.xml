@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <dimen name="splash_app_name_size">51sp</dimen>
     <dimen name="splash_app_name_margin_bottom">90dp</dimen>
@@ -88,7 +88,7 @@
     <dimen name="my_page_constraint_margin_top">17dp</dimen>
     <dimen name="my_page_img_margin_top">17dp</dimen>
     <dimen name="tx_guest_email_size">17sp</dimen>
-    <dimen name="my_page_linear_margin_top">10dp</dimen> <!-- 광고 �?추�???변�? ?�전?�?29dp -->
+    <dimen name="my_page_linear_margin_top">10dp</dimen> 
     <dimen name="my_page_linear_margin_top_02">20dp</dimen>
     <dimen name="padding_bottom_my_page_linear">90dp</dimen>
     <dimen name="my_page_linear_height">90dp</dimen>
@@ -218,6 +218,17 @@
     <dimen name="size_img_url">21dp</dimen>
     <dimen name="margin_img_url_to_tx_visit">8dp</dimen>
     <dimen name="height_constraint_btn_recapture">50dp</dimen>
+
+    <dimen name="share_popup_width">180dp</dimen>
+    <dimen name="share_popup_item_height">48dp</dimen>
+    <dimen name="share_popup_text_size">15sp</dimen>
+    <dimen name="share_popup_divider_height">1dp</dimen>
+    <dimen name="share_popup_padding_horizontal">16dp</dimen>
+    <dimen name="share_popup_padding_top">8dp</dimen>
+    <dimen name="share_popup_padding_bottom">8dp</dimen>
+    <dimen name="share_popup_offset_x">1dp</dimen>
+    <dimen name="share_popup_offset_y">100dp</dimen>
+    <dimen name="share_popup_hidden_extra_above">8dp</dimen>
     <dimen name="size_icon_camera">21dp</dimen>
     <dimen name="size_icon_album">21dp</dimen>
     <dimen name="margin_icon_camera">10dp</dimen>
@@ -314,7 +325,7 @@
     <dimen name="height_app_splash_logo">203dp</dimen>
     <dimen name="margin_top_ad_view">10dp</dimen>
 
-    <!-- update tutorial page 01 -->
+    
     <dimen name="update_tuto_page01_header_margin_horizontal">22dp</dimen>
     <dimen name="update_tuto_page01_header_margin_top">22dp</dimen>
     <dimen name="update_tuto_page01_header_icon_size">33dp</dimen>
@@ -344,7 +355,7 @@
     <dimen name="update_tuto_page01_title_text_size">17sp</dimen>
     <dimen name="update_tuto_page01_description_margin_top">6dp</dimen>
 
-    <!-- update tutorial page 02 -->
+    
     <dimen name="update_tuto_page02_cursor_width">2dp</dimen>
     <dimen name="update_tuto_page02_cursor_margin_start">3dp</dimen>
     <dimen name="update_tuto_page02_enter_container_margin_vertical">8dp</dimen>
@@ -356,11 +367,11 @@
     <dimen name="update_tuto_page02_enter_text_margin_start">8dp</dimen>
     <dimen name="update_tuto_page02_enter_text_margin_end">13dp</dimen>
 
-    <!-- update tutorial page 03 -->
+    
     <dimen name="update_tuto_page03_done_icon_size">19dp</dimen>
     <dimen name="update_tuto_page03_done_icon_margin_start">8dp</dimen>
 
-    <!-- update tutorial dialog -->
+    
     <dimen name="update_tuto_dialog_padding_horizontal">20dp</dimen>
     <dimen name="update_tuto_dialog_padding_top">24dp</dimen>
     <dimen name="update_tuto_dialog_padding_bottom">24dp</dimen>
@@ -390,6 +401,7 @@
 
     <dimen name="size_img_feedback">33dp</dimen>
     <dimen name="size_img_secret">33dp</dimen>
+    <dimen name="size_img_share">33dp</dimen>
     <dimen name="margin_end_img_secret">7dp</dimen>
     <dimen name="margin_end_img_feedback">7dp</dimen>
 
@@ -519,7 +531,7 @@
     <dimen name="hidden_folder_reset_button_margin_end">8dp</dimen>
     <dimen name="hidden_folder_reset_card_radius">12dp</dimen>
 
-    <!-- Popup URL Actions -->
+    
     <dimen name="popup_width">100dp</dimen>
     <dimen name="popup_item_height">45dp</dimen>
     <dimen name="popup_item_margin_horizontal">8dp</dimen>
@@ -530,19 +542,34 @@
     <dimen name="popup_divider_margin_horizontal">16dp</dimen>
     <dimen name="popup_elevation">8dp</dimen>
 
-    <!-- Update Tutorial Hidden Folder -->
+    
     <dimen name="update_tuto_hidden_folder_icon_size">100dp</dimen>
     <dimen name="update_tuto_hidden_folder_label_text_size">14sp</dimen>
     <dimen name="update_tuto_hidden_folder_icon_spacing">50dp</dimen>
     <dimen name="update_tuto_hidden_folder_container_margin">90dp</dimen>
     <dimen name="update_tuto_choice_spacing">60dp</dimen>
 
-    <!-- Hidden Folder PIN Extra Margins -->
+    
     <dimen name="hidden_folder_pin_title_margin_top">14dp</dimen>
     <dimen name="hidden_folder_pin_keypad_margin_top">14dp</dimen>
     <dimen name="hidden_folder_pin_keypad_extra_margin">10dp</dimen>
     <dimen name="hidden_folder_unlocked_bottom_padding">20dp</dimen>
 
+    <dimen name="checkbox_size">24dp</dimen>
+    <dimen name="checkbox_icon_size">12dp</dimen>
+    <dimen name="checkbox_stroke_width">0.5dp</dimen>
+
+    <dimen name="bottom_action_bar_margin_bottom">15dp</dimen>
+    <dimen name="bottom_action_item_padding">8dp</dimen>
+    <dimen name="bottom_action_icon_size">35dp</dimen>
+    <dimen name="bottom_action_text_size">12sp</dimen>
+    <dimen name="bottom_action_cancel_text_size">14sp</dimen>
+    <dimen name="bottom_action_cancel_margin_end">16dp</dimen>
+    <dimen name="top_selection_bar_height">48dp</dimen>
+    <dimen name="top_selection_bar_elevation">8dp</dimen>
+    <dimen name="top_selection_checkbox_margin_start">12dp</dimen>
+    <dimen name="top_selection_count_text_size">16sp</dimen>
+    <dimen name="top_selection_count_margin_start">12dp</dimen>
+    <dimen name="top_selection_cancel_text_size">14sp</dimen>
+    <dimen name="top_selection_cancel_margin_end">16dp</dimen>
 </resources>
-
-

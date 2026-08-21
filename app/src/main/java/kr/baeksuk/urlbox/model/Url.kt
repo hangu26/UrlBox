@@ -9,6 +9,7 @@ data class Url(
     val timeStamp : Long = 0,
     val urlName : String? = null,
     val urlMemo : String? = "",
-    val tag : List<UserTags>? = null
-
+    val tag : List<UserTags>? = null,
+    val senderUid: String? = null,
+    val imagePath: String? = null
 )

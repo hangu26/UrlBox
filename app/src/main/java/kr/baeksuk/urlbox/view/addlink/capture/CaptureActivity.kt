@@ -18,6 +18,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.PixelCopy
 import android.view.View
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -158,24 +159,45 @@ class CaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSelect
                 request: WebResourceRequest
             ): Boolean {
                 val requestUrl = request.url.toString()
+                val scheme = request.url.scheme?.lowercase()
 
-                if (requestUrl.startsWith("http://") || requestUrl.startsWith("https://")) {
+                if (scheme == "http" || scheme == "https" || scheme == "about") {
                     return false
                 }
 
-                try {
-                    val intent = Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME)
-
-                    // 실행 가능한 앱이 있는지 체크
-                    if (intent.resolveActivity(view.context.packageManager) != null) {
-                        view.context.startActivity(intent)
-                        return true // 앱 실행 성공
+                return try {
+                    val intent = when {
+                        requestUrl.startsWith("intent://") -> Intent.parseUri(requestUrl, Intent.URI_INTENT_SCHEME)
+                        else -> Intent(Intent.ACTION_VIEW, request.url)
                     }
+
+                    val hasHandler = intent.resolveActivity(view.context.packageManager) != null
+                    if (hasHandler) {
+                        view.context.startActivity(intent)
+                    } else {
+                        Log.w("CaptureWebView", "Ignoring unsupported custom scheme: $requestUrl")
+                    }
+                    true
                 } catch (e: Exception) {
-                    Log.e("WebView", "딥링크 해석 실패: ${e.message}")
+                    Log.w("CaptureWebView", "Custom scheme handling failed: $requestUrl (${e.message})")
+                    true
+                }
+            }
+
+            override fun onReceivedError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                error: WebResourceError?
+            ) {
+                val url = request?.url?.toString().orEmpty()
+                val errorCode = error?.errorCode ?: -1
+
+                if (url.startsWith("snssdk") || url.startsWith("intent://") || (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("about:"))) {
+                    Log.w("CaptureWebView", "Ignoring unsupported scheme page: url=$url errorCode=$errorCode")
+                    return
                 }
 
-                return true
+                super.onReceivedError(view, request, error)
             }
         }
 

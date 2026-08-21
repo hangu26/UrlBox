@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.first
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
@@ -135,13 +136,23 @@ class UrlViewModel(
 
             val urlSource = loadUserHomeDataUseCase.getUrlData(userId)
             _urlData.addSource(urlSource) { data ->
-                syncUrlBackup(data, mode)
-                _urlData.value = data
-                _isLoading.value = false
-                _urlData.removeSource(urlSource)
+                // Perform sync on IO and ensure DB merge completes before updating UI to avoid race that blanks imgUri
+                viewModelScope.launch(Dispatchers.IO) {
+                    try {
+                        syncUrlBackupSuspend(data, mode)
+                    } catch (e: Exception) {
+                        android.util.Log.e("UrlViewModel", "syncUrlBackupSuspend failed: ${e.message}")
+                    }
 
-                urlLoaded = true
-                finishSyncIfNeeded()
+                    withContext(Dispatchers.Main) {
+                        _urlData.value = data
+                        _isLoading.value = false
+                        _urlData.removeSource(urlSource)
+
+                        urlLoaded = true
+                        finishSyncIfNeeded()
+                    }
+                }
             }
 
             val tagSource = loadUserHomeDataUseCase.getTagData(userId)
@@ -179,15 +190,24 @@ class UrlViewModel(
         }
     }
 
-    private fun syncUrlBackup(data: Pair<List<Url>, List<String>>, mode: RemoteSyncMode) {
+    private suspend fun syncUrlBackupSuspend(data: Pair<List<Url>, List<String>>, mode: RemoteSyncMode) {
         val urlDataList = data.first
         val imgUriList = data.second
 
-        val urlBackupEntity = urlDataList.zip(imgUriList) { url, imgUri ->
+        // Fetch existing backups from Room to preserve existing imgUri when remote value is blank
+        val urlLinks = urlDataList.map { it.url }
+        val existingBackups = if (urlLinks.isNotEmpty()) urlDao.getUrlBackupIsExist(urlLinks) else emptyList()
+        val existingMap = existingBackups.associateBy { it.urlLink }
+
+        val mergedBackupEntities = urlDataList.mapIndexed { index, url ->
+            val imgFromRemote = imgUriList.getOrNull(index).orEmpty()
+            val preservedImg = existingMap[url.url]?.imgUri.orEmpty()
+            val finalImg = if (imgFromRemote.isBlank()) preservedImg else imgFromRemote
+
             UrlBackupEntity(
                 urlLink = url.url,
                 imageKey = url.imageKey,
-                imgUri = imgUri,
+                imgUri = finalImg,
                 favorite = url.favorite,
                 hidden = url.hidden,
                 timeStamp = url.timeStamp,
@@ -197,9 +217,18 @@ class UrlViewModel(
             )
         }
 
-        when (mode) {
-            RemoteSyncMode.INSERT -> insertUrlBackup(urlBackupEntity)
-            RemoteSyncMode.REFRESH -> refreshUrlBackup(urlBackupEntity)
+        // Apply to Room synchronously on IO dispatcher
+        if (mode == RemoteSyncMode.INSERT) {
+            // Similar logic as before: only insert new ones
+            val existingLinks = existingBackups.map { it.urlLink }
+            val toInsert = mergedBackupEntities.filter { it.urlLink !in existingLinks }
+            if (toInsert.isNotEmpty()) {
+                urlDao.insertUrlBackup(toInsert)
+            }
+        } else {
+            // REFRESH: replace entire backup table with merged data
+            urlDao.deleteAllUrlBackup()
+            if (mergedBackupEntities.isNotEmpty()) urlDao.insertUrlBackup(mergedBackupEntities)
         }
     }
 
@@ -346,6 +375,24 @@ class UrlViewModel(
     /** setShowHiddenUrls - 숨겨진 URL 표시 상태 설정 */
     fun setShowHiddenUrls(show: Boolean) {
         _showHiddenUrls.value = show
+    }
+
+    /** addReceivedUrl - 공유로 받은 URL 저장 */
+    fun addReceivedUrl(url: Url, userId: String) {
+        viewModelScope.launch {
+            if (userId.isNotBlank()) {
+                _repo.insertUserUrl(url, userId)
+            } else {
+                _repo.insertGuestUrl(url)
+            }
+        }
+    }
+
+    /** saveSharedUrlForLoggedInUser - 로그인 상태에서 공유받은 링크를 Room + Firebase에 저장 */
+    fun saveSharedUrlForLoggedInUser(url: Url, userId: String) {
+        viewModelScope.launch {
+            _repo.saveSharedUrlForLoggedInUser(url, userId)
+        }
     }
 
 }

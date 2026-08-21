@@ -2,13 +2,20 @@ package kr.baeksuk.urlbox.view.nav
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.util.Log
-import android.view.View
-import android.view.animation.AnimationUtils
-import android.widget.ImageView
-import android.widget.Toast
 import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
+import android.widget.ImageView
+import android.widget.PopupWindow
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
 import androidx.lifecycle.ViewModelProvider
@@ -25,6 +32,7 @@ import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.adapter.RvTagAdapter
 import kr.baeksuk.urlbox.util.adapter.RvUrlAdapter
 import kr.baeksuk.urlbox.util.base.BaseFragment
+import kr.baeksuk.urlbox.util.share.UrlShareUseCase
 import kr.baeksuk.urlbox.util.util.InitUrlDataCount
 import kr.baeksuk.urlbox.util.util.OnTagFilterSelectedListener
 import kr.baeksuk.urlbox.util.util.TagTouchCallback
@@ -37,7 +45,18 @@ import kr.baeksuk.urlbox.viewmodel.nav.UrlViewModel
 import org.koin.android.ext.android.inject
 import kr.baeksuk.urlbox.util.util.AppEvent
 import kr.baeksuk.urlbox.util.util.secretLog
+import java.util.Base64
 import kotlin.getValue
+import com.kakao.sdk.common.model.ClientError
+import com.kakao.sdk.common.model.ClientErrorCause
+import com.kakao.sdk.share.ShareClient
+import com.kakao.sdk.template.model.Button
+import com.kakao.sdk.template.model.Content
+import com.kakao.sdk.template.model.FeedTemplate
+import com.kakao.sdk.template.model.Link
+import org.json.JSONArray
+import kr.baeksuk.urlbox.util.share.UrlShareBuilder
+import org.json.JSONObject
 
 class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     OnTagFilterSelectedListener {
@@ -52,8 +71,14 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     private var tagBackupObserved = false
     private var hiddenUrlsObserved = false
     private var isShowingHiddenLocal = false
-    private var cachedHiddenBackups: List<kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity> = emptyList()
+    private var cachedHiddenBackups: List<kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity> =
+        emptyList()
     private val tagTouchHelper by lazy { ItemTouchHelper(TagTouchCallback(tagAdapter)) }
+    private var isGuestModeActive = false
+
+    // 공유 기능 관련 변수
+    private var isSelectionMode = false
+    private val selectedUrls = mutableSetOf<String>()
 
     @SuppressLint("NotifyDataSetChanged")
     override fun initView() {
@@ -61,12 +86,15 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         adapter = RvUrlAdapter(
             requireContext(),
             onDetailClick = { url, txUrl, imgView -> openUrlDetail(url, txUrl, imgView) },
-            onHideClick = { url -> hideUrl(url) },
-            onDeleteClick = { url -> deleteUrl(url) }
+            onHideClick = { url -> startSelectionFromPopup(url) },
+            onDeleteClick = { url -> startSelectionFromPopup(url) },
+            onShareClick = { url -> startSelectionFromPopup(url) },
+            onSelectionChanged = { syncSelectionStateFromAdapter() }
         )
         tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this)
 
         uBinding.viewModel = uViewModel
+        uBinding.fragment = this
 
         postponeEnterTransition()
 
@@ -186,10 +214,8 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         if (hiddenUrlsObserved) return
         hiddenUrlsObserved = true
 
-        // use StateFlow as single source of truth for toggle events
         val initialShow = AppEvent.showHiddenState.value
         secretLog("UrlFragment - initial showHiddenState: $initialShow")
-        // set local flag so LiveData observer will add hidden items when they arrive
         isShowingHiddenLocal = initialShow
 
         lifecycleScope.launchWhenStarted {
@@ -197,7 +223,9 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
                 secretLog("UrlFragment - onShowHiddenState: $isShowing")
                 isShowingHiddenLocal = isShowing
                 if (isShowing) {
-                    val source = if (cachedHiddenBackups.isNotEmpty()) cachedHiddenBackups else (uViewModel.getHiddenUrls().value ?: emptyList())
+                    val source =
+                        if (cachedHiddenBackups.isNotEmpty()) cachedHiddenBackups else (uViewModel.getHiddenUrls().value
+                            ?: emptyList())
                     secretLog("UrlFragment - source hidden count: ${source.size}")
                     if (source.isNotEmpty()) {
                         val hiddenUrlList = source.map { urlBackupEntity ->
@@ -260,6 +288,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
 
     /** 로그인 모드 렌더 **/
     private fun renderLoggedInMode(syncMode: UrlViewModel.RemoteSyncMode?) {
+        isGuestModeActive = false
         uBinding.linearRefresh.visibility = View.VISIBLE
         uBinding.rvTags.visibility = View.VISIBLE
 
@@ -287,6 +316,7 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     /** 게스트 모드 렌더 **/
     @SuppressLint("NotifyDataSetChanged")
     private fun renderGuestMode() {
+        isGuestModeActive = true
         uBinding.linearRefresh.visibility = View.GONE
         uBinding.rvTags.visibility = View.GONE
         swipeRefresh(false)
@@ -438,7 +468,8 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             val userId = session.userId ?: ""
 
             if (!isLoggedIn) {
-                val t = Toast.makeText(requireContext(), "게스트 모드에서는 이용할 수 없습니다.", Toast.LENGTH_SHORT)
+                val t =
+                    Toast.makeText(requireContext(), "게스트 모드에서는 이용할 수 없습니다.", Toast.LENGTH_SHORT)
                 t.view?.findViewById<TextView>(android.R.id.message)?.gravity = Gravity.CENTER
                 t.show()
                 return@launch
@@ -465,11 +496,309 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
     private fun deleteUrl(url: Url) {
         uViewModel.deleteUrl(url)
         tagAdapter.notifyDataSetChanged()
-        
+
         com.google.android.material.snackbar.Snackbar.make(
             binding.root,
             "삭제되었습니다.",
             com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
         ).show()
     }
+
+    companion object {
+        // 카카오 카드 공유는 앱에서 보내는 데이터 개수를 제한하고 있었음.
+        // 최소 15개를 넘기기 위해 앱 쪽 상한을 완화한다.
+        private const val MAX_SHARE_ITEMS = 15
+    }
+
+    fun toggleSelectionMode() {
+        if (!isSelectionMode) {
+            enterSelectionMode()
+        } else if (selectedUrls.isEmpty()) {
+            exitSelectionMode()
+        }
+    }
+
+    private fun enterSelectionMode() {
+        isSelectionMode = true
+        selectedUrls.clear()
+        adapter.setSelectionMode(true)
+        adapter.notifyDataSetChanged()
+        updateSelectionUi()
+    }
+
+    private fun exitSelectionMode() {
+        isSelectionMode = false
+        selectedUrls.clear()
+        adapter.setSelectionMode(false)
+        adapter.notifyDataSetChanged()
+        updateSelectionUi()
+    }
+
+    private fun syncSelectionStateFromAdapter() {
+        selectedUrls.clear()
+        selectedUrls.addAll(adapter.getSelectedUrls().map { it.url })
+        updateSelectionUi()
+    }
+
+    private fun updateSelectionUi() {
+        val bottomBar =
+            view?.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.bottom_action_bar)
+        val bottomShare = view?.findViewById<View>(R.id.btn_bottom_share)
+        val topBar =
+            view?.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.top_selection_bar)
+        val tvSelectedCount = view?.findViewById<TextView>(R.id.tv_selected_count)
+        val tvCancelSelection = view?.findViewById<TextView>(R.id.tv_cancel_selection)
+        val cbSelectAll = view?.findViewById<android.widget.CheckBox>(R.id.cb_select_all)
+
+        if (bottomBar == null || bottomShare == null) {
+            // nothing to update
+            return
+        }
+
+        val selectedCount = adapter.getSelectedCount()
+
+        // top selection bar
+        topBar?.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
+        // guest mode never displays the tag row, even after exiting selection mode
+        if (this::uBinding.isInitialized) uBinding.rvTags.visibility = when {
+            isGuestModeActive -> View.GONE
+            isSelectionMode -> View.GONE
+            else -> View.VISIBLE
+        }
+        tvSelectedCount?.text = "${selectedCount}개 선택됨"
+
+        // select-all checkbox handling
+        cbSelectAll?.setOnClickListener {
+            val checked = cbSelectAll.isChecked
+            if (checked) {
+                adapter.selectAll()
+            } else {
+                adapter.clearSelection()
+            }
+            adapter.notifyDataSetChanged()
+            updateSelectionUi()
+        }
+        cbSelectAll?.isChecked =
+            (adapter.getSelectedCount() > 0 && adapter.getSelectedCount() == adapter.getCurrentUrls().size)
+
+        // Update hide/restore label based on selection
+        val tvBottomHide = view?.findViewById<TextView>(R.id.tv_bottom_hide)
+        val selectedList = adapter.getSelectedUrls()
+        if (selectedList.isEmpty()) {
+            tvBottomHide?.text = getString(R.string.tx_hide)
+        } else {
+            val hiddenCount = selectedList.count { it.hidden }
+            tvBottomHide?.text = when {
+                hiddenCount == selectedList.size -> getString(R.string.tx_restore)
+                hiddenCount == 0 -> getString(R.string.tx_hide)
+                else -> "숨김 토글"
+            }
+        }
+
+        tvCancelSelection?.setOnClickListener {
+            exitSelectionMode()
+            hideBottomActions()
+        }
+
+        // show/hide bottom bar based on selection mode
+        if (isSelectionMode) {
+            if (bottomBar.visibility != View.VISIBLE) {
+                showBottomActionsAnimated(bottomBar)
+            } else {
+                bottomBar.alpha = 1f
+                bottomBar.translationY = 0f
+                bottomBar.visibility = View.VISIBLE
+            }
+        } else {
+            if (bottomBar.visibility != View.GONE) {
+                hideBottomActionsAnimated(bottomBar)
+            } else {
+                bottomBar.alpha = 1f
+                bottomBar.translationY = 0f
+            }
+        }
+        // enable/disable share action visually
+        bottomShare.isEnabled = selectedCount > 0
+        bottomShare.alpha = if (selectedCount > 0) 1.0f else 0.4f
+        // update contentDescription to reflect count for accessibility
+        bottomShare.contentDescription = if (selectedCount > 0) "공유하기 ($selectedCount)" else "공유하기"
+    }
+
+    fun addSelectedUrl(urlLink: String) {
+        if (isSelectionMode) {
+            selectedUrls.add(urlLink)
+            updateSelectionUi()
+        }
+    }
+
+    fun removeSelectedUrl(urlLink: String) {
+        selectedUrls.remove(urlLink)
+        updateSelectionUi()
+    }
+
+    fun getSelectedCount(): Int = adapter.getSelectedCount()
+
+    fun startSelectionFromPopup(initialUrl: Url) {
+        // enter selection mode and select the initial URL
+        if (!isSelectionMode) enterSelectionMode()
+        adapter.toggleUrlSelection(initialUrl.url)
+        // ensure UI shows bottom actions
+        showBottomActions()
+    }
+
+    fun startSelectionFromTop() {
+        // enter selection mode without pre-selecting an item
+        if (!isSelectionMode) enterSelectionMode()
+        showBottomActions()
+    }
+
+    private fun showBottomActions() {
+        val bottomBar = view?.findViewById<androidx.constraintlayout.widget.ConstraintLayout>(R.id.bottom_action_bar)
+        showBottomActionsAnimated(bottomBar)
+        // wire buttons
+        view?.findViewById<View>(R.id.btn_bottom_share)
+            ?.setOnClickListener { shareSelectedUrls() }
+        view?.findViewById<View>(R.id.btn_bottom_hide)?.setOnClickListener {
+            toggleHideOrRestoreSelectedUrls()
+            hideBottomActions()
+            exitSelectionMode()
+        }
+        view?.findViewById<View>(R.id.btn_bottom_delete)
+            ?.setOnClickListener { deleteSelectedUrls(); hideBottomActions(); exitSelectionMode() }
+        view?.findViewById<View>(R.id.tv_cancel_bottom_actions)
+            ?.setOnClickListener { hideBottomActions(); exitSelectionMode() }
+    }
+
+    private fun hideBottomActions() {
+        hideBottomActionsAnimated(view?.findViewById(R.id.bottom_action_bar))
+    }
+
+    private fun showBottomActionsAnimated(view: View?) {
+        if (view == null) return
+        view.visibility = View.VISIBLE
+        view.alpha = 0f
+        view.translationY = view.height.toFloat()
+        view.animate()
+            .translationY(0f)
+            .alpha(1f)
+            .setDuration(360)
+            .setInterpolator(DecelerateInterpolator())
+            .start()
+    }
+
+    private fun hideBottomActionsAnimated(view: View?) {
+        if (view == null) return
+        view.animate()
+            .translationY(view.height.toFloat())
+            .alpha(0f)
+            .setDuration(320)
+            .setInterpolator(AccelerateInterpolator())
+            .withEndAction {
+                view.visibility = View.GONE
+                view.translationY = 0f
+                view.alpha = 1f
+            }
+            .start()
+    }
+
+    private fun toggleHideOrRestoreSelectedUrls() {
+        val selected = adapter.getSelectedUrls()
+        if (selected.isEmpty()) return
+
+        lifecycleScope.launch {
+            val session = sessionManager.userSession.first()
+            val isLoggedIn = session.autoLogin ?: false
+            val userId = session.userId ?: ""
+            if (!isLoggedIn) {
+                Toast.makeText(requireContext(), "게스트 모드에서는 이용할 수 없습니다.", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
+            // Determine selection composition
+            val hiddenCount = selected.count { it.hidden }
+            val visibleCount = selected.size - hiddenCount
+
+            when {
+                // all selected are hidden => restore all
+                hiddenCount == selected.size -> {
+                    selected.forEach { url ->
+                        uViewModel.showUrl(url.url, userId)
+                        adapter.updateUrlHiddenStatus(url.url, false)
+                    }
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root,
+                        "선택한 URL이 복원되었습니다.",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                // all selected are visible => hide all
+                hiddenCount == 0 -> {
+                    selected.forEach { url ->
+                        uViewModel.hideUrl(url)
+                        adapter.updateUrlHiddenStatus(url.url, true)
+                    }
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root,
+                        "선택한 URL이 숨겨졌습니다.",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+                // mixed selection => toggle individually
+                else -> {
+                    selected.forEach { url ->
+                        if (url.hidden) {
+                            uViewModel.showUrl(url.url, userId)
+                            adapter.updateUrlHiddenStatus(url.url, false)
+                        } else {
+                            uViewModel.hideUrl(url)
+                            adapter.updateUrlHiddenStatus(url.url, true)
+                        }
+                    }
+                    com.google.android.material.snackbar.Snackbar.make(
+                        binding.root,
+                        "선택한 URL의 숨김 상태가 변경되었습니다.",
+                        com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            adapter.clearSelection()
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+    private fun deleteSelectedUrls() {
+        val selected = adapter.getSelectedUrls()
+        if (selected.isEmpty()) return
+        selected.forEach { url ->
+            uViewModel.deleteUrl(url)
+        }
+        adapter.clearSelection()
+        adapter.notifyDataSetChanged()
+        com.google.android.material.snackbar.Snackbar.make(
+            binding.root,
+            "선택한 URL이 삭제되었습니다.",
+            com.google.android.material.snackbar.Snackbar.LENGTH_SHORT
+        ).show()
+    }
+
+    fun shareSelectedUrls() {
+        val selectedUrlObjects = adapter.getSelectedUrls()
+        if (selectedUrlObjects.isEmpty()) {
+            Toast.makeText(requireContext(), "공유할 URL을 선택해주세요.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        UrlShareUseCase(this, sessionManager).shareSelectedUrls(selectedUrlObjects, requireView().findViewById(R.id.btn_bottom_share))
+    }
+
+    fun isSelectionActive(): Boolean = isSelectionMode
+
+    fun cancelSelection() {
+        if (isSelectionMode) {
+            exitSelectionMode()
+            hideBottomActions()
+        }
+    }
+
 }

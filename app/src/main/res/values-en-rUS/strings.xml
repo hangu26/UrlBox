@@ -128,6 +128,7 @@
     <string name="tx_update_feedback_desc">Tap the feedback button at the top to share \nyour valuable feedback with the developer</string>
     <string name="tx_reset">Reset</string>
     <string name="tx_persist_hidden">Keep hidden state on app exit</string>
+    <string name="tx_hidden_folder_link_count_99">99+ links</string>
     <string name="tx_no_password">No Password Set</string>
     <string name="tx_no_password_desc">Anyone can open the hidden folder right now. Set a PIN in Settings to enable the lock.</string>
     <string name="tx_set_password_now">Set Password Now</string>
@@ -152,5 +153,10 @@
     <string name="tx_hidden_pin_reset_no_user">User information not found.</string>
     <string name="tx_hidden_pin_reset_done">Your password has been reset and hidden links have been deleted.</string>
     <string name="tx_hidden_pin_reset_failed">Failed to reset. Please try again.</string>
+    <string name="tx_copy">Copy</string>
+    <string name="tx_hide">Hide</string>
+    <string name="tx_delete_url">Delete</string>
+    <string name="tx_restore">Restore</string>
+    <string name="tx_hidden_folder_link_count">%1$d links</string>
 
 </resources>

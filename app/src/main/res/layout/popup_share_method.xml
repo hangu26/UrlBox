@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_share_popup_menu"
+    android:paddingTop="@dimen/share_popup_padding_top"
+    android:paddingBottom="@dimen/share_popup_padding_bottom"
+    android:paddingStart="@dimen/share_popup_padding_horizontal"
+    android:paddingEnd="@dimen/share_popup_padding_horizontal">
+
+    <TextView
+        android:id="@+id/tv_kakao_share"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/share_popup_item_height"
+        android:gravity="center_vertical"
+        android:text="카카오톡 공유"
+        android:textColor="#111111"
+        android:textSize="@dimen/share_popup_text_size"
+        android:fontFamily="@font/pretendard_regular" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/share_popup_divider_height"
+        android:background="#F0F0F0" />
+
+    <TextView
+        android:id="@+id/tv_url_share"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/share_popup_item_height"
+        android:gravity="center_vertical"
+        android:text="URL 공유"
+        android:textColor="#111111"
+        android:textSize="@dimen/share_popup_text_size"
+        android:fontFamily="@font/pretendard_regular" />
+
+</LinearLayout>

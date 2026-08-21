@@ -20,6 +20,7 @@ import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.util.OnClipItemClickListener
+import kr.baeksuk.urlbox.util.util.UrlNavigationUtils
 
 class RvClipAdapter(ctx: Context, act: Activity, private val listener: OnClipItemClickListener) :
     RecyclerView.Adapter<RvClipAdapter.MyViewHolder>() {
@@ -89,8 +90,9 @@ class RvClipAdapter(ctx: Context, act: Activity, private val listener: OnClipIte
 
             // 기존 클릭 리스너 (그대로 유지)
             btnUrl.setOnClickListener {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(txUrl.text.toString()))
-                context.startActivity(intent)
+                if (!UrlNavigationUtils.openUrl(context, txUrl.text.toString())) {
+                    Toast.makeText(context, "유효한 URL이 아닙니다.", Toast.LENGTH_SHORT).show()
+                }
             }
 
             // 기존 롱클릭 리스너 (그대로 유지)

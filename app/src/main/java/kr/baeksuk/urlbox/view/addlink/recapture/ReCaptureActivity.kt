@@ -14,6 +14,9 @@ import android.os.Looper
 import android.util.Log
 import android.view.PixelCopy
 import android.view.View
+import android.webkit.WebResourceError
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -175,7 +178,6 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
     private fun initWebView() {
         val url = intent.getStringExtra("url")
         if (url != null) {
-            cBinding.webView.loadUrl(url)
             cBinding.webView.settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
@@ -184,6 +186,47 @@ class ReCaptureActivity : BaseActivity(), OnTagSelectedListener, OnTagDeleteSele
                 allowContentAccess = true
                 mediaPlaybackRequiresUserGesture = false
             }
+
+            cBinding.webView.webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(
+                    view: WebView,
+                    request: WebResourceRequest
+                ): Boolean {
+                    val requestUrl = request.url.toString()
+                    val scheme = request.url.scheme?.lowercase()
+
+                    if (scheme == "http" || scheme == "https" || scheme == "about") {
+                        return false
+                    }
+
+                    return try {
+                        val intent = Intent(Intent.ACTION_VIEW, request.url)
+                        if (intent.resolveActivity(view.context.packageManager) != null) {
+                            view.context.startActivity(intent)
+                        }
+                        true
+                    } catch (e: Exception) {
+                        Log.w("ReCaptureWebView", "Unsupported custom scheme ignored: $requestUrl (${e.message})")
+                        true
+                    }
+                }
+
+                override fun onReceivedError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?
+                ) {
+                    val url = request?.url?.toString().orEmpty()
+                    val errorCode = error?.errorCode ?: -1
+                    if (url.startsWith("snssdk") || (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("about:"))) {
+                        Log.w("ReCaptureWebView", "Ignoring unsupported scheme page: url=$url errorCode=$errorCode")
+                        return
+                    }
+                    super.onReceivedError(view, request, error)
+                }
+            }
+
+            cBinding.webView.loadUrl(url)
         }
     }
 

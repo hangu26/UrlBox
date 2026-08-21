@@ -1,6 +1,7 @@
 package kr.baeksuk.urlbox.data.repository
 
 import android.app.Application
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -12,6 +13,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.MutableData
 import com.google.firebase.database.Transaction
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -23,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
+import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.data.local.UrlDatabase
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
 import kr.baeksuk.urlbox.data.local.entity.PreparationTag
@@ -334,6 +337,166 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** 공유로 받은 링크를 게스트용 Room DB에 저장 */
+    fun insertGuestUrl(url: Url) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (urlDao.getUrlIsExist(url.url) == null) {
+                    urlDao.insert(
+                        UrlEntity(
+                            urlLink = url.url,
+                            imageKey = url.imageKey ?: "",
+                            favorite = url.favorite,
+                            hidden = url.hidden,
+                            timeStamp = url.timeStamp,
+                            urlName = url.urlName,
+                            urlMemo = url.urlMemo,
+                            tag = null
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("UrlRepository", "Failed to insert guest shared URL", e)
+            }
+        }
+    }
+
+    /** 공유로 받은 링크를 로그인 사용자용 Room DB에 저장 */
+    fun insertUserUrl(url: Url, userId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if (urlDao.getBackupUrlIsExist(url.url) == null) {
+                    urlDao.insertBackup(
+                        UrlBackupEntity(
+                            urlLink = url.url,
+                            imageKey = url.imageKey ?: "",
+                            imgUri = url.imgUri ?: "",
+                            favorite = url.favorite,
+                            hidden = url.hidden,
+                            timeStamp = url.timeStamp,
+                            urlName = url.urlName,
+                            urlMemo = url.urlMemo,
+                            tag = url.tag
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("UrlRepository", "Failed to insert user shared URL", e)
+            }
+        }
+    }
+
+    /** 로그인 사용자 공유 링크 전용 저장 로직: Room + Firebase 모두 저장 */
+    fun saveSharedUrlForLoggedInUser(url: Url, userId: String) {
+        val resolvedUserId = userId.ifBlank { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
+        if (resolvedUserId.isBlank()) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val localImageFile = resolveSharedImageForLocalSave(url, resolvedUserId)
+
+                val uploadedDownloadUri = if (localImageFile != null && localImageFile.exists()) {
+                    try {
+                        uploadImageToStorage(resolvedUserId, localImageFile)?.toString()
+                    } catch (e: Exception) {
+                        Log.e("UrlRepository", "Pre-upload failed: ${e.message}")
+                        null
+                    }
+                } else {
+                    null
+                }
+
+                val uploadedStorageKey = localImageFile?.nameWithoutExtension?.takeIf { it.isNotBlank() }
+                val finalImgUri = uploadedDownloadUri ?: ""
+                val finalImageKey = if (uploadedDownloadUri != null) {
+                    uploadedStorageKey ?: url.imageKey.ifBlank {
+                        localImageFile?.nameWithoutExtension ?: java.util.UUID.randomUUID().toString()
+                    }
+                } else {
+                    url.imageKey.ifBlank { "" }
+                }
+
+                Log.d("SHARE_THUMBNAIL_DEBUG", "[RECEIVER_SAVE] originalImageKey=${url.imageKey}, finalImageKey=$finalImageKey, uploadedDownloadUri=$uploadedDownloadUri, localImageFile=${localImageFile?.absolutePath ?: ""}")
+
+                val resolvedSenderUid = url.senderUid?.takeIf { it.isNotBlank() }
+                    ?: url.imagePath?.split('/')?.filter { it.isNotBlank() }?.getOrNull(1)
+                    ?: ""
+                val resolvedImagePath = url.imagePath?.takeIf { it.isNotBlank() }
+                    ?: if (resolvedSenderUid.isNotBlank() && finalImageKey.isNotBlank()) "images/$resolvedSenderUid/${finalImageKey}.png" else ""
+
+                val finalUrl = url.copy(
+                    imageKey = finalImageKey,
+                    imgUri = finalImgUri,
+                    timeStamp = System.currentTimeMillis(),
+                    senderUid = resolvedSenderUid.takeIf { it.isNotBlank() } ?: url.senderUid,
+                    imagePath = resolvedImagePath.takeIf { it.isNotBlank() } ?: url.imagePath
+                )
+
+                Log.d("SHARE_THUMBNAIL_RESULT", "newImageKey=${finalImageKey}, newImageUri=${uploadedDownloadUri ?: finalImgUri}, finalSuccess=${uploadedDownloadUri != null}")
+
+                if (urlDao.getBackupUrlIsExist(finalUrl.url) == null) {
+                    urlDao.insertBackup(
+                        UrlBackupEntity(
+                            urlLink = finalUrl.url,
+                            imageKey = finalUrl.imageKey ?: "",
+                            imgUri = finalImgUri,
+                            favorite = finalUrl.favorite,
+                            hidden = finalUrl.hidden,
+                            timeStamp = finalUrl.timeStamp,
+                            urlName = finalUrl.urlName,
+                            urlMemo = finalUrl.urlMemo,
+                            tag = finalUrl.tag
+                        )
+                    )
+                    Log.d("UrlRepository", "Saved shared URL to Room for user=$resolvedUserId : ${finalUrl.url} | imgUri=$finalImgUri")
+                }
+
+                val firebaseUrl = Url(
+                    url = finalUrl.url,
+                    urlName = finalUrl.urlName,
+                    urlMemo = finalUrl.urlMemo,
+                    imageKey = finalUrl.imageKey ?: "",
+                    imgUri = uploadedDownloadUri ?: finalImgUri,
+                    favorite = finalUrl.favorite,
+                    hidden = finalUrl.hidden,
+                    timeStamp = finalUrl.timeStamp,
+                    senderUid = finalUrl.senderUid ?: url.senderUid,
+                    imagePath = finalUrl.imagePath ?: url.imagePath
+                )
+
+                val userUrlRef = FirebaseDatabase.getInstance().reference
+                    .child("User")
+                    .child(resolvedUserId)
+                    .child("url")
+
+                userUrlRef.orderByChild("url").equalTo(finalUrl.url)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (!snapshot.exists()) {
+                                userUrlRef.child("img${firebaseUrl.timeStamp}")
+                                    .setValue(firebaseUrl)
+                                    .addOnSuccessListener {
+                                        Log.d("UrlRepository", "Saved shared URL to Firebase for user=$resolvedUserId : ${finalUrl.url}")
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("UrlRepository", "Firebase save failed for user=$resolvedUserId : ${e.message}")
+                                    }
+                            } else {
+                                Log.d("UrlRepository", "Shared URL already exists in Firebase for user=$resolvedUserId : ${finalUrl.url}")
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.e("UrlRepository", "Firebase query cancelled for user=$resolvedUserId : ${error.message}")
+                        }
+                    })
+
+            } catch (e: Exception) {
+                Log.e("UrlRepository", "Failed to save shared URL for logged-in user", e)
+            }
+        }
+    }
+
     /** hasGuestUrl */
     suspend fun hasGuestUrl(url: String): Boolean {
         return urlDao.getUrlIsExist(url) != null
@@ -359,12 +522,18 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 urlDao.insertBackup(urlBackupEntity)
-
                 insertTagBackup(tagData, tag)
 
-                Log.e("유저 아이디 확인", userId)
-                val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
+                Log.d("UrlRepository", "Attempting upload: file=${file.absolutePath}, exists=${file.exists()}, length=${file.length()}")
+                val downloadUri = uploadImageToStorage(userId, file)
+                if (downloadUri != null) {
+                    Log.d("UrlRepository", "Upload succeeded, uri=$downloadUri")
+                    urlDao.insertImgUri(downloadUri.toString(), urlBackupEntity.urlLink)
+                } else {
+                    Log.e("UrlRepository", "Upload returned null for user=$userId, file=${file.absolutePath}")
+                }
 
+                Log.e("유저 아이디 확인", userId)
                 val userRef: DatabaseReference = database.child("User").child(userId).child("url")
                 val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
                 val urlLink = urlBackupEntity.urlLink
@@ -376,16 +545,8 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     favorite = urlBackupEntity.favorite,
                     timeStamp = urlBackupEntity.timeStamp,
                     urlName = urlBackupEntity.urlName,
-//                    tag = urlBackupEntity.tag
                 )
 
-                val gson = Gson()
-
-                // List<UserTagsEntity>를 JSON 문자열로 변환
-                val tagJson =
-                    gson.toJson(urlBackupEntity.tag)  // List<UserTagsEntity>? -> JSON String
-
-                // UserTagsEntity 객체 생성
                 val userTags = UserTags(
                     tag = tag, timeStamp = urlBackupEntity.timeStamp
                 )
@@ -394,18 +555,13 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 userRef.orderByChild("url").equalTo(urlLink)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
-                        /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (snapshot.exists()) {
-
                                 Log.e("데이터 중복 여부", "중복되는 링크가 존재함")
-
                             } else {
-
                                 userRef.child("img" + url.timeStamp).setValue(url)
                                     .addOnCompleteListener {
                                         Log.e("데이터 저장 여부", "저장되었습니다.")
-
                                     }.addOnFailureListener {
                                         Log.e("데이터 저장 여부", "저장되지 않았습니다.")
                                     }
@@ -414,41 +570,10 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                     .child("tag" + url.timeStamp).setValue(userTags)
 
                                 Log.e("데이터 중복 여부", "중복되는 링크가 존재하지 않음")
-
-                                val fileUri = Uri.fromFile(file) // File을 Uri로 변환
-                                val fileRef = storageRef.child(file.name) // 저장할 파일 경로 설정
-
-                                fileRef.putFile(fileUri).addOnSuccessListener {
-
-                                    fileRef.downloadUrl.addOnSuccessListener { uri ->
-
-                                        viewModelScope.launch(Dispatchers.IO) {
-                                            try {
-                                                /** 스토리지에 이미지를 업로드함과 동시에 백업 Room에 이미지 uri를 업데이트 **/
-                                                urlDao.insertImgUri(uri.toString(), urlLink)
-                                            } catch (e: java.lang.Exception) {
-
-                                            }
-                                        }
-                                        Log.i("FirebaseStorage", "Image uploaded. URI: $uri")
-                                        // 업로드된 이미지의 URI를 사용하여 추가 작업을 할 수 있음
-                                    }
-
-                                    Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                                }.addOnFailureListener {
-                                    Log.e(
-                                        "Storage Upload",
-                                        "파일 업로드 실패: ${file.name}, 오류: ${it.message}"
-                                    )
-                                }
-
                             }
                         }
 
-                        /** onCancelled */
-                        override fun onCancelled(error: DatabaseError) {
-
-                        }
+                        override fun onCancelled(error: DatabaseError) {}
                     })
 
             } catch (e: java.lang.Exception) {
@@ -512,7 +637,6 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
             try {
                 urlDao.insertBackup(urlBackupEntity)
 
-                // 태그마다 TagBackupEntity 생성
                 val tagData = tags.map { userTag ->
                     TagBackupEntity(
                         tag = userTag.tag ?: "",
@@ -524,8 +648,15 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 insertTagBackupMultiple(tagData)
 
-                // Firebase 저장도 태그마다 별도 처리
-                val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
+                Log.d("UrlRepository", "Attempting upload (multiple tags): file=${file.absolutePath}, exists=${file.exists()}, length=${file.length()}")
+                val downloadUri = uploadImageToStorage(userId, file)
+                if (downloadUri != null) {
+                    Log.d("UrlRepository", "Upload (multiple tags) succeeded, uri=$downloadUri")
+                    urlDao.insertImgUri(downloadUri.toString(), urlBackupEntity.urlLink)
+                } else {
+                    Log.e("UrlRepository", "Upload (multiple tags) returned null for user=$userId, file=${file.absolutePath}")
+                }
+
                 val userRef: DatabaseReference = database.child("User").child(userId).child("url")
                 val tagRef: DatabaseReference = database.child("User").child(userId).child("Tag")
                 val urlLink = urlBackupEntity.urlLink
@@ -542,15 +673,11 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 userRef.orderByChild("url").equalTo(urlLink)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
-                        /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (!snapshot.exists()) {
                                 userRef.child("img" + url.timeStamp).setValue(url)
-
-                                // 태그마다 별도 저장
                                 tags.forEach { tagItem ->
-                                    val userTag =
-                                        UserTags(tag = tagItem.tag, timeStamp = tagItem.timeStamp)
+                                    val userTag = UserTags(tag = tagItem.tag, timeStamp = tagItem.timeStamp)
                                     userRef.child("img" + url.timeStamp)
                                         .child("tags")
                                         .child("tag" + tagItem.timeStamp)
@@ -561,24 +688,101 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             }
                         }
 
-                        /** onCancelled */
                         override fun onCancelled(error: DatabaseError) {}
                     })
-
-                // 이미지 업로드
-                val fileUri = Uri.fromFile(file)
-                val fileRef = storageRef.child(file.name)
-                fileRef.putFile(fileUri).addOnSuccessListener {
-                    fileRef.downloadUrl.addOnSuccessListener { uri ->
-                        viewModelScope.launch(Dispatchers.IO) {
-                            urlDao.insertImgUri(uri.toString(), urlLink)
-                        }
-                    }
-                }
 
             } catch (e: Exception) {
                 Log.e("데이터 삽입 처리", e.toString())
             }
+        }
+    }
+
+    private suspend fun resolveSharedImageForLocalSave(url: Url, receiverUid: String): File? {
+        val app = getApplication<Application>()
+        val senderStorageFile = resolveSharedImageForReceiverStorage(url, receiverUid)
+        if (senderStorageFile != null) {
+            return senderStorageFile
+        }
+
+        if (url.senderUid.isNullOrBlank() || url.imagePath.isNullOrBlank()) {
+            Log.e("SHARE_THUMBNAIL_RESULT", "newImageKey=, newImageUri=, finalSuccess=false")
+            Log.e("UrlRepository", "No valid sender metadata for shared thumbnail copy; refusing fallback image. senderUid=${url.senderUid ?: ""}, imagePath=${url.imagePath ?: ""}, receiverUid=$receiverUid")
+            return null
+        }
+
+        val candidateUri = url.imgUri
+        if (candidateUri.isNotBlank()) {
+            val fileCandidate = File(candidateUri)
+            if (fileCandidate.exists() && fileCandidate.isFile) return fileCandidate
+
+            val parsed = runCatching { Uri.parse(candidateUri) }.getOrNull()
+            if (parsed != null && (parsed.scheme == "content" || parsed.scheme == "file")) {
+                return try {
+                    val inputStream = app.contentResolver.openInputStream(parsed) ?: return null
+                    val output = File(app.filesDir, "shared_${System.currentTimeMillis()}.png")
+                    inputStream.use { inStream ->
+                        output.outputStream().use { out ->
+                            inStream.copyTo(out)
+                        }
+                    }
+                    output
+                } catch (e: Exception) {
+                    Log.e("UrlRepository", "Failed to copy shared image from uri=${candidateUri}", e)
+                    null
+                }
+            }
+
+            if (candidateUri.startsWith("http://") || candidateUri.startsWith("https://")) {
+                return try {
+                    val stream = java.net.URL(candidateUri).openStream()
+                    val output = File(app.filesDir, "shared_${System.currentTimeMillis()}.png")
+                    stream.use { inStream ->
+                        output.outputStream().use { out ->
+                            inStream.copyTo(out)
+                        }
+                    }
+                    output
+                } catch (e: Exception) {
+                    Log.e("UrlRepository", "Failed to download shared image from url=${candidateUri}", e)
+                    null
+                }
+            }
+        }
+
+        // Intentionally do not generate a default/placeholder thumbnail for shared links.
+        // If the original sender image cannot be read, the receiver URL should still be saved
+        // without a copied thumbnail instead of silently uploading unrelated app assets.
+        return null
+    }
+
+    private suspend fun uploadImageToStorage(userId: String, file: File): Uri? {
+        val resolvedUserId = userId.ifBlank { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
+        if (resolvedUserId.isBlank()) {
+            Log.e("FirebaseStorage", "Storage upload skipped: empty userId and no Firebase auth user")
+            return null
+        }
+
+        return try {
+            val storageRef = FirebaseStorage.getInstance().reference.child("images/${resolvedUserId}/")
+            val safeName = file.name.replace(Regex("[^A-Za-z0-9._-]"), "_")
+            val fileRef = storageRef.child(safeName)
+            val receiverStoragePath = fileRef.path
+            val fileUri = Uri.fromFile(file)
+            Log.d("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${receiverStoragePath}, uploadStart=true")
+            Log.d("FirebaseStorage", "Uploading file to storage path=images/${resolvedUserId}/$safeName, exists=${file.exists()}, length=${file.length()}")
+            val uploadTask = fileRef.putFile(fileUri)
+            uploadTask.await()
+            val downloadUrl = fileRef.downloadUrl.await()
+            Log.d("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${receiverStoragePath}, uploadSuccess=true")
+            Log.d("FirebaseStorage", "Upload complete, downloadUrl=$downloadUrl")
+            downloadUrl
+        } catch (e: Exception) {
+            val errorCode = if (e is com.google.firebase.storage.StorageException) e.errorCode else "UNKNOWN"
+            val errorMessage = e.message ?: "no message"
+            Log.e("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${"images/" + userId + "/" + file.name}, uploadStart=true, uploadSuccess=false, errorCode=${errorCode}, errorMessage=${errorMessage}", e)
+            Log.e("FirebaseStorage", "회원 이미지 업로드 실패: ${e.message}")
+            e.printStackTrace()
+            null
         }
     }
 
@@ -624,6 +828,36 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 }
             }
 
+        }
+    }
+
+    private suspend fun resolveSharedImageForReceiverStorage(url: Url, receiverUid: String): File? {
+        val app = getApplication<Application>()
+        val senderUid = url.senderUid?.takeIf { it.isNotBlank() }
+        val imagePath = url.imagePath?.takeIf { it.isNotBlank() }
+        Log.d("SHARE_THUMBNAIL_DEBUG", "senderUid=${senderUid ?: ""}, imagePath=${imagePath ?: ""}, imageKey=${url.imageKey}, receiverUid=${receiverUid}")
+
+        if (senderUid.isNullOrBlank() || imagePath.isNullOrBlank()) {
+            Log.e("SHARE_THUMBNAIL_DOWNLOAD", "storagePath=EMPTY, downloadStart=true, downloadSuccess=false, errorCode=INVALID_SHARE_METADATA, errorMessage=senderUid or imagePath is missing")
+            return null
+        }
+
+        val fileRef = FirebaseStorage.getInstance().reference.child(imagePath)
+        val storagePath = fileRef.path
+        Log.d("SHARE_THUMBNAIL_DOWNLOAD", "storagePath=${storagePath}, downloadStart=true")
+
+        return try {
+            val bytes = fileRef.getBytes(10L * 1024 * 1024).await()
+            val targetFile = File(app.filesDir, "shared_${System.currentTimeMillis()}_${url.imageKey.ifBlank { "thumbnail" }}.jpg")
+            targetFile.writeBytes(bytes)
+            Log.d("SHARE_THUMBNAIL_LOCAL", "localFilePath=${targetFile.absolutePath}, fileExists=${targetFile.exists()}, fileSize=${targetFile.length()}")
+            targetFile
+        } catch (e: Exception) {
+            val errorCode = if (e is com.google.firebase.storage.StorageException) e.errorCode else "UNKNOWN"
+            val errorMessage = e.message ?: "no message"
+            Log.e("SHARE_THUMBNAIL_DOWNLOAD", "storagePath=${storagePath}, downloadStart=true, downloadSuccess=false, errorCode=${errorCode}, errorMessage=${errorMessage}", e)
+            Log.e("UrlRepository", "Failed to copy shared image from sender storage path=${storagePath} senderUid=${senderUid} receiverUid=${receiverUid}", e)
+            null
         }
     }
 

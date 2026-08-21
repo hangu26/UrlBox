@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/bg_bottom_sheet_gradient"
-    android:orientation="vertical"
-    android:padding="@dimen/bottom_sheet_padding">
+    android:layout_height="wrap_content">
+
+    <!-- Main content container keeps previous background and padding -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_bottom_sheet_gradient"
+        android:orientation="vertical"
+        android:padding="@dimen/bottom_sheet_padding">
 
     <View
         android:layout_width="@dimen/drag_handle_width"
@@ -420,12 +425,55 @@
         android:visibility="gone"
         android:paddingBottom="@dimen/hidden_folder_unlocked_bottom_padding">
 
+        <!-- Top selection bar (hidden by default) -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/top_selection_bar_hidden"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <CheckBox
+                android:id="@+id/cb_select_all_hidden"
+                android:layout_width="@dimen/checkbox_size"
+                android:layout_height="@dimen/checkbox_size"
+                android:button="@drawable/checkbox_selector"
+                android:buttonTint="@null"
+                app:buttonTint="@null"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <TextView
+                android:id="@+id/tv_selected_count_hidden"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/appBar_title_01"
+                android:textSize="16sp"
+                app:layout_constraintStart_toEndOf="@id/cb_select_all_hidden"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="12dp" />
+
+            <TextView
+                android:id="@+id/tv_cancel_selection_hidden"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="취소"
+                android:textColor="@color/color_hidden_folder_gold"
+                android:fontFamily="@font/pretendard_semibold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvHiddenUrls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible" />
-
+ 
         <LinearLayout
             android:id="@+id/layoutHiddenEmpty"
             android:layout_width="match_parent"
@@ -465,5 +513,117 @@
                 android:textColor="@color/color_hidden_folder_gold_60"
                 android:textSize="12sp" />
         </LinearLayout>
+
+        </LinearLayout>
+
     </LinearLayout>
-</LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/bottom_action_bar_hidden"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:visibility="gone"
+        android:layout_gravity="bottom"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:id="@+id/ll_bottom_actions_hidden"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_marginBottom="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <LinearLayout
+                android:id="@+id/action_share_hidden"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/btn_bottom_share_hidden"
+                    android:layout_width="@dimen/bottom_action_icon_size"
+                    android:layout_height="@dimen/bottom_action_icon_size"
+                    android:src="@drawable/ic_share"
+                    android:contentDescription="공유" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tx_share"
+                    android:textSize="12sp"
+                    android:textColor="@color/tx_black" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/action_restore_hidden"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/btn_bottom_restore_hidden"
+                    android:layout_width="@dimen/bottom_action_icon_size"
+                    android:layout_height="@dimen/bottom_action_icon_size"
+                    android:src="@drawable/ic_restore"
+                    android:contentDescription="복원" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tx_restore_02"
+                    android:textSize="12sp"
+                    android:textColor="@color/tx_black" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/action_delete_hidden"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/btn_bottom_delete_hidden"
+                    android:layout_width="@dimen/bottom_action_icon_size"
+                    android:layout_height="@dimen/bottom_action_icon_size"
+                    android:src="@drawable/ic_delete"
+                    android:contentDescription="삭제" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tx_delete_url"
+                    android:textSize="12sp"
+                    android:textColor="@color/tx_black" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_cancel_bottom_actions_hidden"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/tx_black"
+            android:textSize="14sp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

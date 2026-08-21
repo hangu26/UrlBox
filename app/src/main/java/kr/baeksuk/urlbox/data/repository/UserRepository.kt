@@ -31,7 +31,7 @@ import kr.baeksuk.urlbox.model.User
 import kr.baeksuk.urlbox.model.UserTags
 import java.io.File
 
-class UserRepository(context: Context){
+class UserRepository(context: Context) {
 
     private val urlDatabase = UrlDatabase.getInstance(context.applicationContext)
     private var database: DatabaseReference = Firebase.database.reference
@@ -121,8 +121,12 @@ class UserRepository(context: Context){
                         async(Dispatchers.IO) {
                             val url = dataSnapshot.child("url").value.toString()
                             val imageKey = dataSnapshot.child("imageKey").value.toString()
-                            val favorite = dataSnapshot.child("favorite").value.toString().toBoolean()
-                            val timeStamp = dataSnapshot.child("timeStamp").value.toString().toLong()
+                            val senderUid = dataSnapshot.child("senderUid").value?.toString()
+                            val imagePath = dataSnapshot.child("imagePath").value?.toString()
+                            val favorite =
+                                dataSnapshot.child("favorite").value.toString().toBoolean()
+                            val timeStamp =
+                                dataSnapshot.child("timeStamp").value.toString().toLong()
                             val urlName = dataSnapshot.child("urlName").value.toString()
                             val urlMemo = dataSnapshot.child("urlMemo").value.toString()
 
@@ -138,11 +142,20 @@ class UserRepository(context: Context){
                                 )
                             }
 
-                            val storageReference =
-                                storage.reference.child("images").child(userId).child("$imageKey.png")
+                            val storageRefPath = when {
+                                !imagePath.isNullOrBlank() -> imagePath.trim()
+                                else -> "images/$userId/${imageKey}.png"
+                            }
+
+                            val storageReference = storage.reference.child(storageRefPath)
+                            Log.d(
+                                "REFRESH_FETCH",
+                                "storagePath=$storageRefPath imageKey=$imageKey imagePath=${imagePath ?: ""} userId=$userId url=$url"
+                            )
 
                             val imgUri = try {
                                 val uri = storageReference.downloadUrl.await().toString()
+                                Log.d("REFRESH_FETCH", "downloadSuccess=true storagePath=$storageRefPath url=$url imageKey=$imageKey imgUri=$uri")
                                 try {
                                     urlDao.insertImgUri(uri, url)
                                 } catch (e: Exception) {
@@ -151,8 +164,8 @@ class UserRepository(context: Context){
                                 uri
                             } catch (exception: Exception) {
                                 Log.e(
-                                    "Storage 이미지 로드 실패",
-                                    "imageKey: $imageKey, url: $url, 오류: ${exception.message}"
+                                    "REFRESH_FETCH",
+                                    "downloadSuccess=false storagePath=$storageRefPath imageKey=$imageKey url=$url errorCode=${(exception as? com.google.firebase.storage.StorageException)?.errorCode ?: "UNKNOWN"} errorMessage=${exception.message}"
                                 )
                                 ""
                             }
@@ -164,13 +177,15 @@ class UserRepository(context: Context){
                                     imageKey,
                                     imgUri,
                                     favorite,
-                                    hidden = dataSnapshot.child("hidden").value?.toString()?.toBoolean() ?: false,
+                                    hidden = dataSnapshot.child("hidden").value?.toString()
+                                        ?.toBoolean() ?: false,
                                     timeStamp,
                                     urlName,
                                     urlMemo,
-                                    tagList
-                                ),
-                                imgUri = imgUri
+                                    tagList,
+                                    senderUid = senderUid,
+                                    imagePath = imagePath
+                                ), imgUri = imgUri
                             )
                         }
                     }.awaitAll().sortedBy { it.order }
@@ -234,7 +249,7 @@ class UserRepository(context: Context){
         )
     }
 
-    suspend fun deleteAllHiddenFolderSecurity(){
+    suspend fun deleteAllHiddenFolderSecurity() {
         urlDao.deleteAllHiddenFolderSecurity()
     }
 

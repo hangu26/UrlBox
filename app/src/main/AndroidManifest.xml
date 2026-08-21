@@ -131,7 +131,29 @@
             android:exported="false" />
         <activity
             android:name="kr.baeksuk.urlbox.view.main.MainActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="kakaodd8e8958e1ec731849c96b1b5275ba5f"
+                    android:host="kakaolink" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="urlbox"
+                    android:host="share" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="kr.baeksuk.urlbox.view.splash.SplashActivity"
             android:exported="true">

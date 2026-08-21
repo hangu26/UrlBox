@@ -51,6 +51,59 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:listitem="@layout/item_url_tag" />
 
+            <!-- Top selection bar: shows selected count and cancel on the right -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/top_selection_bar"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/top_selection_bar_height"
+                android:background="@color/white"
+                android:visibility="gone"
+                android:clickable="true"
+                android:focusable="true"
+                android:elevation="@dimen/top_selection_bar_elevation"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <CheckBox
+                    android:id="@+id/cb_select_all"
+                    android:layout_width="@dimen/checkbox_size"
+                    android:layout_height="@dimen/checkbox_size"
+                    android:button="@drawable/checkbox_selector"
+                    android:buttonTint="@null"
+                    app:buttonTint="@null"
+                    android:layout_marginStart="@dimen/top_selection_checkbox_margin_start"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_selected_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0개 선택됨"
+                    android:fontFamily="@font/pretendard_semibold"
+                    android:textSize="@dimen/top_selection_count_text_size"
+                    android:layout_marginStart="@dimen/top_selection_count_margin_start"
+                    android:textColor="@color/tx_black"
+                    app:layout_constraintStart_toEndOf="@id/cb_select_all"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+                <TextView
+                    android:id="@+id/tv_cancel_selection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="취소"
+                    android:textSize="@dimen/top_selection_cancel_text_size"
+                    android:layout_marginEnd="@dimen/top_selection_cancel_margin_end"
+                    android:textColor="@color/tx_black"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_add_link"
                 android:layout_width="0dp"
@@ -253,6 +306,117 @@
                     tools:listitem="@layout/item_url_list" />
 
             </FrameLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/bottom_action_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <LinearLayout
+                android:id="@+id/ll_bottom_actions"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginBottom="@dimen/bottom_action_bar_margin_bottom"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <LinearLayout
+                    android:id="@+id/action_share"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="@dimen/bottom_action_item_padding">
+
+                    <ImageView
+                        android:id="@+id/btn_bottom_share"
+                       android:layout_width="@dimen/bottom_action_icon_size"
+                       android:layout_height="@dimen/bottom_action_icon_size"
+                        android:src="@drawable/ic_share"
+                        android:contentDescription="공유" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="공유"
+                       android:textSize="@dimen/bottom_action_text_size"
+                        android:textColor="@color/tx_black" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/action_hide"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="@dimen/bottom_action_item_padding">
+
+                    <ImageView
+                        android:id="@+id/btn_bottom_hide"
+                       android:layout_width="@dimen/bottom_action_icon_size"
+                       android:layout_height="@dimen/bottom_action_icon_size"
+                        android:src="@drawable/ic_secret"
+                        android:contentDescription="숨기기" />
+
+                    <TextView
+                        android:id="@+id/tv_bottom_hide"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="숨기기"
+                       android:textSize="@dimen/bottom_action_text_size"
+                        android:textColor="@color/tx_black" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/action_delete"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:padding="@dimen/bottom_action_item_padding">
+
+                    <ImageView
+                        android:id="@+id/btn_bottom_delete"
+                       android:layout_width="@dimen/bottom_action_icon_size"
+                       android:layout_height="@dimen/bottom_action_icon_size"
+                        android:src="@drawable/ic_delete"
+                        android:contentDescription="삭제" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="삭제"
+                       android:textSize="@dimen/bottom_action_text_size"
+                        android:textColor="@color/tx_black" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_cancel_bottom_actions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textColor="@color/tx_black"
+                android:textSize="@dimen/bottom_action_cancel_text_size"
+                android:layout_marginEnd="@dimen/bottom_action_cancel_margin_end"
+                android:gravity="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/loading_bar"

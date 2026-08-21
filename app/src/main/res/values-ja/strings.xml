@@ -130,6 +130,7 @@
     <string name="tx_update_hidden_folder_desc_03">上部のアイコンを長押しして非表示URLを表示できます</string>
     <string name="tx_update_feedback_title">フィードバックを送信</string>
     <string name="tx_update_feedback_desc">上部のフィードバックボタンをタップして \n開発者に貴重なご意見をお寄せください</string>
+    <string name="tx_hidden_folder_link_count_99">99+件のリンク</string>
     <string name="tx_no_password">パスワードが設定されていません</string>
     <string name="tx_no_password_desc">現在、誰でも隠しフォルダを開くことができます。設定でPINを登録するとロックが有効になります。</string>
     <string name="tx_set_password_now">今すぐパスワードを設定</string>
@@ -154,5 +155,10 @@
     <string name="tx_hidden_pin_reset_no_user">ユーザー情報が見つかりません。</string>
     <string name="tx_hidden_pin_reset_done">パスワードがリセットされ、非表示リンクが削除されました。</string>
     <string name="tx_hidden_pin_reset_failed">リセットに失敗しました。もう一度お試しください。</string>
+    <string name="tx_copy">コピー</string>
+    <string name="tx_hide">非表示</string>
+    <string name="tx_delete_url">削除</string>
+    <string name="tx_restore">復元</string>
+    <string name="tx_hidden_folder_link_count">%1$d件のリンク</string>
 
 </resources>

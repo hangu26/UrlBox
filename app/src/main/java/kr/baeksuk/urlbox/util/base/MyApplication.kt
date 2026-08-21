@@ -24,6 +24,8 @@ class MyApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        
+        android.util.Log.d("MyApplication", "🚀 MyApplication.onCreate() called")
 
         startKoin {
             androidContext(this@MyApplication)
@@ -32,6 +34,7 @@ class MyApplication : Application() {
 
         val kakaoAppKey = BuildConfig.kakao_native_app_key
         KakaoSdk.init(this, kakaoAppKey)
+        android.util.Log.d("MyApplication", "✅ Kakao SDK initialized")
 
         initView()
 

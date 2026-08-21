@@ -17,6 +17,7 @@ import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityUrlDetailBinding
 import kr.baeksuk.urlbox.util.adapter.UrlDetailAdapter
 import kr.baeksuk.urlbox.util.base.BaseActivity
+import kr.baeksuk.urlbox.util.util.UrlNavigationUtils
 import kr.baeksuk.urlbox.view.addlink.capture.CaptureActivity
 import kr.baeksuk.urlbox.view.addlink.recapture.ReCaptureActivity
 import kr.baeksuk.urlbox.view.editurl.EditInfoActivity
@@ -190,15 +191,15 @@ class UrlDetailActivity : BaseActivity() {
                 }
 
                 startActivityAnimation(intent, this)
-                finishAffinity()
 
             }
         }
 
         vm.btnLoadUrl.observe(this@UrlDetailActivity) {
             if (it) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(visitUrl.toString()))
-                startActivity(intent)
+                if (!UrlNavigationUtils.openUrl(this@UrlDetailActivity, visitUrl)) {
+                    Toast.makeText(this@UrlDetailActivity, "유효한 URL이 아닙니다.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 

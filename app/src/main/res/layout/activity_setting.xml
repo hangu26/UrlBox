@@ -325,7 +325,7 @@
 
                     <TextView
                         android:id="@+id/tx_persist_hidden_detail"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_start_between_tx_in_setting"
                         android:fontFamily="@font/pretendard_regular"
@@ -334,7 +334,8 @@
                         android:textSize="@dimen/tx_btn_in_setting_02"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/img_persist_hidden"
-                        app:layout_constraintTop_toBottomOf="@+id/tx_persist_hidden" />
+                        app:layout_constraintTop_toBottomOf="@+id/tx_persist_hidden"
+                        app:layout_constraintEnd_toStartOf="@+id/switch_persist_hidden"/>
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/switch_persist_hidden"

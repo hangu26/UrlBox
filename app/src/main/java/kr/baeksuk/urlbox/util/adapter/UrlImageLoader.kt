@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.widget.ImageView
 import com.bumptech.glide.Glide
+import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.model.Url
 import java.io.File
 
@@ -17,17 +18,10 @@ object UrlImageLoader {
         isBackup: Boolean,
         imgUriList: List<String>
     ) {
-        val loginSource = if (isBackup) {
-            url.imgUri.takeIf { it.isNotBlank() }
-                ?: imgUriList.getOrNull(position).orEmpty()
-        } else {
-            url.imgUri.takeIf { it.isNotBlank() }
-                ?: imgUriList.getOrNull(position).orEmpty()
-        }
-
-        if (loginSource.isNotBlank()) {
+        val directSource = url.imgUri.takeIf { it.isNotBlank() }
+        if (!directSource.isNullOrBlank()) {
             Glide.with(context)
-                .load(loginSource)
+                .load(directSource)
                 .into(imageView)
             return
         }
@@ -36,7 +30,21 @@ object UrlImageLoader {
         if (file.exists()) {
             val bitmap = BitmapFactory.decodeFile(file.absolutePath)
             imageView.setImageBitmap(bitmap)
+            return
         }
+
+        val fallbackSource = imgUriList.getOrNull(position)
+            ?.takeIf { it.isNotBlank() }
+            ?.takeIf { it.startsWith("http://") || it.startsWith("https://") }
+
+        if (!fallbackSource.isNullOrBlank()) {
+            Glide.with(context)
+                .load(fallbackSource)
+                .into(imageView)
+            return
+        }
+
+        imageView.setImageResource(R.drawable.urlbox_icon)
     }
 }
 
