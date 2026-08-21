@@ -150,7 +150,8 @@ class MainActivity : BaseActivity() {
 
     private fun initView() {
         mBinding.imgNewUpdate.setOnClickListener {
-            showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_HIDDEN_FOLDER)
+            // 새 버튼 누르면 기존 업데이트 튜토리얼 + 공유 튜토리얼을 함께 보여줌
+            showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_HIDDEN_AND_SHARE)
         }
 
         mBinding.imgFeedback.setOnClickListener {
@@ -361,8 +362,8 @@ class MainActivity : BaseActivity() {
             if (lastShownVersionCode >= currentVersionCode) {
                 return@launchWhenStarted
             }
-            // Show hidden-folder tutorial for this update
-            showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_HIDDEN_FOLDER)
+            // 업데이트 시 최초 실행에서는 새로 추가한 공유 튜토리얼만 보여줌
+            showUpdateTutorial(UpdateTutorialDialogFragment.TUTORIAL_TYPE_SHARE)
         }
     }
 

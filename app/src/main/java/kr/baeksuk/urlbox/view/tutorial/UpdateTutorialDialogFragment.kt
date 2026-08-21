@@ -27,6 +27,10 @@ class UpdateTutorialDialogFragment : DialogFragment() {
         const val ARG_TUTORIAL_TYPE = "tutorial_type"
         const val TUTORIAL_TYPE_LINK_EDIT = "link_edit"
         const val TUTORIAL_TYPE_HIDDEN_FOLDER = "hidden_folder"
+        // 새로 추가된 공유 튜토리얼
+        const val TUTORIAL_TYPE_SHARE = "share"
+        // 기존 숨김 튜토리얼 뒤에 공유 튜토리얼을 이어서 보여주는 타입
+        const val TUTORIAL_TYPE_HIDDEN_AND_SHARE = "hidden_and_share"
     }
 
     private var _binding: DialogUpdateTutorialBinding? = null
@@ -43,11 +47,21 @@ class UpdateTutorialDialogFragment : DialogFragment() {
 
     private val tutorialPages: List<Int>
         get() = when (tutorialType) {
+            TUTORIAL_TYPE_HIDDEN_AND_SHARE -> listOf(
+                R.layout.item_update_tutorial_hidden_folder_page_01,
+                R.layout.item_update_tutorial_hidden_folder_page_02,
+                R.layout.item_update_tutorial_hidden_folder_page_03,
+                R.layout.item_update_tutorial_hidden_folder_page_04,
+                R.layout.item_update_tutorial_share_page_01
+            )
             TUTORIAL_TYPE_HIDDEN_FOLDER -> listOf(
                 R.layout.item_update_tutorial_hidden_folder_page_01,
                 R.layout.item_update_tutorial_hidden_folder_page_02,
                 R.layout.item_update_tutorial_hidden_folder_page_03,
                 R.layout.item_update_tutorial_hidden_folder_page_04
+            )
+            TUTORIAL_TYPE_SHARE -> listOf(
+                R.layout.item_update_tutorial_share_page_01
             )
             else -> listOf(
                 R.layout.item_update_tutorial_page_01,
@@ -117,7 +131,8 @@ class UpdateTutorialDialogFragment : DialogFragment() {
     }
 
     private fun loadGifIfNeeded(position: Int) {
-        if (tutorialType != TUTORIAL_TYPE_HIDDEN_FOLDER || position != 1) return
+        // 숨김 튜토리얼(단독/조합) 2번째 페이지만 GIF를 로드
+        if ((tutorialType != TUTORIAL_TYPE_HIDDEN_FOLDER && tutorialType != TUTORIAL_TYPE_HIDDEN_AND_SHARE) || position != 1) return
 
         binding.viewPagerTutorial.post {
             val recyclerView = binding.viewPagerTutorial.getChildAt(0) as? RecyclerView ?: return@post

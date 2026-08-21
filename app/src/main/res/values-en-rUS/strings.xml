@@ -124,6 +124,7 @@
     <string name="tx_update_hidden_folder_desc_02">Long-press a URL to hide it.</string>
     <string name="tx_update_hidden_folder_title_03">Display Hidden URLs</string>
     <string name="tx_update_hidden_folder_desc_03">Long press the icon at the top to display hidden URLs</string>
+    <string name="tx_update_share_desc">You can quickly send a link via KakaoTalk \nusing the share button.</string>
     <string name="tx_update_feedback_title">Send Feedback</string>
     <string name="tx_update_feedback_desc">Tap the feedback button at the top to share \nyour valuable feedback with the developer</string>
     <string name="tx_reset">Reset</string>
@@ -153,10 +154,20 @@
     <string name="tx_hidden_pin_reset_no_user">User information not found.</string>
     <string name="tx_hidden_pin_reset_done">Your password has been reset and hidden links have been deleted.</string>
     <string name="tx_hidden_pin_reset_failed">Failed to reset. Please try again.</string>
+    <string name="tx_hidden_pin_reset_confirm_title">Are you sure you want to reset?</string>
     <string name="tx_copy">Copy</string>
     <string name="tx_hide">Hide</string>
     <string name="tx_delete_url">Delete</string>
     <string name="tx_restore">Restore</string>
     <string name="tx_hidden_folder_link_count">%1$d links</string>
+    <string name="tx_restore_02">Restore</string>
+    <string name="tx_share">Share</string>
+    <string name="tx_update_share_title">Share via KakaoTalk</string>
+    <string name="tx_share_bottom_sheet">Share</string>
+    <string name="tx_hide_bottom_sheet">Hide</string>
+    <string name="tx_delete_bottom_sheet">Delete</string>
+    <string name="tx_share_popup">Share</string>
+    <string name="tx_share_via_kakaotalk">KakaoTalk Share</string>
+    <string name="tx_share_url">Share URL</string>
 
 </resources>

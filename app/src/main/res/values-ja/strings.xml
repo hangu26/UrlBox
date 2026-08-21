@@ -128,6 +128,7 @@
     <string name="tx_update_hidden_folder_desc_02">非表示にしたいURLを長押しすると非表示にできます。</string>
     <string name="tx_update_hidden_folder_title_03">非表示URLを表示</string>
     <string name="tx_update_hidden_folder_desc_03">上部のアイコンを長押しして非表示URLを表示できます</string>
+    <string name="tx_update_share_desc">共有ボタンでKakaoTalkにすばやくリンクを送信できます。</string>
     <string name="tx_update_feedback_title">フィードバックを送信</string>
     <string name="tx_update_feedback_desc">上部のフィードバックボタンをタップして \n開発者に貴重なご意見をお寄せください</string>
     <string name="tx_hidden_folder_link_count_99">99+件のリンク</string>
@@ -155,10 +156,20 @@
     <string name="tx_hidden_pin_reset_no_user">ユーザー情報が見つかりません。</string>
     <string name="tx_hidden_pin_reset_done">パスワードがリセットされ、非表示リンクが削除されました。</string>
     <string name="tx_hidden_pin_reset_failed">リセットに失敗しました。もう一度お試しください。</string>
+    <string name="tx_hidden_pin_reset_confirm_title">本当に初期化しますか？</string>
     <string name="tx_copy">コピー</string>
     <string name="tx_hide">非表示</string>
     <string name="tx_delete_url">削除</string>
     <string name="tx_restore">復元</string>
     <string name="tx_hidden_folder_link_count">%1$d件のリンク</string>
+    <string name="tx_restore_02">復元する</string>
+    <string name="tx_share">共有</string>
+    <string name="tx_update_share_title">KakaoTalkで共有する</string>
+    <string name="tx_share_bottom_sheet">共有</string>
+    <string name="tx_hide_bottom_sheet">非表示</string>
+    <string name="tx_delete_bottom_sheet">削除</string>
+    <string name="tx_share_popup">共有する</string>
+    <string name="tx_share_via_kakaotalk">KakaoTalk共有</string>
+    <string name="tx_share_url">URL共有</string>
 
 </resources>

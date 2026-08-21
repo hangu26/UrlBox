@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="@dimen/popup_item_margin_start"
-            android:text="공유하기"
+            android:text="@string/tx_share_popup"
             android:textColor="@color/tx_black"
             android:textSize="@dimen/popup_text_size"
             android:fontFamily="@font/pretendard_regular" />

@@ -347,7 +347,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="공유"
+                        android:text="@string/tx_share_bottom_sheet"
                        android:textSize="@dimen/bottom_action_text_size"
                         android:textColor="@color/tx_black" />
                 </LinearLayout>
@@ -372,7 +372,7 @@
                         android:id="@+id/tv_bottom_hide"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="숨기기"
+                        android:text="@string/tx_hide_bottom_sheet"
                        android:textSize="@dimen/bottom_action_text_size"
                         android:textColor="@color/tx_black" />
                 </LinearLayout>
@@ -396,7 +396,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="삭제"
+                        android:text="@string/tx_delete_bottom_sheet"
                        android:textSize="@dimen/bottom_action_text_size"
                         android:textColor="@color/tx_black" />
                 </LinearLayout>

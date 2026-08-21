@@ -14,7 +14,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/share_popup_item_height"
         android:gravity="center_vertical"
-        android:text="카카오톡 공유"
+        android:text="@string/tx_share_via_kakaotalk"
         android:textColor="#111111"
         android:textSize="@dimen/share_popup_text_size"
         android:fontFamily="@font/pretendard_regular" />
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/share_popup_item_height"
         android:gravity="center_vertical"
-        android:text="URL 공유"
+        android:text="@string/tx_share_url"
         android:textColor="#111111"
         android:textSize="@dimen/share_popup_text_size"
         android:fontFamily="@font/pretendard_regular" />
