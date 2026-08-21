@@ -23,6 +23,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kr.baeksuk.urlBox.R
@@ -91,7 +97,9 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
             onShareClick = { url -> startSelectionFromPopup(url) },
             onSelectionChanged = { syncSelectionStateFromAdapter() }
         )
-        tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this)
+        tagAdapter = RvTagAdapter(requireContext(), requireActivity(), this) { newOrder ->
+            saveTagOrder(newOrder)
+        }
 
         uBinding.viewModel = uViewModel
         uBinding.fragment = this
@@ -356,6 +364,52 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         }
     }
 
+    private fun saveTagOrder(newIdOrder: List<String>) {
+        val safeOrder = newIdOrder.filter { it.isNotBlank() && it.startsWith("tag") }
+        if (safeOrder.isEmpty()) {
+            return
+        }
+
+        lifecycleScope.launch {
+            try {
+                uViewModel.saveTagOrderToLocal(safeOrder)
+                val session = sessionManager.userSession.first()
+                val userId = session.userId?.takeIf { it.isNotBlank() } ?: return@launch
+                val tagOrderRef = FirebaseDatabase.getInstance().reference
+                    .child("User")
+                    .child(userId)
+                    .child("tagOrder")
+
+                tagOrderRef.runTransaction(object : Transaction.Handler {
+                    override fun doTransaction(currentData: MutableData): Transaction.Result {
+                        val existingValues = currentData.children.mapNotNull { it.getValue(String::class.java) }
+                        val merged = mutableListOf<String>()
+                        merged.addAll(safeOrder)
+                        existingValues.forEach { value ->
+                            if (!merged.contains(value) && value.startsWith("tag")) merged.add(value)
+                        }
+                        currentData.value = merged
+                        return Transaction.success(currentData)
+                    }
+
+                    override fun onComplete(
+                        error: DatabaseError?,
+                        committed: Boolean,
+                        currentData: DataSnapshot?
+                    ) {
+                        if (error != null) {
+                            Log.e("TagOrderSave", "Failed to save tag order: ${error.message}")
+                        } else if (committed) {
+                            Log.d("TagOrderSave", "Tag order saved: ${currentData?.value}")
+                        }
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e("TagOrderSave", "Exception while saving tag order: ${e.message}")
+            }
+        }
+    }
+
     /** 백업 데이터 가져오기 **/
     @SuppressLint("NotifyDataSetChanged")
     private fun observeUserTagBackup() {
@@ -412,9 +466,9 @@ class UrlFragment : BaseFragment<FragmentUrlBinding>(R.layout.fragment_url),
         }
 
         vm.tagData.observe(viewLifecycleOwner) { tag ->
-
             tagAdapter.setTagData(tag.map {
                 Tag(
+                    id = it.id,
                     tag = it.tag,
                     timeStamp = it.timeStamp,
                     urlList = it.urlList

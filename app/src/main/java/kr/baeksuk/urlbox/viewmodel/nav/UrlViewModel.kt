@@ -233,11 +233,29 @@ class UrlViewModel(
     }
 
     private fun syncTagBackup(tagList: List<Tag>, mode: RemoteSyncMode) {
+        val allTagIds = tagList.mapNotNull { it.id }.filter { it.isNotBlank() }
+        val localSavedOrder = kotlinx.coroutines.runBlocking {
+            urlDao.getAllTagBackups()
+                .flatMap { it.tagOrder.orEmpty() }
+                .filter { it.isNotBlank() }
+                .distinct()
+        }
+
+        val preservedOrder = if (localSavedOrder.isNotEmpty()) {
+            val remoteSet = allTagIds.toSet()
+            (localSavedOrder.filter { it in remoteSet } + allTagIds.filter { it !in localSavedOrder })
+                .distinct()
+        } else {
+            allTagIds
+        }
+
         val tagBackupEntity = tagList.map {
             TagBackupEntity(
                 tag = it.tag!!,
                 timeStamp = it.timeStamp,
-                urlList = it.urlList
+                urlList = it.urlList,
+                firebaseTagId = it.id,
+                tagOrder = preservedOrder
             )
         }
 
@@ -313,6 +331,21 @@ class UrlViewModel(
             if (tagsToUpdate.isNotEmpty()) {
                 urlDao.updateUrlInTags(tagsToUpdate)
             }
+        }
+    }
+
+    fun saveTagOrderToLocal(newIdOrder: List<String>) {
+        val safeOrder = newIdOrder.filter { it.isNotBlank() && it.startsWith("tag") }
+        if (safeOrder.isEmpty()) return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentTags = urlDao.getAllTagBackups()
+            if (currentTags.isEmpty()) return@launch
+
+            val updatedTags = currentTags.map { tag ->
+                tag.copy(tagOrder = safeOrder)
+            }
+            urlDao.updateTagOrder(updatedTags)
         }
     }
 

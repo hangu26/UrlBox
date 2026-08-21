@@ -7,14 +7,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kr.baeksuk.urlbox.data.local.entity.HiddenFolderSecurityEntity
 import kr.baeksuk.urlbox.data.local.dao.UrlDao
+import kr.baeksuk.urlbox.data.local.entity.HiddenFolderSecurityEntity
 import kr.baeksuk.urlbox.data.local.entity.PreparationTag
 import kr.baeksuk.urlbox.data.local.entity.TagBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlBackupEntity
 import kr.baeksuk.urlbox.data.local.entity.UrlEntity
 import kr.baeksuk.urlbox.util.util.Converters
-import kr.baeksuk.urlbox.util.util.UrlListInTagConverter
 
 @Database(
     entities = [
@@ -24,7 +23,7 @@ import kr.baeksuk.urlbox.util.util.UrlListInTagConverter
         PreparationTag::class,
         HiddenFolderSecurityEntity::class
     ],
-    version = 9
+    version = 11
 )
 @TypeConverters(Converters::class)
 abstract class UrlDatabase : RoomDatabase() {
@@ -34,6 +33,18 @@ abstract class UrlDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: UrlDatabase? = null
+
+        private fun hasColumn(database: SupportSQLiteDatabase, tableName: String, columnName: String): Boolean {
+            database.query("PRAGMA table_info('${tableName}')").use { cursor ->
+                val nameIndex = cursor.getColumnIndexOrThrow("name")
+                while (cursor.moveToNext()) {
+                    if (cursor.getString(nameIndex) == columnName) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
 
         fun getInstance(context: Context): UrlDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -48,7 +59,9 @@ abstract class UrlDatabase : RoomDatabase() {
                         MIGRATION_5_6,
                         MIGRATION_6_7,
                         MIGRATION_7_8,
-                        MIGRATION_8_9
+                        MIGRATION_8_9,
+                        MIGRATION_9_10,
+                        MIGRATION_10_11
                     )
                     .build()
                 INSTANCE = instance
@@ -75,7 +88,7 @@ abstract class UrlDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATION_2_3 = object : Migration(3, 4) {
+        val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS url_backup_history (
@@ -88,7 +101,7 @@ abstract class UrlDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATION_4_5 = object : Migration(4, 5) { // ✅ 추가된 마이그레이션
+        val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("""
                     CREATE TABLE IF NOT EXISTS tag_backup_history (
@@ -114,10 +127,8 @@ abstract class UrlDatabase : RoomDatabase() {
 
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // 기존 테이블 이름 변경
                 database.execSQL("ALTER TABLE tag_prepare_history RENAME TO tag_prepare_history_old")
 
-                // 새로운 구조 테이블 생성
                 database.execSQL("""
             CREATE TABLE tag_prepare_history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -126,13 +137,11 @@ abstract class UrlDatabase : RoomDatabase() {
             )
         """.trimIndent())
 
-                // 기존 데이터 복사
                 database.execSQL("""
             INSERT INTO tag_prepare_history (id, tag, timeStamp)
             SELECT id, tag, timeStamp FROM tag_prepare_history_old
         """.trimIndent())
 
-                // 임시 테이블 삭제
                 database.execSQL("DROP TABLE tag_prepare_history_old")
             }
         }
@@ -152,15 +161,28 @@ abstract class UrlDatabase : RoomDatabase() {
 
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                // url_history 테이블에 hidden 컬럼 추가
-                database.execSQL(
-                    "ALTER TABLE url_history ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0"
-                )
-                
-                // url_backup_history 테이블에 hidden 컬럼 추가
-                database.execSQL(
-                    "ALTER TABLE url_backup_history ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0"
-                )
+                if (!hasColumn(database, "url_history", "hidden")) {
+                    database.execSQL("ALTER TABLE url_history ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0")
+                }
+                if (!hasColumn(database, "url_backup_history", "hidden")) {
+                    database.execSQL("ALTER TABLE url_backup_history ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0")
+                }
+            }
+        }
+
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                if (!hasColumn(database, "tag_backup_history", "firebaseTagId")) {
+                    database.execSQL("ALTER TABLE tag_backup_history ADD COLUMN firebaseTagId TEXT")
+                }
+            }
+        }
+
+        val MIGRATION_10_11 = object : Migration(10, 11) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                if (!hasColumn(database, "tag_backup_history", "tagOrder")) {
+                    database.execSQL("ALTER TABLE tag_backup_history ADD COLUMN tagOrder TEXT")
+                }
             }
         }
     }

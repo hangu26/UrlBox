@@ -14,5 +14,7 @@ data class TagBackupEntity(
     val tag: String,
     val count : String? = null,
     val timeStamp : String? = null,
-    val urlList : List<String>? = null
+    val urlList : List<String>? = null,
+    val firebaseTagId: String? = null,
+    val tagOrder: List<String>? = null
 )

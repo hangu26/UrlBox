@@ -51,6 +51,9 @@ class UserRepository(context: Context) {
                         val tagDataList = mutableListOf<Tag>()
 
                         snapshot.children.forEach { dataSnapshot ->
+                            val tagId = dataSnapshot.key
+                                ?: dataSnapshot.child("id").value?.toString()
+                                ?: dataSnapshot.child("tag").value?.toString()
                             val tag = dataSnapshot.child("tag").value.toString()
                             val timeStamp = dataSnapshot.child("timeStamp").value.toString()
 
@@ -62,6 +65,7 @@ class UserRepository(context: Context) {
                             if (tag !in tagDataList.map { it.tag }) {
                                 tagDataList.add(
                                     Tag(
+                                        id = if (tagId.isNullOrBlank()) null else tagId,
                                         tag = tag,
                                         timeStamp = timeStamp,
                                         urlList = urlList

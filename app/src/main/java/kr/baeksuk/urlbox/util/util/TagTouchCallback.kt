@@ -9,12 +9,8 @@ class TagTouchCallback(private val listener: OnTagTouchHelperListener) : ItemTou
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-
-        // 드래그 방향
         val dragFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        // 스와이프 방향
         val swipeFlags = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        // 드래그 이동을 만드는 함수
         return makeMovementFlags(dragFlags, swipeFlags)
     }
 
@@ -23,13 +19,17 @@ class TagTouchCallback(private val listener: OnTagTouchHelperListener) : ItemTou
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        listener.onItemMove(viewHolder.layoutPosition, target.layoutPosition)
-        return false
+        val from = viewHolder.bindingAdapterPosition
+        val to = target.bindingAdapterPosition
+        if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) return false
+        listener.onItemMove(from, to)
+        return true
     }
 
-    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) = Unit
 
-
-
+    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        super.clearView(recyclerView, viewHolder)
+        listener.onDragEnd()
     }
 }

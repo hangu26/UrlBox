@@ -59,7 +59,7 @@
     <string name="tx_use_terms_detail">サービス利用規約</string>
     <string name="tx_terms_detail">個人情報の取り扱いについて</string>
     <string name="tx_version">アプリバージョン</string>
-    <string name="tx_version_detail">1.2.1</string>
+    <string name="tx_version_detail">1.2.2</string>
     <string name="tx_language_setting">言語選択</string>
     <string name="tx_korean" translatable="false">한국어</string>
     <string name="tx_english" translatable="false">English</string>

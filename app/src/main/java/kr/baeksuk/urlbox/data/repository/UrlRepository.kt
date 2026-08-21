@@ -927,13 +927,14 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             }
 
                         } else {
-                            val timeStamp = System.currentTimeMillis().toString()
+                            val timeStamp = System.currentTimeMillis()
+                            val tagId = "tag$timeStamp"
 
-                            val tagInfo = Tag(tag, "1", timeStamp)
+                            val tagInfo = Tag(tag = tag, count = "1", timeStamp = timeStamp.toString(), id = tagId)
 
-                            tagRef.child("tag$timeStamp").setValue(tagInfo)
-
-                            tagRef.child("tag$timeStamp").child("url").child("url$timeStamp")
+                            tagRef.child(tagId).setValue(tagInfo)
+                            tagRef.child(tagId).child("id").setValue(tagId)
+                            tagRef.child(tagId).child("url").child("url$timeStamp")
                                 .setValue(urlInTag)
 
                             /**
@@ -1413,7 +1414,12 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         /** onDataChange */
                         override fun onDataChange(snapshot: DataSnapshot) {
+                            val tagIdsToRemove = mutableListOf<String>()
+
                             for (tagSnapshot in snapshot.children) {
+                                val tagKey = tagSnapshot.key
+                                if (tagKey != null) tagIdsToRemove.add(tagKey)
+
                                 val linkedUrlsNode = tagSnapshot.child("url")
 
                                 linkedUrlsNode.children.forEach { urlChild ->
@@ -1454,6 +1460,44 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                                 tagSnapshot.ref.removeValue().addOnSuccessListener {
                                     Log.i("deleteTag", "A태그(수탉) 삭제 성공")
+                                }
+                            }
+
+                            // ➊ Firebase: tagOrder에서 삭제된 tagId 제거
+                            if (tagIdsToRemove.isNotEmpty()) {
+                                val tagOrderRef = rootRef.child("tagOrder")
+                                tagOrderRef.runTransaction(object : Transaction.Handler {
+                                    override fun doTransaction(currentData: MutableData): Transaction.Result {
+                                        val existingValues = currentData.children.mapNotNull { it.getValue(String::class.java) }
+                                        val updated = existingValues.filter { it !in tagIdsToRemove }
+                                        currentData.value = updated
+                                        return Transaction.success(currentData)
+                                    }
+
+                                    override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                                        if (error != null) {
+                                            Log.e("deleteTagOrder", "Failed to update tagOrder: ${error.message}")
+                                        } else if (committed) {
+                                            Log.i("deleteTagOrder", "tagOrder updated, removed: ${tagIdsToRemove}")
+                                        }
+                                    }
+                                })
+
+                                // ➋ Local Room: remove tagIds from stored tagOrder lists
+                                viewModelScope.launch(Dispatchers.IO) {
+                                    try {
+                                        val current = urlDao.getAllTagBackups()
+                                        if (current.isNotEmpty()) {
+                                            val updated = current.map { entity ->
+                                                val newOrder = entity.tagOrder?.filter { it !in tagIdsToRemove }
+                                                entity.copy(tagOrder = newOrder)
+                                            }
+                                            urlDao.updateTagOrder(updated)
+                                            Log.i("deleteTagOrderLocal", "Local tagOrder lists updated, removed: ${tagIdsToRemove}")
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("deleteTagOrderLocal", "Failed to update local tagOrder: ${e.message}")
+                                    }
                                 }
                             }
                         }

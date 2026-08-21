@@ -142,6 +142,9 @@ interface UrlDao{
     @Update
     suspend fun updateUrlInTags(tagBackupEntities: List<TagBackupEntity>)
 
+    @Update
+    suspend fun updateTagOrder(tagBackupEntities: List<TagBackupEntity>)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPreparationTag(prepTag: PreparationTag)
 

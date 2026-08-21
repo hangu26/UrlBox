@@ -19,56 +19,68 @@ import java.util.Collections
 class RvTagAdapter(
     ctx: Context,
     act: Activity,
-    private val filterListener: OnTagFilterSelectedListener
+    private val filterListener: OnTagFilterSelectedListener,
+    private val saveOrder: ((List<String>) -> Unit)? = null
 ) : RecyclerView.Adapter<RvTagAdapter.MyViewHolder>(), OnTagTouchHelperListener {
 
     private var tagList = listOf<Tag>()
     private val context = ctx
-    private var selectedPosition: Int = RecyclerView.NO_POSITION // 현재 선택된 버튼 위치 저장
+    private var selectedPosition: Int = RecyclerView.NO_POSITION
     private var isBackup = false
 
     @SuppressLint("NotifyDataSetChanged")
     fun setTagData(tagDataList: List<Tag>) {
-
         val fixedTag = Tag(tag = "전체")
-
         val favoriteTag = Tag(tag = "즐겨찾기")
-
-        // "전체"로 고정된 Tag 생성
-        tagList =
-            listOf(fixedTag) + listOf(favoriteTag) + tagDataList  // 첫 번째 아이템은 "전체"로 추가하고 나머지 데이터 추가
-
-        tagList.sortedByDescending { it.timeStamp }.distinct()
-
+        tagList = listOf(fixedTag, favoriteTag) + tagDataList
+        tagList = tagList.sortedByDescending { it.timeStamp }.distinctBy { it.id ?: it.tag }
         notifyDataSetChanged()
     }
 
-    /** 태그 데이터를 룸에 저장해서 앱이 실행됐을 때 빠르게 데이터를 ui에 보여줌 **/
     @SuppressLint("NotifyDataSetChanged")
     fun setTagBackupData(tag: List<TagBackupEntity>, isLoginBackup: Boolean) {
-
         isBackup = isLoginBackup
-
         val fixedTag = Tag(tag = "전체")
-
         val favoriteTag = Tag(tag = "즐겨찾기")
 
-        tagList = listOf(fixedTag) + listOf(favoriteTag) + tag.map {
+        val tagListFromBackup = tag.map {
             Tag(
                 tag = it.tag,
                 timeStamp = it.timeStamp,
-                urlList = it.urlList
+                urlList = it.urlList,
+                id = it.firebaseTagId
             )
-        }.sortedByDescending { it.timeStamp }.distinct()
+        }
 
+        val orderedTags = if (tag.isNotEmpty()) {
+            val savedOrder = tag.firstNotNullOfOrNull { it.tagOrder }?.filter { it.isNotBlank() }
+            if (!savedOrder.isNullOrEmpty()) {
+                val indexMap = tagListFromBackup.associateBy { it.id ?: it.tag ?: "" }
+                val ordered = mutableListOf<Tag>()
+                savedOrder.forEach { savedId ->
+                    val match = indexMap[savedId]
+                    if (match != null) ordered.add(match)
+                }
+                val leftovers = tagListFromBackup.filterNot { item -> ordered.any { it.id == item.id || (it.id == null && it.tag == item.tag) } }
+                ordered.addAll(leftovers)
+                ordered
+            } else {
+                tagListFromBackup.sortedByDescending { it.timeStamp }.distinctBy { it.id ?: it.tag }
+            }
+        } else {
+            emptyList()
+        }
+
+        tagList = listOf(fixedTag, favoriteTag) + orderedTags
         notifyDataSetChanged()
-
     }
 
-    fun clearSelection(){
+    fun clearSelection() {
         val previousSelected = selectedPosition
         selectedPosition = RecyclerView.NO_POSITION
-        notifyItemChanged(previousSelected)
+        if (previousSelected != RecyclerView.NO_POSITION) {
+            notifyItemChanged(previousSelected)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RvTagAdapter.MyViewHolder {
@@ -86,7 +98,6 @@ class RvTagAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(tag: Tag, position: Int) {
-
             if (position == 0) {
                 binding.txTag.text = "전체"
             } else if (position == 1) {
@@ -104,22 +115,13 @@ class RvTagAdapter(
             binding.btnTag.setOnClickListener {
                 val previousSelected = selectedPosition
                 selectedPosition = position
-
-                // 이전 선택된 버튼과 현재 선택된 버튼만 UI 갱신
                 notifyItemChanged(previousSelected)
                 notifyItemChanged(selectedPosition)
 
-                if (position == 0) {
-                    // "전체" 버튼 클릭 시 "전체" 텍스트를 강제로 전달
-                    filterListener.onTagFiltered(emptyList(), "전체")
-                }else if (position == 1) {
-                    // "즐겨찾기" 버튼 클릭 시 "즐겨찾기" 텍스트를 강제로 전달
-                    filterListener.onTagFiltered(emptyList(), "즐겨찾기")
-                }
-
-                else {
-                    // 선택된 태그의 URL 리스트 전달
-                    tagList[selectedPosition].urlList?.let { urlList ->
+                when (position) {
+                    0 -> filterListener.onTagFiltered(emptyList(), "전체")
+                    1 -> filterListener.onTagFiltered(emptyList(), "즐겨찾기")
+                    else -> tagList.getOrNull(selectedPosition)?.urlList?.let { urlList ->
                         filterListener.onTagFiltered(urlList, tag.tag.toString())
                     }
                 }
@@ -128,8 +130,8 @@ class RvTagAdapter(
     }
 
     override fun onItemMove(from: Int, to: Int) {
-        if (from == 0 || to == 0) return // "전체" 태그는 이동 불가
-        if (from == 1 || to == 1) return // "즐겨찾기" 태그는 이동 불가
+        if (from == 0 || to == 0) return
+        if (from == 1 || to == 1) return
 
         val updatedList = tagList.toMutableList()
         Collections.swap(updatedList, from, to)
@@ -154,5 +156,18 @@ class RvTagAdapter(
         }
     }
 
+    override fun onDragEnd() {
+        val finalOrder = tagList
+            .filterIndexed { index, _ -> index > 1 }
+            .mapNotNull { it.id?.takeIf { id -> id.isNotBlank() } }
+            .filter { it.isNotBlank() }
 
+        if (finalOrder.isEmpty()) {
+            notifyDataSetChanged()
+            return
+        }
+
+        saveOrder?.invoke(finalOrder)
+        notifyDataSetChanged()
+    }
 }
