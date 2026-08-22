@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.text.format.Formatter
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -32,6 +33,7 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityMainBinding
 import kr.baeksuk.urlBox.databinding.DialogShareReceiveProgressBinding
+import kr.baeksuk.urlBox.databinding.LayoutShareReceiveMinibarBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
 import kr.baeksuk.urlbox.util.base.NavigationMenu
 import kr.baeksuk.urlbox.util.util.AppEvent
@@ -68,8 +70,14 @@ class MainActivity : BaseActivity() {
     private var pendingToggle = false
     private var shareReceiveProgressDialog: AlertDialog? = null
     private var shareReceiveProgressBinding: DialogShareReceiveProgressBinding? = null
+    private var shareReceiveMiniBarBinding: LayoutShareReceiveMinibarBinding? = null
     private var shareReceiveUrls: List<Url> = emptyList()
     private val shareReceiveDotAnimators = mutableListOf<ObjectAnimator>()
+    private var shareReceiveProgressDone = 0
+    private var shareReceiveProgressTotal = 0
+    private var shareReceiveCurrentIndex = 0
+    private var shareReceiveCurrentUrl: Url? = null
+    private var shareReceiveHiddenByUser = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -832,11 +840,15 @@ class MainActivity : BaseActivity() {
                 }
 
                 if (userId != null) {
-                    showShareReceiveProgressDialog(normalizedUrls)
+                    showShareReceiveProgressDialog(normalizedUrls, resetState = true)
                     normalizedUrls.forEachIndexed { index, url ->
                         Log.d("SaveUrls", "  → Saving to logged-in user storage: ${url.url}")
                         val saved = uViewModel.saveSharedUrlForLoggedInUserAwait(url, userId)
                         if (saved) successCount++
+                        shareReceiveProgressDone = index + 1
+                        shareReceiveProgressTotal = normalizedUrls.size
+                        shareReceiveCurrentIndex = index
+                        shareReceiveCurrentUrl = url
                         updateShareReceiveProgress(index + 1, normalizedUrls.size, url, index)
                     }
                 } else {
@@ -871,37 +883,65 @@ class MainActivity : BaseActivity() {
         }
     }
 
-    private fun showShareReceiveProgressDialog(urls: List<Url>) {
-        dismissShareReceiveProgressDialog()
+    private fun showShareReceiveProgressDialog(urls: List<Url>, resetState: Boolean) {
+        dismissShareReceiveDialogOnly()
 
         val binding = DialogShareReceiveProgressBinding.inflate(layoutInflater)
         shareReceiveProgressBinding = binding
         shareReceiveUrls = urls
-        renderShareReceiveThumbnails(urls)
-        updateShareReceiveProgress(0, urls.size, urls.firstOrNull(), 0)
+        if (resetState) {
+            shareReceiveProgressDone = 0
+            shareReceiveProgressTotal = urls.size
+            shareReceiveCurrentIndex = 0
+            shareReceiveCurrentUrl = urls.firstOrNull()
+            shareReceiveHiddenByUser = false
+            renderShareReceiveThumbnails(urls)
+            updateShareReceiveProgress(0, urls.size, urls.firstOrNull(), 0)
+        } else {
+            renderShareReceiveThumbnails(urls)
+            updateShareReceiveProgress(
+                shareReceiveProgressDone,
+                shareReceiveProgressTotal,
+                shareReceiveCurrentUrl,
+                shareReceiveCurrentIndex
+            )
+        }
         startShareReceiveDotAnimation()
+        hideShareReceiveMiniBar()
 
         shareReceiveProgressDialog = AlertDialog.Builder(this)
             .setView(binding.root)
-            .setCancelable(false)
+            .setCancelable(true)
             .create()
         shareReceiveProgressDialog?.show()
         shareReceiveProgressDialog?.window?.setBackgroundDrawable(ColorDrawable(android.graphics.Color.TRANSPARENT))
         shareReceiveProgressDialog?.window?.setGravity(Gravity.CENTER)
+        shareReceiveProgressDialog?.setCanceledOnTouchOutside(true)
+        shareReceiveProgressDialog?.setOnDismissListener {
+            if (shareReceiveProgressTotal > 0 && shareReceiveProgressDone < shareReceiveProgressTotal) {
+                shareReceiveHiddenByUser = true
+                shareReceiveProgressBinding = null
+                showShareReceiveMiniBar()
+            }
+        }
+        binding.btnShareProgressClose.setOnClickListener {
+            hideShareReceiveProgressDialog()
+        }
     }
 
     private fun updateShareReceiveProgress(done: Int, total: Int, currentUrl: Url? = null, currentIndex: Int = 0) {
-        val binding = shareReceiveProgressBinding ?: return
+        val binding = shareReceiveProgressBinding
         val percent = if (total <= 0) 0 else ((done * 100.0) / total).roundToInt()
-        binding.pbShareProgress.max = 100
-        binding.pbShareProgress.progress = percent
-        binding.txShareDoneCount.text = "완료 ${done}장"
-        binding.txShareTotalCount.text = "총 ${total}장"
-        binding.txShareItemStatus.text = if (done >= total) "완료" else "불러오는 중..."
-        currentUrl?.let { loadShareReceiveThumbnail(it) }
-        updateShareThumbnailHighlights(currentIndex)
-        binding.txShareItemName.text = currentUrl?.urlName?.takeIf { it.isNotBlank() } ?: "공유 링크"
-        binding.txShareItemSize.text = resolveShareItemSize(currentUrl)
+        binding?.pbShareProgress?.max = 100
+        binding?.pbShareProgress?.progress = percent
+        binding?.txShareDoneCount?.text = "완료 ${done}장"
+        binding?.txShareTotalCount?.text = "총 ${total}장"
+        binding?.txShareItemStatus?.text = if (done >= total) "완료" else "불러오는 중..."
+        currentUrl?.let { if (binding != null) loadShareReceiveThumbnail(it) }
+        if (binding != null) updateShareThumbnailHighlights(currentIndex)
+        binding?.txShareItemName?.text = currentUrl?.urlName?.takeIf { it.isNotBlank() } ?: "공유 링크"
+        binding?.txShareItemSize?.text = resolveShareItemSize(currentUrl)
+        updateShareReceiveMiniBar(done, total, currentUrl, currentIndex, percent)
     }
 
     private fun loadShareReceiveThumbnail(url: Url) {
@@ -984,7 +1024,123 @@ class MainActivity : BaseActivity() {
         shareReceiveProgressDialog?.dismiss()
         shareReceiveProgressDialog = null
         shareReceiveProgressBinding = null
+        hideShareReceiveMiniBar()
         shareReceiveUrls = emptyList()
+        shareReceiveProgressDone = 0
+        shareReceiveProgressTotal = 0
+        shareReceiveCurrentIndex = 0
+        shareReceiveCurrentUrl = null
+        shareReceiveHiddenByUser = false
+    }
+
+    private fun dismissShareReceiveDialogOnly() {
+        shareReceiveProgressDialog?.dismiss()
+        shareReceiveProgressDialog = null
+        shareReceiveProgressBinding = null
+    }
+
+    private fun hideShareReceiveProgressDialog() {
+        shareReceiveHiddenByUser = true
+        shareReceiveProgressDialog?.dismiss()
+        shareReceiveProgressDialog = null
+        shareReceiveProgressBinding = null
+        showShareReceiveMiniBar()
+    }
+
+    private fun showShareReceiveMiniBar() {
+        val binding = mBinding.shareReceiveMinibar
+        binding.root.visibility = android.view.View.VISIBLE
+        binding.root.alpha = 0f
+        binding.root.animate().alpha(1f).setDuration(180L).start()
+        binding.root.setOnTouchListener { _, event ->
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> animateShareReceiveMiniBar(true)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> animateShareReceiveMiniBar(false)
+            }
+            false
+        }
+        binding.clShareReceiveMinibar.setOnClickListener {
+            if (shareReceiveProgressTotal > 0) {
+                showShareReceiveProgressDialog(
+                    shareReceiveUrls.ifEmpty { listOfNotNull(shareReceiveCurrentUrl) },
+                    resetState = false
+                )
+                updateShareReceiveProgress(
+                    shareReceiveProgressDone,
+                    shareReceiveProgressTotal,
+                    shareReceiveCurrentUrl,
+                    shareReceiveCurrentIndex
+                )
+            }
+        }
+        updateShareReceiveMiniBar(
+            shareReceiveProgressDone,
+            shareReceiveProgressTotal,
+            shareReceiveCurrentUrl,
+            shareReceiveCurrentIndex,
+            if (shareReceiveProgressTotal <= 0) 0 else ((shareReceiveProgressDone * 100.0) / shareReceiveProgressTotal).roundToInt()
+        )
+    }
+
+    private fun animateShareReceiveMiniBar(pressed: Boolean) {
+        val binding = mBinding.shareReceiveMinibar
+        val targetScale = if (pressed) 0.95f else 0.92f
+        val targetYScale = if (pressed) 0.98f else 0.95f
+        binding.clShareReceiveMinibar.animate()
+            .scaleX(targetScale)
+            .scaleY(targetYScale)
+            .setDuration(if (pressed) 80L else 120L)
+            .setInterpolator(AccelerateDecelerateInterpolator())
+            .start()
+    }
+
+    private fun hideShareReceiveMiniBar() {
+        mBinding.shareReceiveMinibar.root.visibility = android.view.View.GONE
+    }
+
+    private fun updateShareReceiveMiniBar(
+        done: Int,
+        total: Int,
+        currentUrl: Url?,
+        currentIndex: Int,
+        percent: Int
+    ) {
+        val binding = mBinding.shareReceiveMinibar
+        if (shareReceiveHiddenByUser.not() && total > 0) {
+            binding.root.visibility = android.view.View.VISIBLE
+        }
+        binding.txShareMinibarCount.text = "$done/$total"
+        binding.pbShareMinibar.max = 100
+        binding.pbShareMinibar.progress = percent
+        binding.txShareMinibarTitle.text = if (currentUrl?.urlName.isNullOrBlank()) {
+            "사진 저장 중..."
+        } else {
+            "사진 저장 중..."
+        }
+        binding.txShareMinibarSubtitle.text = currentUrl?.urlName?.takeIf { it.isNotBlank() } ?: "공유 링크"
+        val imageSource = currentUrl?.imgUri?.takeIf { it.isNotBlank() }
+        if (imageSource.isNullOrBlank()) {
+            binding.ivShareMinibarThumbnail.setImageDrawable(null)
+        } else {
+            Glide.with(this)
+                .load(imageSource)
+                .centerCrop()
+                .into(binding.ivShareMinibarThumbnail)
+        }
+        binding.clShareReceiveMinibar.setOnClickListener {
+            if (shareReceiveProgressTotal > 0) {
+                showShareReceiveProgressDialog(
+                    shareReceiveUrls.ifEmpty { listOfNotNull(shareReceiveCurrentUrl) },
+                    resetState = false
+                )
+                updateShareReceiveProgress(
+                    shareReceiveProgressDone,
+                    shareReceiveProgressTotal,
+                    shareReceiveCurrentUrl,
+                    shareReceiveCurrentIndex
+                )
+            }
+        }
     }
 
     private fun startShareReceiveDotAnimation() {

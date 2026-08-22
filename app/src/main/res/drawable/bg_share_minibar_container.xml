@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:left="0dp"
+        android:top="4dp"
+        android:right="0dp"
+        android:bottom="0dp">
+        <shape>
+            <solid android:color="#2E000000" />
+            <corners android:radius="@dimen/share_minibar_corner_radius" />
+        </shape>
+    </item>
+
+    <item>
+        <shape>
+            <solid android:color="@android:color/white" />
+            <stroke
+                android:width="@dimen/share_minibar_border_width"
+                android:color="#E4C38F" />
+            <corners android:radius="@dimen/share_minibar_corner_radius" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_share_receive_minibar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/share_minibar_outer_margin_horizontal"
+        android:layout_marginEnd="@dimen/share_minibar_outer_margin_horizontal"
+        android:layout_marginBottom="@dimen/share_minibar_outer_margin_bottom"
+        android:background="@drawable/bg_share_minibar_container"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="30dp"
+        android:foreground="?attr/selectableItemBackground"
+        android:scaleX="0.92"
+        android:scaleY="0.95"
+        android:paddingStart="@dimen/share_minibar_padding_horizontal"
+        android:paddingTop="@dimen/share_minibar_padding_vertical"
+        android:paddingEnd="@dimen/share_minibar_padding_horizontal"
+        android:paddingBottom="@dimen/share_minibar_padding_vertical">
+
+        <ImageView
+            android:id="@+id/iv_share_minibar_thumbnail"
+            android:layout_width="@dimen/share_minibar_thumbnail_size"
+            android:layout_height="@dimen/share_minibar_thumbnail_size"
+            android:background="@drawable/bg_share_minibar_thumbnail"
+            android:contentDescription="@string/tx_share_receive_title"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tx_share_minibar_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/share_minibar_text_margin_start"
+            android:fontFamily="@font/pretendard_bold"
+            android:text="@string/tx_share_receive_title"
+            android:textColor="@color/black"
+            android:textSize="@dimen/share_minibar_title_text_size"
+            app:layout_constraintEnd_toStartOf="@id/cl_share_minibar_action"
+            app:layout_constraintStart_toEndOf="@id/iv_share_minibar_thumbnail"
+            app:layout_constraintTop_toTopOf="@id/iv_share_minibar_thumbnail" />
+
+        <TextView
+            android:id="@+id/tx_share_minibar_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/share_minibar_text_margin_start"
+            android:layout_marginTop="@dimen/share_minibar_subtitle_margin_top"
+            android:fontFamily="@font/pretendard_medium"
+            android:text="@string/tx_share_receive_desc"
+            android:textColor="@color/appBar_title_02"
+            android:textSize="@dimen/share_minibar_subtitle_text_size"
+            app:layout_constraintEnd_toEndOf="@id/tx_share_minibar_title"
+            app:layout_constraintStart_toStartOf="@id/tx_share_minibar_title"
+            app:layout_constraintTop_toBottomOf="@id/tx_share_minibar_title" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_share_minibar_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tx_share_minibar_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendard_bold"
+                android:text="0/0"
+                android:textColor="@color/black"
+                android:textSize="@dimen/share_minibar_count_text_size"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_share_minibar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/share_minibar_progress_height"
+            android:layout_marginTop="@dimen/share_minibar_progress_margin_top"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressBackgroundTint="#EEF2F7"
+            android:progressTint="#FFD400"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/iv_share_minibar_thumbnail" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

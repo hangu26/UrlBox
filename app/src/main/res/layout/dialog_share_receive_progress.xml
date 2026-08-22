@@ -56,14 +56,26 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/share_receive_dialog_title_margin_start"
+                android:layout_marginEnd="8dp"
                 android:fontFamily="@font/pretendard_bold"
                 android:text="@string/tx_share_receive_title"
                 android:textColor="@color/black"
                 android:textSize="@dimen/share_receive_dialog_title_text_size"
                 app:layout_constraintBottom_toBottomOf="@id/iv_share_header_icon"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btn_share_progress_close"
                 app:layout_constraintStart_toEndOf="@id/iv_share_header_icon"
                 app:layout_constraintTop_toTopOf="@id/iv_share_header_icon" />
+
+            <ImageView
+                android:id="@+id/btn_share_progress_close"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ripple"
+                android:contentDescription="@string/tx_cancel"
+                android:src="@drawable/ic_close_share_load"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/tx_share_subtitle"
