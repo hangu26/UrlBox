@@ -52,7 +52,7 @@
     <string name="tx_terms_detail">개인정보처리방침</string>
     <string name="tx_use_terms_detail">서비스 이용약관</string>
     <string name="tx_version">앱 버전</string>
-    <string name="tx_version_detail">1.2.2</string>
+    <string name="tx_version_detail">1.2.3</string>
     <string name="tx_language_setting">언어 선택</string>
     <string name="tx_korean" translatable="false">한국어</string>
     <string name="tx_english" translatable="false">English</string>
@@ -159,6 +159,8 @@
     <!-- 카카오톡 공유 튜토리얼 -->
     <string name="tx_update_share_title">카카오톡으로 공유하기</string>
     <string name="tx_update_share_desc">공유 버튼으로 카카오톡에 빠르게 \n링크를 보낼 수 있어요</string>
+    <string name="tx_update_get_share_title">카카오톡에서 받은 링크 자동 저장</string>
+    <string name="tx_update_get_share_desc">카카오톡에서 [앱에서 열기]를 누르면\n썸네일과 URL이 자동으로 저장돼요</string>
     <string name="tx_share_receive_title">공유 링크를 받아오는 중</string>
     <string name="tx_share_receive_desc">썸네일과 링크를 저장하고 있어요</string>
     <string name="tx_share_receive_status">공유 링크 저장 중... (%1$d/%2$d)</string>

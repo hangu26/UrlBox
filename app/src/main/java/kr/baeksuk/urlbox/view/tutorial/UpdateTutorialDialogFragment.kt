@@ -52,7 +52,8 @@ class UpdateTutorialDialogFragment : DialogFragment() {
                 R.layout.item_update_tutorial_hidden_folder_page_02,
                 R.layout.item_update_tutorial_hidden_folder_page_03,
                 R.layout.item_update_tutorial_hidden_folder_page_04,
-                R.layout.item_update_tutorial_share_page_01
+                R.layout.item_update_tutorial_share_page_01,
+                R.layout.item_update_tutorial_get_share_page_01
             )
             TUTORIAL_TYPE_HIDDEN_FOLDER -> listOf(
                 R.layout.item_update_tutorial_hidden_folder_page_01,
@@ -61,7 +62,8 @@ class UpdateTutorialDialogFragment : DialogFragment() {
                 R.layout.item_update_tutorial_hidden_folder_page_04
             )
             TUTORIAL_TYPE_SHARE -> listOf(
-                R.layout.item_update_tutorial_share_page_01
+                R.layout.item_update_tutorial_share_page_01,
+                R.layout.item_update_tutorial_get_share_page_01
             )
             else -> listOf(
                 R.layout.item_update_tutorial_page_01,

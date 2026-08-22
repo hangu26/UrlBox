@@ -52,7 +52,7 @@
     <string name="tx_terms_detail">개인정보처리방침</string>
     <string name="tx_use_terms_detail">서비스 이용약관</string>
     <string name="tx_version">앱 버전</string>
-    <string name="tx_version_detail">1.2.2</string>
+    <string name="tx_version_detail">1.2.3</string>
     <string name="tx_language_setting">언어 선택</string>
     <string name="tx_korean" translatable="false">한국어</string>
     <string name="tx_english" translatable="false">English</string>
