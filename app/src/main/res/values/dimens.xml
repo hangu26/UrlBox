@@ -547,7 +547,7 @@
     <dimen name="update_tuto_hidden_folder_label_text_size">14sp</dimen>
     <dimen name="update_tuto_hidden_folder_icon_spacing">50dp</dimen>
     <dimen name="update_tuto_hidden_folder_container_margin">90dp</dimen>
-    <dimen name="update_tuto_choice_spacing">60dp</dimen>
+    <dimen name="update_tuto_choice_spacing">40dp</dimen>
 
     
     <dimen name="hidden_folder_pin_title_margin_top">14dp</dimen>
