@@ -432,4 +432,12 @@ class UrlViewModel(
         return _repo.saveSharedUrlForLoggedInUserAwait(url, userId)
     }
 
+    suspend fun addReceivedUrlAwait(url: Url, userId: String): Boolean {
+        return if (userId.isNotBlank()) {
+            _repo.saveSharedUrlForLoggedInUserAwait(url, userId)
+        } else {
+            _repo.insertGuestUrlAwait(url)
+        }
+    }
+
 }

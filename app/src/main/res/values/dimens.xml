@@ -632,4 +632,6 @@
     <dimen name="share_minibar_expand_corner_radius">12dp</dimen>
     <dimen name="share_minibar_progress_height">3dp</dimen>
     <dimen name="share_minibar_progress_margin_top">6dp</dimen>
+    <dimen name="share_minibar_extra_lift_with_bottom_nav">15dp</dimen>
+    <dimen name="share_minibar_extra_lift_without_bottom_nav">30dp</dimen>
 </resources>

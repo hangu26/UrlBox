@@ -5,6 +5,9 @@ import android.content.Context
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import com.kakao.sdk.common.KakaoSdk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kr.baeksuk.urlBox.BuildConfig
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.util.util.module
@@ -16,6 +19,7 @@ class MyApplication : Application() {
     companion object {
         var dpHeight = 0.0F
         var dpWidth = 0.0F
+        val appScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate) }
         // In-memory flag: true if hidden folder has been unlocked during this app process
         var hiddenFolderUnlocked: Boolean = false
         // In-memory flag: true if startup PIN prompt has already been shown during this app process
@@ -37,6 +41,7 @@ class MyApplication : Application() {
         android.util.Log.d("MyApplication", "✅ Kakao SDK initialized")
 
         initView()
+        ShareReceiveMiniBarManager.init(this)
 
         // Track activity lifecycle to reset hidden-folder unlocked state when app goes to background
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {

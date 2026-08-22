@@ -366,6 +366,31 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    suspend fun insertGuestUrlAwait(url: Url): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                if (urlDao.getUrlIsExist(url.url) == null) {
+                    urlDao.insert(
+                        UrlEntity(
+                            urlLink = url.url,
+                            imageKey = url.imageKey ?: "",
+                            favorite = url.favorite,
+                            hidden = url.hidden,
+                            timeStamp = url.timeStamp,
+                            urlName = url.urlName,
+                            urlMemo = url.urlMemo,
+                            tag = null
+                        )
+                    )
+                }
+                true
+            } catch (e: Exception) {
+                Log.e("UrlRepository", "Failed to insert guest shared URL", e)
+                false
+            }
+        }
+    }
+
     /** 공유로 받은 링크를 로그인 사용자용 Room DB에 저장 */
     fun insertUserUrl(url: Url, userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -407,6 +432,20 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     private suspend fun saveSharedUrlForLoggedInUserInternal(url: Url, userId: String): Boolean {
         val resolvedUserId = userId.ifBlank { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
         if (resolvedUserId.isBlank()) return false
+
+        // Early duplicate check — skip image download/upload entirely if URL already saved
+        val alreadyInRoom = urlDao.getBackupUrlIsExist(url.url) != null
+        if (alreadyInRoom) {
+            Log.d("UrlRepository", "Skipping duplicate (Room) : ${url.url}")
+            return true
+        }
+        val userUrlRef0 = FirebaseDatabase.getInstance().reference
+            .child("User").child(resolvedUserId).child("url")
+        val alreadyInFirebase = userUrlRef0.orderByChild("url").equalTo(url.url).get().await().exists()
+        if (alreadyInFirebase) {
+            Log.d("UrlRepository", "Skipping duplicate (Firebase) : ${url.url}")
+            return true
+        }
 
         return try {
             val localImageFile = resolveSharedImageForLocalSave(url, resolvedUserId)
@@ -461,22 +500,21 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
             Log.d("SHARE_THUMBNAIL_RESULT", "newImageKey=${finalImageKey}, newImageUri=${uploadedDownloadUri ?: finalImgUri}, finalSuccess=${uploadedDownloadUri != null}")
 
-            if (urlDao.getBackupUrlIsExist(finalUrl.url) == null) {
-                urlDao.insertBackup(
-                    UrlBackupEntity(
-                        urlLink = finalUrl.url,
-                        imageKey = finalUrl.imageKey ?: "",
-                        imgUri = finalImgUri,
-                        favorite = finalUrl.favorite,
-                        hidden = finalUrl.hidden,
-                        timeStamp = finalUrl.timeStamp,
-                        urlName = finalUrl.urlName,
-                        urlMemo = finalUrl.urlMemo,
-                        tag = finalUrl.tag
-                    )
+            // Already passed early-duplicate-check above; just insert unconditionally
+            urlDao.insertBackup(
+                UrlBackupEntity(
+                    urlLink = finalUrl.url,
+                    imageKey = finalUrl.imageKey ?: "",
+                    imgUri = finalImgUri,
+                    favorite = finalUrl.favorite,
+                    hidden = finalUrl.hidden,
+                    timeStamp = finalUrl.timeStamp,
+                    urlName = finalUrl.urlName,
+                    urlMemo = finalUrl.urlMemo,
+                    tag = finalUrl.tag
                 )
-                Log.d("UrlRepository", "Saved shared URL to Room for user=$resolvedUserId : ${finalUrl.url} | imgUri=$finalImgUri")
-            }
+            )
+            Log.d("UrlRepository", "Saved shared URL to Room for user=$resolvedUserId : ${finalUrl.url} | imgUri=$finalImgUri")
 
             val firebaseUrl = Url(
                 url = finalUrl.url,
@@ -496,13 +534,8 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 .child(resolvedUserId)
                 .child("url")
 
-            val existing = userUrlRef.orderByChild("url").equalTo(finalUrl.url).get().await()
-            if (!existing.exists()) {
-                userUrlRef.child("img${firebaseUrl.timeStamp}").setValue(firebaseUrl).await()
-                Log.d("UrlRepository", "Saved shared URL to Firebase for user=$resolvedUserId : ${finalUrl.url}")
-            } else {
-                Log.d("UrlRepository", "Shared URL already exists in Firebase for user=$resolvedUserId : ${finalUrl.url}")
-            }
+            userUrlRef.child("img${firebaseUrl.timeStamp}").setValue(firebaseUrl).await()
+            Log.d("UrlRepository", "Saved shared URL to Firebase for user=$resolvedUserId : ${finalUrl.url}")
             true
         } catch (e: Exception) {
             Log.e("UrlRepository", "Failed to save shared URL for logged-in user", e)

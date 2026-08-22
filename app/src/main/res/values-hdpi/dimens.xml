@@ -612,4 +612,6 @@
     <dimen name="share_receive_dialog_dot_corner_radius">999dp</dimen>
     <dimen name="share_receive_dialog_progress_corner_radius">999dp</dimen>
     <dimen name="share_receive_dialog_thumbnail_selected_stroke_width">2dp</dimen>
+    <dimen name="share_minibar_extra_lift_with_bottom_nav">15dp</dimen>
+    <dimen name="share_minibar_extra_lift_without_bottom_nav">30dp</dimen>
 </resources>
