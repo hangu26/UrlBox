@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFFFFF" />
+    <stroke
+        android:width="@dimen/share_receive_dialog_thumbnail_selected_stroke_width"
+        android:color="#FFD400" />
+    <corners android:radius="@dimen/share_receive_dialog_thumbnail_corner_radius" />
+</shape>

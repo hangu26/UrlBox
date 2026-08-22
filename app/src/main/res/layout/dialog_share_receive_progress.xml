@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="@dimen/share_receive_dialog_padding_horizontal"
+    android:paddingTop="@dimen/share_receive_dialog_padding_top"
+    android:paddingEnd="@dimen/share_receive_dialog_padding_horizontal"
+    android:paddingBottom="@dimen/share_receive_dialog_padding_bottom">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_share_progress_dialog"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_dialog_add_tag"
+        android:paddingStart="@dimen/share_receive_dialog_container_padding_horizontal"
+        android:paddingTop="@dimen/share_receive_dialog_container_padding_top"
+        android:paddingEnd="@dimen/share_receive_dialog_container_padding_horizontal"
+        android:paddingBottom="@dimen/share_receive_dialog_container_padding_bottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:id="@+id/view_handle"
+            android:layout_width="@dimen/share_receive_dialog_handle_width"
+            android:layout_height="@dimen/share_receive_dialog_handle_height"
+            android:layout_marginBottom="@dimen/share_receive_dialog_handle_margin_bottom"
+            android:background="@drawable/bg_share_dialog_handle"
+            app:layout_constraintBottom_toTopOf="@id/cl_header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/view_handle">
+
+            <ImageView
+                android:id="@+id/iv_share_header_icon"
+                android:layout_width="@dimen/share_receive_dialog_header_icon_size"
+                android:layout_height="@dimen/share_receive_dialog_header_icon_size"
+                android:background="@drawable/bg_share_header_icon"
+                android:padding="@dimen/share_receive_dialog_header_icon_padding"
+                android:src="@drawable/ic_share_receive_download"
+                android:contentDescription="@string/tx_share_receive_title"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tx_share_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/share_receive_dialog_title_margin_start"
+                android:fontFamily="@font/pretendard_bold"
+                android:text="@string/tx_share_receive_title"
+                android:textColor="@color/black"
+                android:textSize="@dimen/share_receive_dialog_title_text_size"
+                app:layout_constraintBottom_toBottomOf="@id/iv_share_header_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_share_header_icon"
+                app:layout_constraintTop_toTopOf="@id/iv_share_header_icon" />
+
+            <TextView
+                android:id="@+id/tx_share_subtitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/share_receive_dialog_title_margin_start"
+                android:layout_marginTop="@dimen/share_receive_dialog_subtitle_margin_top"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="@string/tx_share_receive_desc"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/share_receive_dialog_subtitle_text_size"
+                app:layout_constraintEnd_toEndOf="@id/tx_share_title"
+                app:layout_constraintStart_toStartOf="@id/tx_share_title"
+                app:layout_constraintTop_toBottomOf="@id/tx_share_title" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_current_share_item"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/share_receive_dialog_card_margin_top"
+            android:background="@drawable/bg_share_item_card"
+            android:padding="@dimen/share_receive_dialog_card_padding"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_header">
+
+            <ImageView
+                android:id="@+id/iv_share_item_thumbnail"
+                android:layout_width="@dimen/share_receive_dialog_thumbnail_size"
+                android:layout_height="@dimen/share_receive_dialog_thumbnail_size"
+                android:background="@drawable/bg_share_thumbnail"
+                android:contentDescription="@string/tx_share_receive_title"
+                android:scaleType="centerCrop"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tx_share_item_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/share_receive_dialog_item_title_margin_start"
+                android:fontFamily="@font/pretendard_bold"
+                android:textColor="@color/black"
+                android:textSize="@dimen/share_receive_dialog_item_title_text_size"
+                android:maxLines="1"
+                android:ellipsize="end"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/iv_share_item_thumbnail"
+                app:layout_constraintTop_toTopOf="@id/iv_share_item_thumbnail" />
+
+            <TextView
+                android:id="@+id/tx_share_item_size"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/share_receive_dialog_item_size_margin_top"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="--"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/share_receive_dialog_item_size_text_size"
+                app:layout_constraintStart_toStartOf="@id/tx_share_item_name"
+                app:layout_constraintTop_toBottomOf="@id/tx_share_item_name" />
+
+            <TextView
+                android:id="@+id/tx_share_item_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/share_receive_dialog_item_status_margin_top"
+                android:fontFamily="@font/pretendard_semibold"
+                android:text="불러오는 중..."
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/share_receive_dialog_item_status_text_size"
+                app:layout_constraintStart_toStartOf="@id/tx_share_item_size"
+                app:layout_constraintTop_toBottomOf="@id/tx_share_item_size" />
+
+            <LinearLayout
+                android:id="@+id/ll_share_progress_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/share_receive_dialog_dots_margin_top"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="@id/tx_share_item_status"
+                app:layout_constraintTop_toBottomOf="@id/tx_share_item_status">
+
+                <View
+                    android:id="@+id/v_share_loading_dot_1"
+                    android:layout_width="@dimen/share_receive_dialog_dot_size"
+                    android:layout_height="@dimen/share_receive_dialog_dot_size"
+                    android:layout_marginEnd="@dimen/share_receive_dialog_dot_margin_end"
+                    android:background="@drawable/bg_share_dot_active" />
+
+                <View
+                    android:id="@+id/v_share_loading_dot_2"
+                    android:layout_width="@dimen/share_receive_dialog_dot_size"
+                    android:layout_height="@dimen/share_receive_dialog_dot_size"
+                    android:layout_marginEnd="@dimen/share_receive_dialog_dot_margin_end"
+                    android:background="@drawable/bg_share_dot_active" />
+
+                <View
+                    android:id="@+id/v_share_loading_dot_3"
+                    android:layout_width="@dimen/share_receive_dialog_dot_size"
+                    android:layout_height="@dimen/share_receive_dialog_dot_size"
+                    android:background="@drawable/bg_share_dot_active" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ProgressBar
+            android:id="@+id/pb_share_progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/share_receive_dialog_progress_height"
+            android:layout_marginTop="@dimen/share_receive_dialog_progress_margin_top"
+            android:indeterminate="false"
+            android:max="100"
+            android:progress="0"
+            android:progressBackgroundTint="#EEF2F7"
+            android:progressTint="#FFD400"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cl_current_share_item" />
+
+        <LinearLayout
+            android:id="@+id/ll_share_progress_counts"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/share_receive_dialog_counts_margin_top"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/pb_share_progress">
+
+            <TextView
+                android:id="@+id/tx_share_done_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="완료 0장"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/share_receive_dialog_counts_text_size" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tx_share_total_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/pretendard_medium"
+                android:text="총 0장"
+                android:textColor="@color/appBar_title_02"
+                android:textSize="@dimen/share_receive_dialog_counts_text_size" />
+
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:id="@+id/hsv_share_thumbnails"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/share_receive_dialog_strip_margin_top"
+            android:fillViewport="true"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ll_share_progress_counts">
+
+            <LinearLayout
+                android:id="@+id/ll_share_thumbnails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+        </HorizontalScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

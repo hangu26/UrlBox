@@ -159,6 +159,9 @@
     <!-- 카카오톡 공유 튜토리얼 -->
     <string name="tx_update_share_title">카카오톡으로 공유하기</string>
     <string name="tx_update_share_desc">공유 버튼으로 카카오톡에 빠르게 \n링크를 보낼 수 있어요</string>
+    <string name="tx_share_receive_title">공유 링크를 받아오는 중</string>
+    <string name="tx_share_receive_desc">썸네일과 링크를 저장하고 있어요</string>
+    <string name="tx_share_receive_status">공유 링크 저장 중... (%1$d/%2$d)</string>
 
     <string name="tx_update_feedback_title">개발자에게 한마디</string>
     <string name="tx_update_feedback_desc">상단 피드백 버튼을 눌러 개발자에게 \n소중한 의견을 전달해주세요</string>

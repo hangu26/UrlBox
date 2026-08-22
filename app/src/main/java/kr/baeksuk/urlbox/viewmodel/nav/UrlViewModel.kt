@@ -428,4 +428,8 @@ class UrlViewModel(
         }
     }
 
+    suspend fun saveSharedUrlForLoggedInUserAwait(url: Url, userId: String): Boolean {
+        return _repo.saveSharedUrlForLoggedInUserAwait(url, userId)
+    }
+
 }

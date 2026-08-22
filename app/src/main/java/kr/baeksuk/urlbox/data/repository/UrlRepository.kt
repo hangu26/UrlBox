@@ -393,123 +393,120 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     /** 로그인 사용자 공유 링크 전용 저장 로직: Room + Firebase 모두 저장 */
     fun saveSharedUrlForLoggedInUser(url: Url, userId: String) {
-        val resolvedUserId = userId.ifBlank { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
-        if (resolvedUserId.isBlank()) return
-
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val localImageFile = resolveSharedImageForLocalSave(url, resolvedUserId)
+            saveSharedUrlForLoggedInUserInternal(url, userId)
+        }
+    }
 
-                val uploadedDownloadUri = if (localImageFile != null && localImageFile.exists()) {
-                    try {
-                        uploadImageToStorage(resolvedUserId, localImageFile)?.toString()
-                    } catch (e: Exception) {
-                        Log.e("UrlRepository", "Pre-upload failed: ${e.message}")
-                        null
-                    }
-                } else {
+    suspend fun saveSharedUrlForLoggedInUserAwait(url: Url, userId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            saveSharedUrlForLoggedInUserInternal(url, userId)
+        }
+    }
+
+    private suspend fun saveSharedUrlForLoggedInUserInternal(url: Url, userId: String): Boolean {
+        val resolvedUserId = userId.ifBlank { FirebaseAuth.getInstance().currentUser?.uid ?: "" }
+        if (resolvedUserId.isBlank()) return false
+
+        return try {
+            val localImageFile = resolveSharedImageForLocalSave(url, resolvedUserId)
+
+            val uploadedDownloadUri = if (localImageFile != null && localImageFile.exists()) {
+                try {
+                    uploadImageToStorage(resolvedUserId, localImageFile)?.toString()
+                } catch (e: Exception) {
+                    Log.e("UrlRepository", "Pre-upload failed: ${e.message}")
                     null
                 }
+            } else {
+                null
+            }
 
-                val uploadedStorageKey = localImageFile?.nameWithoutExtension?.takeIf { it.isNotBlank() }
-                val finalImgUri = uploadedDownloadUri ?: ""
-                val uploadedImagePath = extractStoragePathFromFirebaseUrl(finalImgUri)
-                val finalImageKey = if (uploadedDownloadUri != null) {
-                    uploadedImagePath
-                        ?.substringAfterLast('/')
-                        ?.substringBeforeLast('.', "")
-                        ?.takeIf { it.isNotBlank() }
-                        ?: uploadedStorageKey
-                        ?: url.imageKey.ifBlank {
+            val uploadedStorageKey = localImageFile?.nameWithoutExtension?.takeIf { it.isNotBlank() }
+            val finalImgUri = uploadedDownloadUri ?: ""
+            val uploadedImagePath = extractStoragePathFromFirebaseUrl(finalImgUri)
+            val finalImageKey = if (uploadedDownloadUri != null) {
+                uploadedImagePath
+                    ?.substringAfterLast('/')
+                    ?.substringBeforeLast('.', "")
+                    ?.takeIf { it.isNotBlank() }
+                    ?: uploadedStorageKey
+                    ?: url.imageKey.ifBlank {
                         localImageFile?.nameWithoutExtension ?: java.util.UUID.randomUUID().toString()
                     }
-                } else {
-                    url.imageKey.ifBlank { "" }
-                }
-
-                Log.d("SHARE_THUMBNAIL_DEBUG", "[RECEIVER_SAVE] originalImageKey=${url.imageKey}, finalImageKey=$finalImageKey, uploadedDownloadUri=$uploadedDownloadUri, localImageFile=${localImageFile?.absolutePath ?: ""}")
-
-                val resolvedSenderUid = url.senderUid?.takeIf { it.isNotBlank() }
-                    ?: url.imagePath?.split('/')?.filter { it.isNotBlank() }?.getOrNull(1)
-                    ?: ""
-                val finalOwnerUid = if (uploadedDownloadUri != null) resolvedUserId else resolvedSenderUid
-                val resolvedImagePath = when {
-                    !uploadedImagePath.isNullOrBlank() -> uploadedImagePath
-                    !url.imagePath.isNullOrBlank() -> url.imagePath
-                    finalOwnerUid.isNotBlank() && finalImageKey.isNotBlank() -> "images/$finalOwnerUid/${finalImageKey}.png"
-                    else -> ""
-                }
-
-                val finalUrl = url.copy(
-                    imageKey = finalImageKey,
-                    imgUri = finalImgUri,
-                    timeStamp = System.currentTimeMillis(),
-                    senderUid = finalOwnerUid.takeIf { it.isNotBlank() } ?: url.senderUid,
-                    imagePath = resolvedImagePath.takeIf { it.isNotBlank() } ?: url.imagePath
-                )
-
-                Log.d("SHARE_THUMBNAIL_RESULT", "newImageKey=${finalImageKey}, newImageUri=${uploadedDownloadUri ?: finalImgUri}, finalSuccess=${uploadedDownloadUri != null}")
-
-                if (urlDao.getBackupUrlIsExist(finalUrl.url) == null) {
-                    urlDao.insertBackup(
-                        UrlBackupEntity(
-                            urlLink = finalUrl.url,
-                            imageKey = finalUrl.imageKey ?: "",
-                            imgUri = finalImgUri,
-                            favorite = finalUrl.favorite,
-                            hidden = finalUrl.hidden,
-                            timeStamp = finalUrl.timeStamp,
-                            urlName = finalUrl.urlName,
-                            urlMemo = finalUrl.urlMemo,
-                            tag = finalUrl.tag
-                        )
-                    )
-                    Log.d("UrlRepository", "Saved shared URL to Room for user=$resolvedUserId : ${finalUrl.url} | imgUri=$finalImgUri")
-                }
-
-                val firebaseUrl = Url(
-                    url = finalUrl.url,
-                    urlName = finalUrl.urlName,
-                    urlMemo = finalUrl.urlMemo,
-                    imageKey = finalUrl.imageKey ?: "",
-                    imgUri = uploadedDownloadUri ?: finalImgUri,
-                    favorite = finalUrl.favorite,
-                    hidden = finalUrl.hidden,
-                    timeStamp = finalUrl.timeStamp,
-                    senderUid = finalUrl.senderUid ?: url.senderUid,
-                    imagePath = finalUrl.imagePath ?: url.imagePath
-                )
-
-                val userUrlRef = FirebaseDatabase.getInstance().reference
-                    .child("User")
-                    .child(resolvedUserId)
-                    .child("url")
-
-                userUrlRef.orderByChild("url").equalTo(finalUrl.url)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            if (!snapshot.exists()) {
-                                userUrlRef.child("img${firebaseUrl.timeStamp}")
-                                    .setValue(firebaseUrl)
-                                    .addOnSuccessListener {
-                                        Log.d("UrlRepository", "Saved shared URL to Firebase for user=$resolvedUserId : ${finalUrl.url}")
-                                    }
-                                    .addOnFailureListener { e ->
-                                        Log.e("UrlRepository", "Firebase save failed for user=$resolvedUserId : ${e.message}")
-                                    }
-                            } else {
-                                Log.d("UrlRepository", "Shared URL already exists in Firebase for user=$resolvedUserId : ${finalUrl.url}")
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.e("UrlRepository", "Firebase query cancelled for user=$resolvedUserId : ${error.message}")
-                        }
-                    })
-
-            } catch (e: Exception) {
-                Log.e("UrlRepository", "Failed to save shared URL for logged-in user", e)
+            } else {
+                url.imageKey.ifBlank { "" }
             }
+
+            Log.d("SHARE_THUMBNAIL_DEBUG", "[RECEIVER_SAVE] originalImageKey=${url.imageKey}, finalImageKey=$finalImageKey, uploadedDownloadUri=$uploadedDownloadUri, localImageFile=${localImageFile?.absolutePath ?: ""}")
+
+            val resolvedSenderUid = url.senderUid?.takeIf { it.isNotBlank() }
+                ?: url.imagePath?.split('/')?.filter { it.isNotBlank() }?.getOrNull(1)
+                ?: ""
+            val finalOwnerUid = if (uploadedDownloadUri != null) resolvedUserId else resolvedSenderUid
+            val resolvedImagePath = when {
+                !uploadedImagePath.isNullOrBlank() -> uploadedImagePath
+                !url.imagePath.isNullOrBlank() -> url.imagePath
+                finalOwnerUid.isNotBlank() && finalImageKey.isNotBlank() -> "images/$finalOwnerUid/${finalImageKey}.png"
+                else -> ""
+            }
+
+            val finalUrl = url.copy(
+                imageKey = finalImageKey,
+                imgUri = finalImgUri,
+                timeStamp = System.currentTimeMillis(),
+                senderUid = finalOwnerUid.takeIf { it.isNotBlank() } ?: url.senderUid,
+                imagePath = resolvedImagePath.takeIf { it.isNotBlank() } ?: url.imagePath
+            )
+
+            Log.d("SHARE_THUMBNAIL_RESULT", "newImageKey=${finalImageKey}, newImageUri=${uploadedDownloadUri ?: finalImgUri}, finalSuccess=${uploadedDownloadUri != null}")
+
+            if (urlDao.getBackupUrlIsExist(finalUrl.url) == null) {
+                urlDao.insertBackup(
+                    UrlBackupEntity(
+                        urlLink = finalUrl.url,
+                        imageKey = finalUrl.imageKey ?: "",
+                        imgUri = finalImgUri,
+                        favorite = finalUrl.favorite,
+                        hidden = finalUrl.hidden,
+                        timeStamp = finalUrl.timeStamp,
+                        urlName = finalUrl.urlName,
+                        urlMemo = finalUrl.urlMemo,
+                        tag = finalUrl.tag
+                    )
+                )
+                Log.d("UrlRepository", "Saved shared URL to Room for user=$resolvedUserId : ${finalUrl.url} | imgUri=$finalImgUri")
+            }
+
+            val firebaseUrl = Url(
+                url = finalUrl.url,
+                urlName = finalUrl.urlName,
+                urlMemo = finalUrl.urlMemo,
+                imageKey = finalUrl.imageKey ?: "",
+                imgUri = uploadedDownloadUri ?: finalImgUri,
+                favorite = finalUrl.favorite,
+                hidden = finalUrl.hidden,
+                timeStamp = finalUrl.timeStamp,
+                senderUid = finalUrl.senderUid ?: url.senderUid,
+                imagePath = finalUrl.imagePath ?: url.imagePath
+            )
+
+            val userUrlRef = FirebaseDatabase.getInstance().reference
+                .child("User")
+                .child(resolvedUserId)
+                .child("url")
+
+            val existing = userUrlRef.orderByChild("url").equalTo(finalUrl.url).get().await()
+            if (!existing.exists()) {
+                userUrlRef.child("img${firebaseUrl.timeStamp}").setValue(firebaseUrl).await()
+                Log.d("UrlRepository", "Saved shared URL to Firebase for user=$resolvedUserId : ${finalUrl.url}")
+            } else {
+                Log.d("UrlRepository", "Shared URL already exists in Firebase for user=$resolvedUserId : ${finalUrl.url}")
+            }
+            true
+        } catch (e: Exception) {
+            Log.e("UrlRepository", "Failed to save shared URL for logged-in user", e)
+            false
         }
     }
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <solid android:color="#EEF2F7" />
+            <corners android:radius="@dimen/share_receive_dialog_progress_corner_radius" />
+        </shape>
+    </item>
+    <item>
+        <clip>
+            <shape>
+                <solid android:color="#FFD400" />
+                <corners android:radius="@dimen/share_receive_dialog_progress_corner_radius" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>
