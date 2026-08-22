@@ -96,7 +96,8 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
             } else {
                 val newTagBackup = TagBackupEntity(
                     tag = tag,
-                    urlList = listOf(urlTitle)
+                    urlList = listOf(urlTitle),
+                    firebaseTagId = "tag$timeStamp"
                 )
                 // insert는 List<TagBackupEntity>여야 하므로 리스트로 감싸서 호출
                 urlDao.insertTagBackup(listOf(newTagBackup))
@@ -145,20 +146,19 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 snapshot.children.forEach { childSnapshot ->
                     val hiddenVal = childSnapshot.child("hidden").getValue(Boolean::class.java) ?: false
                     if (hiddenVal) {
-                        // delete associated image from Firebase Storage if imageKey exists
+                        // delete associated image from Firebase Storage
                         try {
-                            val imageKey = childSnapshot.child("imageKey").getValue(String::class.java) ?: ""
-                            if (!imageKey.isNullOrBlank()) {
-                                val storageRef = FirebaseStorage.getInstance().reference.child("images").child(userId).child("$imageKey.png")
-                                try {
-                                    storageRef.delete().await()
-                                } catch (se: Exception) {
-                                    // Log but continue deleting DB record
-                                    Log.e("UrlRepository", "Failed to delete storage image for key=$imageKey: ${se.message}")
-                                }
-                            }
+                            val imageKey = childSnapshot.child("imageKey").getValue(String::class.java)
+                            val imagePath = childSnapshot.child("imagePath").getValue(String::class.java)
+                            val imgUri = childSnapshot.child("imgUri").getValue(String::class.java)
+                            deleteStorageImageByMetadata(
+                                userId = userId,
+                                imageKey = imageKey,
+                                imagePath = imagePath,
+                                imgUri = imgUri
+                            )
                         } catch (ie: Exception) {
-                            Log.e("UrlRepository", "Error checking imageKey for hidden url: ${ie.message}")
+                            Log.e("UrlRepository", "Error deleting hidden url storage image: ${ie.message}")
                         }
 
                         // remove from Firebase DB
@@ -212,7 +212,12 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 }
             })
 
-        updateTagInTagFirebase(userTag.tag!!, tagRef, urlTitle)
+        updateTagInTagFirebase(
+            tag = userTag.tag!!,
+            tagRef = tagRef,
+            urlLink = urlTitle,
+            preferredTagId = "tag${userTag.timeStamp}"
+        )
 
     }
 
@@ -408,8 +413,14 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                 val uploadedStorageKey = localImageFile?.nameWithoutExtension?.takeIf { it.isNotBlank() }
                 val finalImgUri = uploadedDownloadUri ?: ""
+                val uploadedImagePath = extractStoragePathFromFirebaseUrl(finalImgUri)
                 val finalImageKey = if (uploadedDownloadUri != null) {
-                    uploadedStorageKey ?: url.imageKey.ifBlank {
+                    uploadedImagePath
+                        ?.substringAfterLast('/')
+                        ?.substringBeforeLast('.', "")
+                        ?.takeIf { it.isNotBlank() }
+                        ?: uploadedStorageKey
+                        ?: url.imageKey.ifBlank {
                         localImageFile?.nameWithoutExtension ?: java.util.UUID.randomUUID().toString()
                     }
                 } else {
@@ -421,14 +432,19 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 val resolvedSenderUid = url.senderUid?.takeIf { it.isNotBlank() }
                     ?: url.imagePath?.split('/')?.filter { it.isNotBlank() }?.getOrNull(1)
                     ?: ""
-                val resolvedImagePath = url.imagePath?.takeIf { it.isNotBlank() }
-                    ?: if (resolvedSenderUid.isNotBlank() && finalImageKey.isNotBlank()) "images/$resolvedSenderUid/${finalImageKey}.png" else ""
+                val finalOwnerUid = if (uploadedDownloadUri != null) resolvedUserId else resolvedSenderUid
+                val resolvedImagePath = when {
+                    !uploadedImagePath.isNullOrBlank() -> uploadedImagePath
+                    !url.imagePath.isNullOrBlank() -> url.imagePath
+                    finalOwnerUid.isNotBlank() && finalImageKey.isNotBlank() -> "images/$finalOwnerUid/${finalImageKey}.png"
+                    else -> ""
+                }
 
                 val finalUrl = url.copy(
                     imageKey = finalImageKey,
                     imgUri = finalImgUri,
                     timeStamp = System.currentTimeMillis(),
-                    senderUid = resolvedSenderUid.takeIf { it.isNotBlank() } ?: url.senderUid,
+                    senderUid = finalOwnerUid.takeIf { it.isNotBlank() } ?: url.senderUid,
                     imagePath = resolvedImagePath.takeIf { it.isNotBlank() } ?: url.imagePath
                 )
 
@@ -515,7 +531,8 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                 tag = tag,
                 count = "1",
                 timeStamp = System.currentTimeMillis().toString(),
-                urlList = listOf(urlBackupEntity.urlLink)
+                urlList = listOf(urlBackupEntity.urlLink),
+                firebaseTagId = "tag${urlBackupEntity.timeStamp}"
             )
         )
 
@@ -551,7 +568,12 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                     tag = tag, timeStamp = urlBackupEntity.timeStamp
                 )
 
-                updateTagInTagFirebase(tag, tagRef, url.url)
+                updateTagInTagFirebase(
+                    tag = tag,
+                    tagRef = tagRef,
+                    urlLink = url.url,
+                    preferredTagId = "tag${urlBackupEntity.timeStamp}"
+                )
 
                 userRef.orderByChild("url").equalTo(urlLink)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -642,7 +664,8 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                         tag = userTag.tag ?: "",
                         count = "1",
                         timeStamp = userTag.timeStamp.toString(),
-                        urlList = listOf(urlBackupEntity.urlLink)
+                        urlList = listOf(urlBackupEntity.urlLink),
+                        firebaseTagId = "tag${userTag.timeStamp}"
                     )
                 }
 
@@ -683,7 +706,12 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                         .child("tag" + tagItem.timeStamp)
                                         .setValue(userTag)
 
-                                    updateTagInTagFirebase(userTag.tag ?: "", tagRef, url.url)
+                                    updateTagInTagFirebase(
+                                        tag = userTag.tag ?: "",
+                                        tagRef = tagRef,
+                                        urlLink = url.url,
+                                        preferredTagId = "tag${userTag.timeStamp}"
+                                    )
                                 }
                             }
                         }
@@ -749,9 +777,6 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        // Intentionally do not generate a default/placeholder thumbnail for shared links.
-        // If the original sender image cannot be read, the receiver URL should still be saved
-        // without a copied thumbnail instead of silently uploading unrelated app assets.
         return null
     }
 
@@ -762,28 +787,90 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
             return null
         }
 
-        return try {
-            val storageRef = FirebaseStorage.getInstance().reference.child("images/${resolvedUserId}/")
-            val safeName = file.name.replace(Regex("[^A-Za-z0-9._-]"), "_")
-            val fileRef = storageRef.child(safeName)
-            val receiverStoragePath = fileRef.path
-            val fileUri = Uri.fromFile(file)
-            Log.d("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${receiverStoragePath}, uploadStart=true")
-            Log.d("FirebaseStorage", "Uploading file to storage path=images/${resolvedUserId}/$safeName, exists=${file.exists()}, length=${file.length()}")
-            val uploadTask = fileRef.putFile(fileUri)
-            uploadTask.await()
-            val downloadUrl = fileRef.downloadUrl.await()
-            Log.d("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${receiverStoragePath}, uploadSuccess=true")
-            Log.d("FirebaseStorage", "Upload complete, downloadUrl=$downloadUrl")
-            downloadUrl
-        } catch (e: Exception) {
+        fun computeSha256(f: File): String {
+            return try {
+                val md = java.security.MessageDigest.getInstance("SHA-256")
+                val buffer = ByteArray(8192)
+                f.inputStream().use { inp ->
+                    var read: Int
+                    while (inp.read(buffer).also { read = it } > 0) {
+                        md.update(buffer, 0, read)
+                    }
+                }
+                md.digest().joinToString("") { "%02x".format(it) }
+            } catch (e: Exception) {
+                Log.e("SHARE_HASH", "Failed to compute hash: ${e.message}")
+                ""
+            }
+        }
+
+        val fileSize = file.length()
+        val fileHash = computeSha256(file)
+
+        val storageRef = FirebaseStorage.getInstance().reference.child("images/${resolvedUserId}/")
+        val safeName = file.name.replace(Regex("[^A-Za-z0-9._-]"), "_")
+        val fileRef = storageRef.child(safeName)
+        val receiverStoragePath = fileRef.path
+        val fileUri = Uri.fromFile(file)
+
+        Log.d("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${receiverStoragePath}, uploadStart=true, size=${fileSize}, hash=${fileHash}")
+
+        var attempt = 0
+        val maxAttempts = 3
+        var lastException: Exception? = null
+
+        while (attempt < maxAttempts) {
+            attempt++
+            try {
+                val uploadTask = fileRef.putFile(fileUri)
+                uploadTask.await()
+
+                // attach custom metadata with hash for verification
+                try {
+                    val metadata = com.google.firebase.storage.StorageMetadata.Builder()
+                        .setCustomMetadata("sha256", fileHash)
+                        .build()
+                    fileRef.updateMetadata(metadata).await()
+                } catch (metaEx: Exception) {
+                    Log.w("SHARE_THUMBNAIL_UPLOAD", "Failed to set metadata: ${metaEx.message}")
+                }
+
+                val meta = fileRef.metadata.await()
+                val remoteSize = meta.sizeBytes
+                val remoteHash = meta.getCustomMetadata("sha256")
+
+                if (remoteSize == fileSize && (remoteHash == null || remoteHash == fileHash || remoteHash.isBlank())) {
+                    val downloadUrl = fileRef.downloadUrl.await()
+                    Log.d("SHARE_THUMBNAIL_UPLOAD", "uploadSuccess=true receiverStoragePath=${receiverStoragePath} downloadUrl=$downloadUrl")
+                    return downloadUrl
+                } else {
+                    Log.w("SHARE_THUMBNAIL_UPLOAD", "Verification failed size: local=$fileSize remote=$remoteSize hashLocal=$fileHash hashRemote=$remoteHash; attempt=$attempt")
+                    // try to delete the potentially corrupted remote file before retry
+                    try {
+                        fileRef.delete().await()
+                    } catch (delEx: Exception) {
+                        Log.w("SHARE_THUMBNAIL_UPLOAD", "Failed to delete failed upload: ${delEx.message}")
+                    }
+                }
+
+            } catch (e: Exception) {
+                lastException = e
+                Log.w("SHARE_THUMBNAIL_UPLOAD", "Upload attempt $attempt failed: ${e.message}")
+                try {
+                    // small backoff
+                    kotlinx.coroutines.delay((500L * attempt))
+                } catch (_: InterruptedException) {}
+            }
+        }
+
+        lastException?.let { e ->
             val errorCode = if (e is com.google.firebase.storage.StorageException) e.errorCode else "UNKNOWN"
             val errorMessage = e.message ?: "no message"
             Log.e("SHARE_THUMBNAIL_UPLOAD", "receiverStoragePath=${"images/" + userId + "/" + file.name}, uploadStart=true, uploadSuccess=false, errorCode=${errorCode}, errorMessage=${errorMessage}", e)
-            Log.e("FirebaseStorage", "회원 이미지 업로드 실패: ${e.message}")
-            e.printStackTrace()
-            null
         }
+
+        Log.e("FirebaseStorage", "회원 이미지 업로드 실패 after retries: ${lastException?.message}")
+        return null
     }
 
     /** insertTagBackupMultiple */
@@ -862,7 +949,12 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
     }
 
     /** updateTagInTagFirebase */
-    private fun updateTagInTagFirebase(tag: String, tagRef: DatabaseReference, urlLink: String) {
+    private fun updateTagInTagFirebase(
+        tag: String,
+        tagRef: DatabaseReference,
+        urlLink: String,
+        preferredTagId: String? = null
+    ) {
 
         if (tag.isNotBlank()) {
 
@@ -876,6 +968,11 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             for (child in snapshot.children) {
                                 val key = child.key
                                 val timeStamp = System.currentTimeMillis()
+                                if (!key.isNullOrBlank()) {
+                                    viewModelScope.launch(Dispatchers.IO) {
+                                        runCatching { urlDao.updateTagFirebaseId(tag, key) }
+                                    }
+                                }
 
                                 val tagCountRef = tagRef.child(key!!).child("count")
                                 tagCountRef.runTransaction(object : Transaction.Handler {
@@ -928,7 +1025,9 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
                         } else {
                             val timeStamp = System.currentTimeMillis()
-                            val tagId = "tag$timeStamp"
+                            val tagId = preferredTagId
+                                ?.takeIf { it.isNotBlank() && it.startsWith("tag") }
+                                ?: "tag$timeStamp"
 
                             val tagInfo = Tag(tag = tag, count = "1", timeStamp = timeStamp.toString(), id = tagId)
 
@@ -936,6 +1035,9 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             tagRef.child(tagId).child("id").setValue(tagId)
                             tagRef.child(tagId).child("url").child("url$timeStamp")
                                 .setValue(urlInTag)
+                            viewModelScope.launch(Dispatchers.IO) {
+                                runCatching { urlDao.updateTagFirebaseId(tag, tagId) }
+                            }
 
                             /**
                             tagRef.child("tag" + url.timeStamp).child("tag").setValue(tag)
@@ -1074,74 +1176,68 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val storageRef = FirebaseStorage.getInstance().reference.child("images/$userId/")
-
-                urlDao.updateBackup(urlBackupEntity.urlLink, urlBackupEntity.imageKey)
-
                 val databaseReference =
                     FirebaseDatabase.getInstance().reference.child("User").child(userId)
                         .child("url")
 
-                databaseReference.orderByChild("url").equalTo(urlBackupEntity.urlLink)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        /** onDataChange */
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            val child = snapshot.children.firstOrNull() ?: run {
-                                Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
-                                return
-                            }
+                val snapshot = databaseReference.orderByChild("url").equalTo(urlBackupEntity.urlLink)
+                    .get()
+                    .await()
+                val child = snapshot.children.firstOrNull() ?: run {
+                    Log.e("데이터 없음", "해당 URL을 가진 데이터가 없습니다.")
+                    return@launch
+                }
 
-                            val key = child.key ?: return
-                            val oldImageKey = child.child("imageKey").getValue(String::class.java)
-                            Log.e("기존 이미지 키", oldImageKey.toString())
+                val oldImageKey = child.child("imageKey").getValue(String::class.java)
+                val oldImagePath = child.child("imagePath").getValue(String::class.java)
+                val oldImgUri = child.child("imgUri").getValue(String::class.java)
 
-                            // 기존 이미지 삭제
-                            storageRef.child("${oldImageKey}.png").delete().addOnCompleteListener {
-                                Log.e("중복 이미지 삭제 여부", "성공")
-                            }.addOnFailureListener {
-                                Log.e("중복 이미지 삭제 여부", "실패")
-                            }
+                val uploadedUri = uploadImageToStorage(userId, file)?.toString()
+                if (uploadedUri.isNullOrBlank()) {
+                    Log.e("Storage Upload", "파일 업로드 실패: ${file.name}")
+                    return@launch
+                }
 
-                            // 새 이미지 key 저장
-                            databaseReference.child(key).child("imageKey")
-                                .setValue(urlBackupEntity.imageKey).addOnCompleteListener {
-                                    Log.e("업데이트 성공", "사진 변경 완료")
-                                }.addOnFailureListener { e ->
-                                    Log.e("업데이트 실패", e.toString())
-                                }
+                val uploadedImagePath = extractStoragePathFromFirebaseUrl(uploadedUri).orEmpty()
+                val uploadedImageKey = uploadedImagePath.substringAfterLast('/')
+                    .substringBeforeLast('.', "")
+                    .ifBlank {
+                        file.nameWithoutExtension.ifBlank { urlBackupEntity.imageKey }
+                    }
 
-                            val fileUri = Uri.fromFile(file)
-                            val fileRef = storageRef.child(file.name)
+                val updates = mutableMapOf<String, Any>(
+                    "imageKey" to uploadedImageKey,
+                    "imgUri" to uploadedUri,
+                    "senderUid" to userId
+                )
+                if (uploadedImagePath.isNotBlank()) {
+                    updates["imagePath"] = uploadedImagePath
+                }
 
-                            fileRef.putFile(fileUri).addOnSuccessListener {
-                                fileRef.downloadUrl.addOnSuccessListener { uri ->
-                                    viewModelScope.launch(Dispatchers.IO) {
+                child.ref.updateChildren(updates).await()
 
-                                        try {
-                                            urlDao.insertImgUri(
-                                                uri.toString(), urlBackupEntity.urlLink
-                                            )
-                                        } catch (e: Exception) {
-                                            Log.e("Room 업데이트 실패", e.toString())
-                                        }
-                                    }
+                urlDao.updateBackup(urlBackupEntity.urlLink, uploadedImageKey)
+                urlDao.insertImgUri(uploadedUri, urlBackupEntity.urlLink)
 
-                                    Log.i("FirebaseStorage", "Image uploaded. URI: $uri")
-                                }
-                                Log.d("Storage Upload", "파일 업로드 성공: ${file.name}")
-                            }.addOnFailureListener {
-                                Log.e(
-                                    "Storage Upload",
-                                    "파일 업로드 실패: ${file.name}, 오류: ${it.message}"
-                                )
-                            }
-                        }
+                val normalizedOldImagePath = normalizeStoragePath(oldImagePath)
+                val oldPathFromImgUri = extractStoragePathFromFirebaseUrl(oldImgUri.orEmpty())
+                val oldStoragePath = oldPathFromImgUri ?: normalizedOldImagePath
+                val shouldDeleteOld =
+                    oldStoragePath.isNullOrBlank() || oldStoragePath != uploadedImagePath
 
-                        /** onCancelled */
-                        override fun onCancelled(error: DatabaseError) {
-                            Log.e("Firebase 에러", error.message)
-                        }
-                    })
+                if (shouldDeleteOld) {
+                    deleteStorageImageByMetadata(
+                        userId = userId,
+                        imageKey = oldImageKey,
+                        imagePath = oldImagePath,
+                        imgUri = oldImgUri
+                    )
+                }
+
+                Log.d(
+                    "Storage Upload",
+                    "파일 업로드/교체 성공: ${file.name}, oldImageKey=${oldImageKey ?: ""}, newImageKey=$uploadedImageKey"
+                )
             } catch (e: Exception) {
                 Log.e("데이터 업데이트 처리", e.toString())
             }
@@ -1513,7 +1609,6 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
 
     /** deleteUserData */
     fun deleteUserData(url: String, imageKey: String, userId: String) {
-        val storageRef = FirebaseStorage.getInstance().reference.child("images/${userId}/")
         val databaseRef = FirebaseDatabase.getInstance().reference
         val urlRef = databaseRef.child("User").child(userId).child("url")
         val tagRef = databaseRef.child("User").child(userId).child("Tag")
@@ -1531,6 +1626,10 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                             override fun onDataChange(snapshot: DataSnapshot) {
                                 if (snapshot.exists()) {
                                     for (child in snapshot.children) {
+                                        val childImageKey = child.child("imageKey").getValue(String::class.java)
+                                        val childImagePath = child.child("imagePath").getValue(String::class.java)
+                                        val childImgUri = child.child("imgUri").getValue(String::class.java)
+
                                         child.ref.removeValue().addOnCompleteListener { task ->
                                             if (task.isSuccessful) {
                                                 Log.i("deleteKeyword", "URL 삭제 완료: $url")
@@ -1538,14 +1637,15 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
                                                 // 3️⃣ URL 삭제 후 전체 Tag에서도 해당 URL 제거
                                                 deleteUrlFromTags(tagRef, url)
 
-                                                // 4️⃣ 스토리지 이미지 삭제
-                                                storageRef.child("$imageKey.png").delete()
-                                                    .addOnSuccessListener {
-                                                        Log.d("스토리지 삭제", "성공: $imageKey.png")
-                                                    }
-                                                    .addOnFailureListener {
-                                                        Log.e("스토리지 삭제", "실패: $imageKey.png")
-                                                    }
+                                                // 4️⃣ 스토리지 이미지 삭제 (imagePath/imgUri 우선, imageKey는 fallback)
+                                                viewModelScope.launch(Dispatchers.IO) {
+                                                    deleteStorageImageByMetadata(
+                                                        userId = userId,
+                                                        imageKey = childImageKey ?: imageKey,
+                                                        imagePath = childImagePath,
+                                                        imgUri = childImgUri
+                                                    )
+                                                }
                                             } else {
                                                 Log.e("deleteKeyword fail", "URL 삭제 실패")
                                             }
@@ -1597,6 +1697,118 @@ class UrlRepository(application: Application) : AndroidViewModel(application) {
             /** onCancelled */
             override fun onCancelled(error: DatabaseError) {}
         })
+    }
+
+    private suspend fun deleteStorageImageByMetadata(
+        userId: String,
+        imageKey: String?,
+        imagePath: String?,
+        imgUri: String?
+    ): Boolean {
+        val candidates = buildStorageDeleteCandidates(userId, imageKey, imagePath, imgUri)
+        if (candidates.isEmpty()) {
+            Log.e(
+                "스토리지 삭제",
+                "실패: 삭제 후보 경로 없음 imageKey=${imageKey ?: ""} imagePath=${imagePath ?: ""} imgUri=${imgUri ?: ""}"
+            )
+            return false
+        }
+
+        val storage = FirebaseStorage.getInstance().reference
+        var deleted = false
+        var lastError: Exception? = null
+
+        for (path in candidates) {
+            try {
+                storage.child(path).delete().await()
+                Log.d("스토리지 삭제", "성공: $path")
+                deleted = true
+                break
+            } catch (e: Exception) {
+                lastError = e
+                val isNotFound = (e as? com.google.firebase.storage.StorageException)
+                    ?.errorCode == com.google.firebase.storage.StorageException.ERROR_OBJECT_NOT_FOUND
+                if (!isNotFound) {
+                    Log.e("스토리지 삭제", "실패: $path (${e.message})")
+                }
+            }
+        }
+
+        if (!deleted) {
+            Log.e(
+                "스토리지 삭제",
+                "최종 실패: candidates=${candidates.joinToString()} error=${lastError?.message ?: "unknown"}"
+            )
+        }
+
+        return deleted
+    }
+
+    private fun buildStorageDeleteCandidates(
+        userId: String,
+        imageKey: String?,
+        imagePath: String?,
+        imgUri: String?
+    ): List<String> {
+        val candidates = linkedSetOf<String>()
+
+        val pathFromImgUri = extractStoragePathFromFirebaseUrl(imgUri.orEmpty())
+        if (!pathFromImgUri.isNullOrBlank()) {
+            candidates.add(pathFromImgUri)
+        }
+
+        val normalizedPath = normalizeStoragePath(imagePath)
+        if (!normalizedPath.isNullOrBlank()) {
+            val pathOwnerUid = parseOwnerUidFromStoragePath(normalizedPath)
+            val canUseImagePath = pathOwnerUid.isNullOrBlank() || pathOwnerUid == userId || pathFromImgUri.isNullOrBlank()
+            if (canUseImagePath) {
+                candidates.add(normalizedPath)
+            }
+        }
+
+        val normalizedImageKey = imageKey?.trim().orEmpty()
+        if (normalizedImageKey.isNotBlank()) {
+            if (normalizedImageKey.contains("/")) {
+                candidates.add(normalizedImageKey.trimStart('/'))
+            } else {
+                candidates.add("images/$userId/$normalizedImageKey")
+                if (!normalizedImageKey.contains(".")) {
+                    candidates.add("images/$userId/$normalizedImageKey.png")
+                    candidates.add("images/$userId/$normalizedImageKey.jpg")
+                    candidates.add("images/$userId/$normalizedImageKey.jpeg")
+                }
+            }
+        }
+
+        return candidates.filter { it.isNotBlank() }
+    }
+
+    private fun normalizeStoragePath(path: String?): String? {
+        if (path.isNullOrBlank()) return null
+        return runCatching {
+            java.net.URLDecoder.decode(path.substringBefore("?"), "UTF-8").trim().trimStart('/')
+        }.getOrNull() ?: path.substringBefore("?").trim().trimStart('/')
+    }
+
+    private fun parseOwnerUidFromStoragePath(path: String): String? {
+        val segments = path.split('/').filter { it.isNotBlank() }
+        if (segments.size < 2) return null
+        return if (segments[0] == "images") segments[1] else null
+    }
+
+    private fun extractStoragePathFromFirebaseUrl(rawUrl: String): String? {
+        if (rawUrl.isBlank()) return null
+        return try {
+            val decodedUrl = java.net.URL(rawUrl)
+            val path = decodedUrl.path
+            val startIndex = path.indexOf("/o/")
+            if (startIndex < 0) return null
+            val encoded = path.substring(startIndex + 3).substringBefore("?")
+            java.net.URLDecoder.decode(encoded, Charsets.UTF_8.name())
+        } catch (e: Exception) {
+            Log.w("UrlRepository", "Failed to extract storage path from Firebase URL: ${e.message}")
+            null
+        }
     }
 
     /** deleteUserBackup */

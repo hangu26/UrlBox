@@ -159,7 +159,12 @@ class RvTagAdapter(
     override fun onDragEnd() {
         val finalOrder = tagList
             .filterIndexed { index, _ -> index > 1 }
-            .mapNotNull { it.id?.takeIf { id -> id.isNotBlank() } }
+            .mapNotNull { tag ->
+                tag.id?.takeIf { id -> id.isNotBlank() }
+                    ?: tag.timeStamp
+                        ?.toLongOrNull()
+                        ?.let { "tag$it" }
+            }
             .filter { it.isNotBlank() }
 
         if (finalOrder.isEmpty()) {

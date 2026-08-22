@@ -629,16 +629,20 @@ class MainActivity : BaseActivity() {
                 runCatching { java.net.URLDecoder.decode(path.substringBefore("?"), "UTF-8") }.getOrNull() ?: path.substringBefore("?")
             }
 
+        val imagePathFromImgUri = if (imgUri.startsWith("https://firebasestorage.googleapis.com/")) {
+            extractStoragePathFromFirebaseUrl(imgUri)
+        } else {
+            null
+        }
+
+        if (!imagePathFromImgUri.isNullOrBlank()) {
+            imagePath = imagePathFromImgUri
+        }
         if (senderUid.isNullOrBlank() && !imagePath.isNullOrBlank()) {
             senderUid = imagePath.split('/').filter { it.isNotBlank() }.getOrNull(1)
         }
         if (imagePath.isNullOrBlank() && !senderUid.isNullOrBlank() && imageKey.isNotBlank()) {
             imagePath = "images/$senderUid/${imageKey}.png"
-        }
-        if (imagePath.isNullOrBlank() && imgUri.startsWith("https://firebasestorage.googleapis.com/")) {
-            imagePath = extractStoragePathFromFirebaseUrl(imgUri)
-            val segments = imagePath?.split('/')?.filter { it.isNotBlank() }
-            senderUid = segments?.getOrNull(1) ?: senderUid
         }
 
         val receiverUid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid ?: ""

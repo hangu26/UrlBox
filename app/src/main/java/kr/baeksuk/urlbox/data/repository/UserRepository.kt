@@ -125,6 +125,7 @@ class UserRepository(context: Context) {
                         async(Dispatchers.IO) {
                             val url = dataSnapshot.child("url").value.toString()
                             val imageKey = dataSnapshot.child("imageKey").value.toString()
+                            val storedImgUri = dataSnapshot.child("imgUri").value?.toString()?.trim().orEmpty()
                             val senderUid = dataSnapshot.child("senderUid").value?.toString()
                             val imagePath = dataSnapshot.child("imagePath").value?.toString()
                             val favorite =
@@ -146,31 +147,42 @@ class UserRepository(context: Context) {
                                 )
                             }
 
+                            val storagePathFromUri = extractStoragePathFromFirebaseUrl(storedImgUri)
                             val storageRefPath = when {
+                                !storagePathFromUri.isNullOrBlank() -> storagePathFromUri
                                 !imagePath.isNullOrBlank() -> imagePath.trim()
-                                else -> "images/$userId/${imageKey}.png"
+                                imageKey.isNotBlank() -> "images/$userId/${imageKey}.png"
+                                else -> ""
                             }
-
-                            val storageReference = storage.reference.child(storageRefPath)
                             Log.d(
                                 "REFRESH_FETCH",
-                                "storagePath=$storageRefPath imageKey=$imageKey imagePath=${imagePath ?: ""} userId=$userId url=$url"
+                                "storagePath=$storageRefPath imageKey=$imageKey imagePath=${imagePath ?: ""} userId=$userId url=$url storedImgUri=$storedImgUri"
                             )
 
-                            val imgUri = try {
-                                val uri = storageReference.downloadUrl.await().toString()
-                                Log.d("REFRESH_FETCH", "downloadSuccess=true storagePath=$storageRefPath url=$url imageKey=$imageKey imgUri=$uri")
+                            val imgUri = if (storageRefPath.isNotBlank()) {
                                 try {
-                                    urlDao.insertImgUri(uri, url)
-                                } catch (e: Exception) {
-                                    Log.e("Room 이미지 URI 저장 실패", "url: $url, 오류: ${e.message}")
+                                    val uri = storage.reference.child(storageRefPath).downloadUrl.await().toString()
+                                    Log.d("REFRESH_FETCH", "downloadSuccess=true storagePath=$storageRefPath url=$url imageKey=$imageKey imgUri=$uri")
+                                    try {
+                                        urlDao.insertImgUri(uri, url)
+                                    } catch (e: Exception) {
+                                        Log.e("Room 이미지 URI 저장 실패", "url: $url, 오류: ${e.message}")
+                                    }
+                                    uri
+                                } catch (exception: Exception) {
+                                    Log.e(
+                                        "REFRESH_FETCH",
+                                        "downloadSuccess=false storagePath=$storageRefPath imageKey=$imageKey url=$url errorCode=${(exception as? com.google.firebase.storage.StorageException)?.errorCode ?: "UNKNOWN"} errorMessage=${exception.message}"
+                                    )
+                                    if (storedImgUri.startsWith("http://") || storedImgUri.startsWith("https://")) {
+                                        storedImgUri
+                                    } else {
+                                        ""
+                                    }
                                 }
-                                uri
-                            } catch (exception: Exception) {
-                                Log.e(
-                                    "REFRESH_FETCH",
-                                    "downloadSuccess=false storagePath=$storageRefPath imageKey=$imageKey url=$url errorCode=${(exception as? com.google.firebase.storage.StorageException)?.errorCode ?: "UNKNOWN"} errorMessage=${exception.message}"
-                                )
+                            } else if (storedImgUri.startsWith("http://") || storedImgUri.startsWith("https://")) {
+                                storedImgUri
+                            } else {
                                 ""
                             }
 
@@ -326,6 +338,21 @@ class UserRepository(context: Context) {
         // [STEP 4] 모든 작업(DB + Storage)이 끝날 때까지 대기
         dbTask.await()
         storageTasks.awaitAll()
+    }
+
+    private fun extractStoragePathFromFirebaseUrl(rawUrl: String): String? {
+        if (rawUrl.isBlank()) return null
+        return try {
+            val decodedUrl = java.net.URL(rawUrl)
+            val path = decodedUrl.path
+            val startIndex = path.indexOf("/o/")
+            if (startIndex < 0) return null
+            val encoded = path.substring(startIndex + 3).substringBefore("?")
+            java.net.URLDecoder.decode(encoded, Charsets.UTF_8.name())
+        } catch (e: Exception) {
+            Log.w("UserRepository", "Failed to extract storage path from Firebase URL: ${e.message}")
+            null
+        }
     }
 
 }

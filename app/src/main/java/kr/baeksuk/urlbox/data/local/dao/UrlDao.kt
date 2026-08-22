@@ -133,6 +133,9 @@ interface UrlDao{
     @Query("SELECT * FROM tag_backup_history WHERE tag = :tag LIMIT 1")
     suspend fun getTagBackupByTitle(tag: String): TagBackupEntity?
 
+    @Query("UPDATE tag_backup_history SET firebaseTagId = :firebaseTagId WHERE tag = :tag")
+    suspend fun updateTagFirebaseId(tag: String, firebaseTagId: String)
+
     @Query("SELECT * FROM tag_backup_history")
     suspend fun getAllTagBackups(): List<TagBackupEntity>
 
