@@ -98,7 +98,7 @@ class TagActivity : BaseActivity(), OnTagLongTouchListener,DeleteTagDialog.Delet
 
     /** 다이얼로그에서 삭제하기 버튼 클릭 이벤트 **/
     override suspend fun onDeleteTag(tag : String) {
-        Toast.makeText(this,tag,Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "태그가 삭제되었습니다.", Toast.LENGTH_SHORT).show()
         tViewModel.deleteTag(tag)
     }
 

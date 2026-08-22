@@ -15,7 +15,9 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.tasks.await
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlBox.databinding.ActivityMainBinding
 import kr.baeksuk.urlbox.util.base.BaseActivity
@@ -583,16 +585,59 @@ class MainActivity : BaseActivity() {
         if (shareId.isNullOrBlank()) return false
 
         val prefs = getSharedPreferences("pending_share_store", MODE_PRIVATE)
-        val payload = prefs.getString("share_$shareId", null) ?: return false
-        val urls = parseSharedUrlBundle(payload)
-        if (urls.isEmpty()) return false
+        val localPayload = prefs.getString("share_$shareId", null)
+        if (!localPayload.isNullOrBlank()) {
+            val urls = parseSharedUrlBundle(localPayload)
+            if (urls.isEmpty()) {
+                Toast.makeText(this, "기간이 만료된 링크입니다.", Toast.LENGTH_SHORT).show()
+                return false
+            }
+            // Preserve the pending share payload so the user can open the same shared card repeatedly.
+            // Do NOT remove the stored payload here to allow repeated "앱에서 열기" behavior.
+            // Duplicate saves are guarded by Firebase/Room checks in UrlRepository.
+            Log.d("DeepLink", "Preserving pending shared payload for id=$shareId; urlsCount=${urls.size}")
+            saveAndShowReceivedUrls(urls, shareId)
+            return true
+        }
 
-        // Preserve the pending share payload so the user can open the same shared card repeatedly.
-        // Do NOT remove the stored payload here to allow repeated "앱에서 열기" behavior.
-        // Duplicate saves are guarded by Firebase/Room checks in UrlRepository.
-        Log.d("DeepLink", "Preserving pending shared payload for id=$shareId; urlsCount=${urls.size}")
-        saveAndShowReceivedUrls(urls)
+        lifecycleScope.launchWhenStarted {
+            val remotePayload = fetchPendingShareBundleFromFirebase(shareId)
+            if (remotePayload.isNullOrBlank()) {
+                Log.e("DeepLink", "❌ No pending share payload found for id=$shareId")
+                Toast.makeText(this@MainActivity, "기간이 만료된 링크입니다.", Toast.LENGTH_SHORT).show()
+                return@launchWhenStarted
+            }
+            prefs.edit().putString("share_$shareId", remotePayload).apply()
+            val urls = parseSharedUrlBundle(remotePayload)
+            if (urls.isEmpty()) {
+                Log.e("DeepLink", "❌ Pending share payload is empty/invalid for id=$shareId")
+                Toast.makeText(this@MainActivity, "기간이 만료된 링크입니다.", Toast.LENGTH_SHORT).show()
+                return@launchWhenStarted
+            }
+            Log.d("DeepLink", "Loaded pending shared payload from Firebase for id=$shareId; urlsCount=${urls.size}")
+            saveAndShowReceivedUrls(urls, shareId)
+        }
         return true
+    }
+
+    private suspend fun fetchPendingShareBundleFromFirebase(shareId: String): String? {
+        return try {
+            val snapshot = FirebaseDatabase.getInstance().reference
+                .child("pending_shares")
+                .child(shareId)
+                .get()
+                .await()
+            val now = System.currentTimeMillis()
+            val expiresAt = snapshot.child("expiresAt").getValue(Long::class.java)
+            if (expiresAt != null && now > expiresAt) {
+                Log.e("DeepLink", "❌ Pending share expired for id=$shareId")
+                return null
+            }
+            snapshot.child("payload").getValue(String::class.java)?.takeIf { it.isNotBlank() }
+        } catch (e: Exception) {
+            Log.e("DeepLink", "❌ Failed to fetch pending share from Firebase: ${e.message}", e)
+            null
+        }
     }
 
     private fun parseSharedUrlBundle(payload: String): List<Url> {
@@ -755,7 +800,7 @@ class MainActivity : BaseActivity() {
         )
     }
 
-    private fun saveAndShowReceivedUrls(urls: List<Url>) {
+    private fun saveAndShowReceivedUrls(urls: List<Url>, shareId: String? = null) {
         lifecycleScope.launchWhenStarted {
             try {
                 val session = sessionManager.userSession.first()
@@ -784,11 +829,51 @@ class MainActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
+                if (!shareId.isNullOrBlank()) {
+                    markPendingShareConsumed(shareId, userId)
+                }
+
                 Log.d("SaveUrls", "✅ Saved successfully and navigated to URL screen")
 
             } catch (e: Exception) {
                 Log.e("SaveUrls", "❌ Failed to save URLs", e)
             }
+        }
+    }
+
+    private suspend fun markPendingShareConsumed(shareId: String, receiverUid: String?) {
+        runCatching {
+            val consumeRef = FirebaseDatabase.getInstance().reference
+                .child("pending_shares")
+                .child(shareId)
+            val now = System.currentTimeMillis()
+            val updateMap = mutableMapOf<String, Any>(
+                "consumed" to true,
+                "lastConsumedAt" to now
+            )
+            if (!receiverUid.isNullOrBlank()) {
+                updateMap["consumedBy/$receiverUid"] = now
+            }
+            consumeRef.updateChildren(updateMap).await()
+            consumeRef.child("consumeCount").runTransaction(object : com.google.firebase.database.Transaction.Handler {
+                override fun doTransaction(currentData: com.google.firebase.database.MutableData): com.google.firebase.database.Transaction.Result {
+                    val current = (currentData.getValue(Int::class.java) ?: 0) + 1
+                    currentData.value = current
+                    return com.google.firebase.database.Transaction.success(currentData)
+                }
+
+                override fun onComplete(
+                    error: com.google.firebase.database.DatabaseError?,
+                    committed: Boolean,
+                    currentData: com.google.firebase.database.DataSnapshot?
+                ) {
+                    if (error != null) {
+                        Log.e("DeepLink", "Failed to increment consumeCount: ${error.message}")
+                    }
+                }
+            })
+        }.onFailure {
+            Log.e("DeepLink", "Failed to mark pending share consumed: ${it.message}", it)
         }
     }
 

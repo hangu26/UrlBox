@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.google.firebase.database.FirebaseDatabase
 import com.kakao.sdk.share.ShareClient
 import com.kakao.sdk.template.model.Button
 import com.kakao.sdk.template.model.Content
@@ -23,6 +24,7 @@ import com.kakao.sdk.template.model.Link
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import kr.baeksuk.urlBox.R
 import kr.baeksuk.urlbox.model.Url
 import kr.baeksuk.urlbox.util.util.UserSessionManager
@@ -31,6 +33,10 @@ class UrlShareUseCase(
     private val fragment: Fragment,
     private val sessionManager: UserSessionManager
 ) {
+    companion object {
+        private const val SHARE_TTL_MILLIS = 48 * 60 * 60 * 1000L // 48 hours
+    }
+
     fun shareSelectedUrls(
         urls: List<Url>,
         anchorView: View? = null,
@@ -199,11 +205,30 @@ class UrlShareUseCase(
         fragment.startActivity(chooserIntent)
     }
 
-    private fun savePendingShareBundle(urls: List<Url>): String {
+    private suspend fun savePendingShareBundle(urls: List<Url>): String {
         val shareId = java.util.UUID.randomUUID().toString()
         val payload = createShareData(urls)
         val prefs = fragment.requireContext().getSharedPreferences("pending_share_store", Context.MODE_PRIVATE)
         prefs.edit().putString("share_$shareId", payload).apply()
+        try {
+            val createdAt = System.currentTimeMillis()
+            val senderUid = sessionManager.userSession.first().userId?.takeIf { it.isNotBlank() } ?: ""
+            val remotePayload = mapOf(
+                "payload" to payload,
+                "senderUid" to senderUid,
+                "createdAt" to createdAt,
+                "expiresAt" to (createdAt + SHARE_TTL_MILLIS),
+                "consumed" to false,
+                "consumeCount" to 0
+            )
+            FirebaseDatabase.getInstance().reference
+                .child("pending_shares")
+                .child(shareId)
+                .setValue(remotePayload)
+                .await()
+        } catch (e: Exception) {
+            Log.e("UrlShareUseCase", "Failed to save pending share bundle to Firebase: ${e.message}", e)
+        }
         return shareId
     }
 
